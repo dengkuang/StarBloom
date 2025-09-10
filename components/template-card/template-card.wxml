@@ -1,0 +1,15 @@
+<!-- components/template-card/template-card.wxml -->
+<!-- 模板卡片组件结构 -->
+<view class="template-card">
+  <view class="template-info">
+    <text class="template-name">{{template.name}}</text>
+    <text class="template-description">{{template.description}}</text>
+    <text class="template-type">{{type === 'task' ? '任务模板' : '奖励模板'}}</text>
+  </view>
+  
+  <view class="template-actions">
+    <button class="action-btn apply-btn" bindtap="onApply">应用</button>
+    <button class="action-btn preview-btn" bindtap="onPreview">预览</button>
+    <button class="action-btn edit-btn" bindtap="onEdit">编辑</button>
+  </view>
+</view>

@@ -1,0 +1,4 @@
+/* 积分中心页面样式 */
+.container {
+  padding: 20rpx;
+}

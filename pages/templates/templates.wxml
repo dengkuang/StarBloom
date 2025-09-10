@@ -1,0 +1,4 @@
+<!-- 预设模板页面结构 -->
+<view class="container">
+  <text>预设模板</text>
+</view>

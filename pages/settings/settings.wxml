@@ -1,0 +1,4 @@
+<!-- 设置页面结构 -->
+<view class="container">
+  <text>设置</text>
+</view>

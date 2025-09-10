@@ -1,0 +1,62 @@
+/* components/reward-item/reward-item.wxss */
+/* 奖励项组件样式 */
+.reward-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  background-color: white;
+  border-radius: 10rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.1);
+  margin: 20rpx;
+}
+
+.reward-icon {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 10rpx;
+  margin-right: 30rpx;
+}
+
+.reward-info {
+  flex: 1;
+}
+
+.reward-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.reward-description, .reward-points {
+  font-size: 28rpx;
+  color: #666;
+  display: block;
+}
+
+.reward-actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.action-btn {
+  margin: 5rpx 0;
+  padding: 10rpx 20rpx;
+  font-size: 24rpx;
+  border-radius: 5rpx;
+}
+
+.exchange-btn {
+  background-color: #2196F3;
+  color: white;
+}
+
+.edit-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #F44336;
+  color: white;
+}

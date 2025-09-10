@@ -1,0 +1,51 @@
+/* pages/index/index.wxss */
+/* 首页样式 */
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+
+.user-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+}
+
+.welcome-text {
+  font-size: 36rpx;
+  font-weight: bold;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+}
+
+.children-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.add-child-button {
+  background-color: #4CAF50;
+  color: white;
+  text-align: center;
+  padding: 20rpx;
+  border-radius: 10rpx;
+  margin-top: 20rpx;
+}
+
+.add-text {
+  font-size: 32rpx;
+}

@@ -1,0 +1,26 @@
+<!-- pages/index/index.wxml -->
+<!-- 首页页面结构 -->
+<view class="container">
+  <view class="header">
+    <image class="user-avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+    <text class="welcome-text">欢迎, {{userInfo.nickName}}!</text>
+  </view>
+
+  <view class="section-title">
+    <text>我的孩子</text>
+  </view>
+
+  <view class="children-list">
+    <child-card 
+      wx:for="{{childrenList}}" 
+      wx:key="id" 
+      child="{{item}}" 
+      showActions="{{false}}"
+      bind:tap="onChildTap">
+    </child-card>
+  </view>
+
+  <view class="add-child-button" bindtap="onAddChild">
+    <text class="add-text">添加孩子</text>
+  </view>
+</view>

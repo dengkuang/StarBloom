@@ -1,0 +1,4 @@
+/* 儿童视图页面样式 */
+.container {
+  padding: 20rpx;
+}

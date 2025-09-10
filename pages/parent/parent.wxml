@@ -1,0 +1,4 @@
+<!-- 家长管理页面结构 -->
+<view class="container">
+  <text>家长管理</text>
+</view>

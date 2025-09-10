@@ -1,0 +1,4 @@
+<!-- 积分中心页面结构 -->
+<view class="container">
+  <text>积分中心</text>
+</view>

@@ -1,0 +1,50 @@
+<!-- pages/template-management/template-management.wxml -->
+<!-- 模板管理页面结构 -->
+<view class="container">
+  <view class="header">
+    <text class="page-title">模板管理</text>
+  </view>
+
+  <view class="tab-bar">
+    <view class="tab {{activeTab === 'task' ? 'active' : ''}}" data-tab="task" bindtap="onTabChange">
+      <text>任务模板</text>
+    </view>
+    <view class="tab {{activeTab === 'reward' ? 'active' : ''}}" data-tab="reward" bindtap="onTabChange">
+      <text>奖励模板</text>
+    </view>
+  </view>
+
+  <view class="template-list">
+    <!-- 任务模板列表 -->
+    <view wx:if="{{activeTab === 'task'}}">
+      <template-card 
+        wx:for="{{taskTemplates}}" 
+        wx:key="id" 
+        template="{{item}}" 
+        type="task"
+        bind:apply="onApplyTemplate"
+        bind:preview="onPreviewTemplate"
+        bind:edit="onEditTemplate"
+        bind:delete="onDeleteTemplate">
+      </template-card>
+    </view>
+
+    <!-- 奖励模板列表 -->
+    <view wx:if="{{activeTab === 'reward'}}">
+      <template-card 
+        wx:for="{{rewardTemplates}}" 
+        wx:key="id" 
+        template="{{item}}" 
+        type="reward"
+        bind:apply="onApplyTemplate"
+        bind:preview="onPreviewTemplate"
+        bind:edit="onEditTemplate"
+        bind:delete="onDeleteTemplate">
+      </template-card>
+    </view>
+  </view>
+
+  <view class="add-button" bindtap="onAddTemplate">
+    <text class="add-text">+</text>
+  </view>
+</view>

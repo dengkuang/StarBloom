@@ -1,0 +1,63 @@
+/* pages/template-management/template-management.wxss */
+/* 模板管理页面样式 */
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.page-title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+.tab-bar {
+  display: flex;
+  border-bottom: 2rpx solid #eee;
+  margin-bottom: 30rpx;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx;
+  font-size: 32rpx;
+}
+
+.tab.active {
+  color: #4CAF50;
+  border-bottom: 4rpx solid #4CAF50;
+}
+
+.template-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.add-button {
+  position: fixed;
+  right: 50rpx;
+  bottom: 50rpx;
+  width: 100rpx;
+  height: 100rpx;
+  background-color: #4CAF50;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.2);
+}
+
+.add-text {
+  font-size: 60rpx;
+  color: white;
+  font-weight: bold;
+}

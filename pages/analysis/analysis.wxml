@@ -1,0 +1,4 @@
+<!-- 数据分析页面结构 -->
+<view class="container">
+  <text>数据分析</text>
+</view>

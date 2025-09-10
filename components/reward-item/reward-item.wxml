@@ -1,0 +1,16 @@
+<!-- components/reward-item/reward-item.wxml -->
+<!-- 奖励项组件结构 -->
+<view class="reward-item">
+  <image class="reward-icon" src="{{reward.icon || '/images/default-reward.png'}}" mode="aspectFill"></image>
+  <view class="reward-info">
+    <text class="reward-name">{{reward.name}}</text>
+    <text class="reward-description">{{reward.description}}</text>
+    <text class="reward-points">{{reward.points}} 积分</text>
+  </view>
+  
+  <view wx:if="{{showActions}}" class="reward-actions">
+    <button class="action-btn exchange-btn" bindtap="onExchange">兑换</button>
+    <button class="action-btn edit-btn" bindtap="onEdit">编辑</button>
+    <button class="action-btn delete-btn" bindtap="onDelete">删除</button>
+  </view>
+</view>

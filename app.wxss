@@ -1,0 +1,24 @@
+/* 全局样式文件 */
+/* 遵循用户偏好的界面颜色偏好：使用绿色作为界面主题色 */
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  box-sizing: border-box;
+}
+
+/* 绿色主题色 */
+.primary-color {
+  color: #4CAF50;
+}
+
+.background-green {
+  background-color: #4CAF50;
+}
+
+.border-green {
+  border: 1px solid #4CAF50;
+}

@@ -1,0 +1,15 @@
+<!-- components/child-card/child-card.wxml -->
+<!-- 儿童卡片组件结构 -->
+<view class="child-card" bindtap="onTap">
+  <image class="child-avatar" src="{{child.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+  <view class="child-info">
+    <text class="child-name">{{child.name}}</text>
+    <text class="child-age">{{child.age}}岁</text>
+    <text class="child-points">积分: {{child.totalPoints}}</text>
+  </view>
+  
+  <view wx:if="{{showActions}}" class="child-actions">
+    <button class="action-btn edit-btn" bindtap="onEdit">编辑</button>
+    <button class="action-btn delete-btn" bindtap="onDelete">删除</button>
+  </view>
+</view>

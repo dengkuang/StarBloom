@@ -1,0 +1,55 @@
+/* components/task-item/task-item.wxss */
+/* 任务项组件样式 */
+.task-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  background-color: white;
+  border-radius: 10rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.1);
+  margin: 20rpx;
+}
+
+.task-info {
+  flex: 1;
+}
+
+.task-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.task-description, .task-points, .task-type {
+  font-size: 28rpx;
+  color: #666;
+  display: block;
+}
+
+.task-actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.action-btn {
+  margin: 5rpx 0;
+  padding: 10rpx 20rpx;
+  font-size: 24rpx;
+  border-radius: 5rpx;
+}
+
+.complete-btn {
+  background-color: #2196F3;
+  color: white;
+}
+
+.edit-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #F44336;
+  color: white;
+}

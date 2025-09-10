@@ -1,0 +1,4 @@
+<!-- 儿童视图页面结构 -->
+<view class="container">
+  <text>儿童视图</text>
+</view>

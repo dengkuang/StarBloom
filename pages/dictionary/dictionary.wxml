@@ -1,0 +1,4 @@
+<!-- 字典配置页面结构 -->
+<view class="container">
+  <text>字典配置</text>
+</view>

@@ -1,0 +1,55 @@
+/* components/template-card/template-card.wxss */
+/* 模板卡片组件样式 */
+.template-card {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  background-color: white;
+  border-radius: 10rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.1);
+  margin: 20rpx;
+}
+
+.template-info {
+  flex: 1;
+}
+
+.template-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.template-description, .template-type {
+  font-size: 28rpx;
+  color: #666;
+  display: block;
+}
+
+.template-actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.action-btn {
+  margin: 5rpx 0;
+  padding: 10rpx 20rpx;
+  font-size: 24rpx;
+  border-radius: 5rpx;
+}
+
+.apply-btn {
+  background-color: #2196F3;
+  color: white;
+}
+
+.preview-btn {
+  background-color: #FF9800;
+  color: white;
+}
+
+.edit-btn {
+  background-color: #4CAF50;
+  color: white;
+}
