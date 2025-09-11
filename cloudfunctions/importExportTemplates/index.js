@@ -19,11 +19,11 @@ exports.main = async (event, context) => {
       case 'list':
         return await getImportExportRecords(wxContext.OPENID, data)
       default:
-        return { code: -1, message: '未知操作' }
+        return { code: -1, msg: '未知操作' }
     }
   } catch (error) {
     console.error('importExportTemplates error:', error)
-    return { code: -1, message: '系统错误，请稍后重试' }
+    return { code: -1, msg: '系统错误，请稍后重试' }
   }
 }
 
@@ -35,7 +35,7 @@ async function importTemplates(parentId, data) {
     
     // 验证数据格式
     if (!templateData || !Array.isArray(templateData)) {
-      return { code: -1, message: '模板数据格式错误' }
+      return { code: -1, msg: '模板数据格式错误' }
     }
     
     // 导入模板数据
@@ -86,7 +86,7 @@ async function importTemplates(parentId, data) {
     
     return { 
       code: 0, 
-      message: '导入完成', 
+      msg: '导入完成', 
       data: { 
         successCount, 
         failedCount, 
@@ -95,7 +95,7 @@ async function importTemplates(parentId, data) {
     }
   } catch (error) {
     console.error('importTemplates error:', error)
-    return { code: -1, message: '导入模板失败' }
+    return { code: -1, msg: '导入模板失败' }
   }
 }
 
@@ -144,7 +144,7 @@ async function exportTemplates(parentId, data) {
     
     return { 
       code: 0, 
-      message: '导出成功', 
+      msg: '导出成功', 
       data: { 
         templateData: result.data,
         exportRecord 
@@ -169,7 +169,7 @@ async function exportTemplates(parentId, data) {
       data: exportRecord
     })
     
-    return { code: -1, message: '导出模板失败' }
+    return { code: -1, msg: '导出模板失败' }
   }
 }
 
@@ -199,9 +199,9 @@ async function getImportExportRecords(parentId, filters) {
     
     const result = await query.get()
     
-    return { code: 0, message: 'success', data: result.data }
+    return { code: 0, msg: 'success', data: result.data }
   } catch (error) {
     console.error('getImportExportRecords error:', error)
-    return { code: -1, message: '获取导入导出记录失败' }
+    return { code: -1, msg: '获取导入导出记录失败' }
   }
 }

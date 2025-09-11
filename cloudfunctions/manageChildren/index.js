@@ -21,11 +21,11 @@ exports.main = async (event, context) => {
       case 'delete':
         return await deleteChild(wxContext.OPENID, data)
       default:
-        return { code: -1, message: '未知操作' }
+        return { code: -1, msg: '未知操作' }
     }
   } catch (error) {
     console.error('manageChildren error:', error)
-    return { code: -1, message: '系统错误，请稍后重试' }
+    return { code: -1, msg: '系统错误，请稍后重试' }
   }
 }
 
@@ -35,10 +35,10 @@ async function getChildrenList(parentId) {
       parentId: parentId
     }).get()
     
-    return { code: 0, message: 'success', data: result.data }
+    return { code: 0, msg: 'success', data: result.data }
   } catch (error) {
     console.error('getChildrenList error:', error)
-    return { code: -1, message: '获取儿童列表失败' }
+    return { code: -1, msg: '获取儿童列表失败' }
   }
 }
 
@@ -61,10 +61,10 @@ async function createChild(parentId, data) {
     })
     
     childData._id = result._id
-    return { code: 0, message: '创建成功', data: childData }
+    return { code: 0, msg: '创建成功', data: childData }
   } catch (error) {
     console.error('createChild error:', error)
-    return { code: -1, message: '创建儿童信息失败' }
+    return { code: -1, msg: '创建儿童信息失败' }
   }
 }
 
@@ -77,7 +77,7 @@ async function updateChild(parentId, data) {
     }).get()
     
     if (childResult.data.length === 0) {
-      return { code: -1, message: '权限不足或儿童不存在' }
+      return { code: -1, msg: '权限不足或儿童不存在' }
     }
     
     // 更新儿童信息
@@ -92,10 +92,10 @@ async function updateChild(parentId, data) {
       data: updateData
     })
     
-    return { code: 0, message: '更新成功' }
+    return { code: 0, msg: '更新成功' }
   } catch (error) {
     console.error('updateChild error:', error)
-    return { code: -1, message: '更新儿童信息失败' }
+    return { code: -1, msg: '更新儿童信息失败' }
   }
 }
 
@@ -108,15 +108,15 @@ async function deleteChild(parentId, data) {
     }).get()
     
     if (childResult.data.length === 0) {
-      return { code: -1, message: '权限不足或儿童不存在' }
+      return { code: -1, msg: '权限不足或儿童不存在' }
     }
     
     // 删除儿童信息
     await db.collection('children').doc(data._id).remove()
     
-    return { code: 0, message: '删除成功' }
+    return { code: 0, msg: '删除成功' }
   } catch (error) {
     console.error('deleteChild error:', error)
-    return { code: -1, message: '删除儿童信息失败' }
+    return { code: -1, msg: '删除儿童信息失败' }
   }
 }

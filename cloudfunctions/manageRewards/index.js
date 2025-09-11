@@ -24,11 +24,11 @@ exports.main = async (event, context) => {
       case 'exchange':
         return await exchangeReward(wxContext.OPENID, data)
       default:
-        return { code: -1, message: '未知操作' }
+        return { code: -1, msg: '未知操作' }
     }
   } catch (error) {
     console.error('manageRewards error:', error)
-    return { code: -1, message: '系统错误，请稍后重试' }
+    return { code: -1, msg: '系统错误，请稍后重试' }
   }
 }
 
@@ -47,10 +47,10 @@ async function getRewards(parentId, filters) {
     
     const result = await query.get()
     
-    return { code: 0, message: 'success', data: result.data }
+    return { code: 0, msg: 'success', data: result.data }
   } catch (error) {
     console.error('getRewards error:', error)
-    return { code: -1, message: '获取奖励列表失败' }
+    return { code: -1, msg: '获取奖励列表失败' }
   }
 }
 
@@ -73,10 +73,10 @@ async function createReward(parentId, data) {
     })
     
     rewardData._id = result._id
-    return { code: 0, message: '创建成功', data: rewardData }
+    return { code: 0, msg: '创建成功', data: rewardData }
   } catch (error) {
     console.error('createReward error:', error)
-    return { code: -1, message: '创建奖励失败' }
+    return { code: -1, msg: '创建奖励失败' }
   }
 }
 
@@ -89,7 +89,7 @@ async function updateReward(parentId, data) {
     }).get()
     
     if (rewardResult.data.length === 0) {
-      return { code: -1, message: '权限不足或奖励不存在' }
+      return { code: -1, msg: '权限不足或奖励不存在' }
     }
     
     // 更新奖励信息
@@ -107,10 +107,10 @@ async function updateReward(parentId, data) {
       data: updateData
     })
     
-    return { code: 0, message: '更新成功' }
+    return { code: 0, msg: '更新成功' }
   } catch (error) {
     console.error('updateReward error:', error)
-    return { code: -1, message: '更新奖励失败' }
+    return { code: -1, msg: '更新奖励失败' }
   }
 }
 
@@ -123,16 +123,16 @@ async function deleteReward(parentId, data) {
     }).get()
     
     if (rewardResult.data.length === 0) {
-      return { code: -1, message: '权限不足或奖励不存在' }
+      return { code: -1, msg: '权限不足或奖励不存在' }
     }
     
     // 删除奖励
     await db.collection('rewards').doc(data._id).remove()
     
-    return { code: 0, message: '删除成功' }
+    return { code: 0, msg: '删除成功' }
   } catch (error) {
     console.error('deleteReward error:', error)
-    return { code: -1, message: '删除奖励失败' }
+    return { code: -1, msg: '删除奖励失败' }
   }
 }
 
@@ -147,7 +147,7 @@ async function exchangeReward(parentId, data) {
     }).get()
     
     if (rewardResult.data.length === 0) {
-      return { code: -1, message: '奖励不存在或未启用' }
+      return { code: -1, msg: '奖励不存在或未启用' }
     }
     
     const reward = rewardResult.data[0]
@@ -159,19 +159,19 @@ async function exchangeReward(parentId, data) {
     }).get()
     
     if (childResult.data.length === 0) {
-      return { code: -1, message: '儿童不存在或权限不足' }
+      return { code: -1, msg: '儿童不存在或权限不足' }
     }
     
     const child = childResult.data[0]
     
     // 检查儿童积分是否足够
     if (child.totalPoints < reward.pointsRequired) {
-      return { code: -1, message: '积分不足' }
+      return { code: -1, msg: '积分不足' }
     }
     
     // 检查奖励库存
     if (reward.stock <= 0) {
-      return { code: -1, message: '奖励库存不足' }
+      return { code: -1, msg: '奖励库存不足' }
     }
     
     // 创建兑换记录
@@ -223,9 +223,9 @@ async function exchangeReward(parentId, data) {
       data: pointRecord
     })
     
-    return { code: 0, message: '兑换成功', data: { exchangeRecord } }
+    return { code: 0, msg: '兑换成功', data: { exchangeRecord } }
   } catch (error) {
     console.error('exchangeReward error:', error)
-    return { code: -1, message: '兑换奖励失败' }
+    return { code: -1, msg: '兑换奖励失败' }
   }
 }

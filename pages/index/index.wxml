@@ -1,26 +1,76 @@
 <!-- pages/index/index.wxml -->
-<!-- 首页页面结构 -->
+<!-- 新版首页页面结构 -->
 <view class="container">
+  <!-- 顶部用户信息 -->
   <view class="header">
     <image class="user-avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
-    <text class="welcome-text">欢迎, {{userInfo.nickName}}!</text>
+    <view class="user-info">
+      <text class="welcome-text">欢迎回来, {{userInfo.nickName}}!</text>
+      <text class="date-text">{{currentDate}}</text>
+    </view>
   </view>
 
-  <view class="section-title">
-    <text>我的孩子</text>
+  <!-- 统计卡片区域 -->
+  <view class="stats-grid">
+    <view class="stat-card">
+      <text class="stat-value">{{stats.totalPoints || 0}}</text>
+      <text class="stat-label">总积分</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">{{stats.completedTasks || 0}}</text>
+      <text class="stat-label">完成任务</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">{{stats.activeChildren || 0}}</text>
+      <text class="stat-label">活跃孩子</text>
+    </view>
   </view>
 
-  <view class="children-list">
-    <child-card 
-      wx:for="{{childrenList}}" 
-      wx:key="id" 
-      child="{{item}}" 
-      showActions="{{false}}"
-      bind:tap="onChildTap">
-    </child-card>
+  <!-- 快捷功能入口 -->
+  <view class="quick-actions">
+    <view class="section-title">
+      <text>快捷操作</text>
+    </view>
+    <view class="action-grid">
+      <view class="action-item" bindtap="navigateToTasks">
+        <view class="action-icon">📋</view>
+        <text class="action-text">任务管理</text>
+      </view>
+      <view class="action-item" bindtap="navigateToRewards">
+        <view class="action-icon">🎁</view>
+        <text class="action-text">奖励商店</text>
+      </view>
+      <view class="action-item" bindtap="navigateToChildren">
+        <view class="action-icon">👶</view>
+        <text class="action-text">孩子管理</text>
+      </view>
+      <view class="action-item" bindtap="navigateToAnalysis">
+        <view class="action-icon">📊</view>
+        <text class="action-text">数据分析</text>
+      </view>
+    </view>
   </view>
 
-  <view class="add-child-button" bindtap="onAddChild">
-    <text class="add-text">添加孩子</text>
+  <!-- 我的孩子区域 -->
+  <view class="children-section">
+    <view class="section-header">
+      <text class="section-title">我的孩子</text>
+      <text class="section-more" bindtap="navigateToChildren">查看全部</text>
+    </view>
+    
+    <view class="children-list">
+      <child-card 
+        wx:for="{{childrenList.slice(0, 3)}}" 
+        wx:key="id" 
+        child="{{item}}" 
+        showActions="{{false}}"
+        bind:tap="onChildTap">
+      </child-card>
+    </view>
+
+    <view class="add-child-button" bindtap="onAddChild" wx:if="{{childrenList.length === 0}}">
+      <text class="add-icon">+</text>
+      <text class="add-text">添加第一个孩子</text>
+    </view>
   </view>
 </view>

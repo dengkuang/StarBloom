@@ -169,6 +169,9 @@ exports.main = async (event, context) => {
 
 async function initializeDatabase() {
   try {
+    // 首先尝试创建集合（如果不存在）
+    await createCollectionsIfNotExist();
+    
     // 初始化字典数据
     const dictionaryCollection = db.collection('dictionaries');
     let dictCount = 0;
@@ -234,7 +237,61 @@ async function initializeDatabase() {
     };
   } catch (error) {
     console.error('initializeDatabase error:', error);
-    return { code: -1, message: '数据库初始化失败', error: error.message };
+    // 确保错误信息能够正确传递
+    return { 
+      code: -1, 
+      message: '数据库初始化失败: ' + error.message, 
+      error: error.message 
+    };
+  }
+}
+
+// 创建集合（如果不存在）
+async function createCollectionsIfNotExist() {
+  const collections = [
+    'users',
+    'children',
+    'tasks',
+    'task_completion_records',
+    'rewards',
+    'exchange_records',
+    'point_records',
+    'task_templates',
+    'reward_templates',
+    'dictionaries',
+    'template_usage_records',
+    'template_import_export_records'
+  ];
+  
+  for (const collectionName of collections) {
+    try {
+      // 尝试获取集合信息，如果不存在会抛出错误
+      await db.collection(collectionName).get();
+      console.log(`集合 ${collectionName} 已存在`);
+    } catch (error) {
+      if (error.errCode === 'DATABASE_COLLECTION_NOT_EXIST') {
+        console.log(`集合 ${collectionName} 不存在，将自动创建`);
+        // 通过添加一条记录来隐式创建集合
+        await db.collection(collectionName).add({
+          data: {
+            _createTime: new Date(),
+            _updateTime: new Date(),
+            isTemp: true
+          }
+        });
+        // 删除临时记录
+        const result = await db.collection(collectionName).where({
+          isTemp: true
+        }).get();
+        
+        if (result.data.length > 0) {
+          await db.collection(collectionName).doc(result.data[0]._id).remove();
+        }
+        console.log(`集合 ${collectionName} 创建成功`);
+      } else {
+        throw error;
+      }
+    }
   }
 }
 

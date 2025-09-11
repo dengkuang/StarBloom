@@ -17,11 +17,11 @@ exports.main = async (event, context) => {
       case 'update':
         return await updateUserInfo(wxContext.OPENID, data)
       default:
-        return { code: -1, message: '未知操作' }
+        return { code: -1, msg: '未知操作' }
     }
   } catch (error) {
     console.error('getUserInfo error:', error)
-    return { code: -1, message: '系统错误，请稍后重试' }
+    return { code: -1, msg: '系统错误，请稍后重试' }
   }
 }
 
@@ -32,7 +32,7 @@ async function getUserInfo(openid) {
     }).get()
     
     if (result.data.length > 0) {
-      return { code: 0, message: 'success', data: result.data[0] }
+      return { code: 0, msg: 'success', data: result.data[0] }
     } else {
       // 如果用户不存在，创建新用户
       const newUser = {
@@ -50,11 +50,11 @@ async function getUserInfo(openid) {
       })
       
       newUser._id = addResult._id
-      return { code: 0, message: 'success', data: newUser }
+      return { code: 0, msg: 'success', data: newUser }
     }
   } catch (error) {
     console.error('getUserInfo error:', error)
-    return { code: -1, message: '获取用户信息失败' }
+    return { code: -1, msg: '获取用户信息失败' }
   }
 }
 
@@ -66,7 +66,7 @@ async function updateUserInfo(openid, data) {
     }).get()
     
     if (userResult.data.length === 0) {
-      return { code: -1, message: '用户不存在' }
+      return { code: -1, msg: '用户不存在' }
     }
     
     // 更新用户信息
@@ -82,9 +82,9 @@ async function updateUserInfo(openid, data) {
       data: updateData
     })
     
-    return { code: 0, message: '更新成功' }
+    return { code: 0, msg: '更新成功' }
   } catch (error) {
     console.error('updateUserInfo error:', error)
-    return { code: -1, message: '更新用户信息失败' }
+    return { code: -1, msg: '更新用户信息失败' }
   }
 }

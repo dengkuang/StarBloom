@@ -18,6 +18,38 @@
     "navigationBarTitleText": "StarBloom",
     "navigationBarTextStyle": "white"
   },
+  "tabBar": {
+    "color": "#666666",
+    "selectedColor": "#4CAF50",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home-active.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/child/child",
+        "iconPath": "images/child.png",
+        "selectedIconPath": "images/child-active.png",
+        "text": "孩子"
+      },
+      {
+        "pagePath": "pages/parent/parent",
+        "iconPath": "images/parent.png",
+        "selectedIconPath": "images/parent-active.png",
+        "text": "家长"
+      },
+      {
+        "pagePath": "pages/analysis/analysis",
+        "iconPath": "images/analysis.png",
+        "selectedIconPath": "images/analysis-active.png",
+        "text": "分析"
+      }
+    ]
+  },
   "sitemapLocation": "sitemap.json",
   "cloud": true,
   "requiredPrivateInfos": []

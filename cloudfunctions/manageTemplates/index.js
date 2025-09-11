@@ -24,11 +24,11 @@ exports.main = async (event, context) => {
       case 'apply':
         return await applyTemplate(wxContext.OPENID, data)
       default:
-        return { code: -1, message: '未知操作' }
+        return { code: -1, msg: '未知操作' }
     }
   } catch (error) {
     console.error('manageTemplates error:', error)
-    return { code: -1, message: '系统错误，请稍后重试' }
+    return { code: -1, msg: '系统错误，请稍后重试' }
   }
 }
 
@@ -60,10 +60,10 @@ async function getTemplateList(filters) {
     
     const result = await query.get()
     
-    return { code: 0, message: 'success', data: result.data }
+    return { code: 0, msg: 'success', data: result.data }
   } catch (error) {
     console.error('getTemplateList error:', error)
-    return { code: -1, message: '获取模板列表失败' }
+    return { code: -1, msg: '获取模板列表失败' }
   }
 }
 
@@ -113,10 +113,10 @@ async function createTemplate(openid, data) {
     })
     
     templateData._id = result._id
-    return { code: 0, message: '创建成功', data: templateData }
+    return { code: 0, msg: '创建成功', data: templateData }
   } catch (error) {
     console.error('createTemplate error:', error)
-    return { code: -1, message: '创建模板失败' }
+    return { code: -1, msg: '创建模板失败' }
   }
 }
 
@@ -130,13 +130,13 @@ async function updateTemplate(openid, data) {
     const templateResult = await db.collection(collectionName).doc(_id).get()
     
     if (templateResult.data.length === 0) {
-      return { code: -1, message: '模板不存在' }
+      return { code: -1, msg: '模板不存在' }
     }
     
     const template = templateResult.data[0]
     
     if (template.createBy !== 'system' && template.createBy !== openid) {
-      return { code: -1, message: '权限不足' }
+      return { code: -1, msg: '权限不足' }
     }
     
     // 更新模板信息
@@ -175,10 +175,10 @@ async function updateTemplate(openid, data) {
       data: updateData
     })
     
-    return { code: 0, message: '更新成功' }
+    return { code: 0, msg: '更新成功' }
   } catch (error) {
     console.error('updateTemplate error:', error)
-    return { code: -1, message: '更新模板失败' }
+    return { code: -1, msg: '更新模板失败' }
   }
 }
 
@@ -192,13 +192,13 @@ async function deleteTemplate(openid, data) {
     const templateResult = await db.collection(collectionName).doc(_id).get()
     
     if (templateResult.data.length === 0) {
-      return { code: -1, message: '模板不存在' }
+      return { code: -1, msg: '模板不存在' }
     }
     
     const template = templateResult.data[0]
     
     if (template.createBy !== 'system' && template.createBy !== openid) {
-      return { code: -1, message: '权限不足' }
+      return { code: -1, msg: '权限不足' }
     }
     
     // 软删除模板（设置为非激活状态）
@@ -209,10 +209,10 @@ async function deleteTemplate(openid, data) {
       }
     })
     
-    return { code: 0, message: '删除成功' }
+    return { code: 0, msg: '删除成功' }
   } catch (error) {
     console.error('deleteTemplate error:', error)
-    return { code: -1, message: '删除模板失败' }
+    return { code: -1, msg: '删除模板失败' }
   }
 }
 
@@ -229,7 +229,7 @@ async function applyTemplate(parentId, data) {
     }).get()
     
     if (templateResult.data.length === 0) {
-      return { code: -1, message: '模板不存在或未启用' }
+      return { code: -1, msg: '模板不存在或未启用' }
     }
     
     const template = templateResult.data[0]
@@ -345,10 +345,10 @@ async function applyTemplate(parentId, data) {
       }
     })
     
-    return { code: 0, message: '应用模板成功', data: { usageRecords } }
+    return { code: 0, msg: '应用模板成功', data: { usageRecords } }
   } catch (error) {
     console.error('applyTemplate error:', error)
-    return { code: -1, message: '应用模板失败' }
+    return { code: -1, msg: '应用模板失败' }
   }
 }
 

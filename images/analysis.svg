@@ -1,0 +1,13 @@
+<!-- SVG图标：数据分析 -->
+<svg width="81" height="81" viewBox="0 0 81 81" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="40.5" cy="40.5" r="40.5" fill="#4CAF50"/>
+  <rect x="20" y="25" width="8" height="30" fill="white"/>
+  <rect x="32" y="35" width="8" height="20" fill="white"/>
+  <rect x="44" y="20" width="8" height="35" fill="white"/>
+  <rect x="56" y="30" width="8" height="25" fill="white"/>
+  <circle cx="24" cy="20" r="2" fill="white"/>
+  <circle cx="36" cy="30" r="2" fill="white"/>
+  <circle cx="48" cy="15" r="2" fill="white"/>
+  <circle cx="60" cy="25" r="2" fill="white"/>
+  <path d="M24 20 L36 30 L48 15 L60 25" stroke="white" stroke-width="2" fill="none"/>
+</svg>

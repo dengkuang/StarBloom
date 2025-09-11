@@ -2,3 +2,29 @@
 .container {
   padding: 20rpx;
 }
+
+.init-section {
+  margin-top: 40rpx;
+  text-align: center;
+}
+
+.init-btn {
+  background-color: #4CAF50; /* 绿色主题色 */
+  color: white;
+  border: none;
+  padding: 20rpx 40rpx;
+  font-size: 32rpx;
+  border-radius: 10rpx;
+  cursor: pointer;
+}
+
+.init-btn:active {
+  background-color: #45a049;
+}
+
+.init-status {
+  display: block;
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  color: #666;
+}

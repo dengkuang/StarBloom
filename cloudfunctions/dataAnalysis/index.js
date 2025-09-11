@@ -23,11 +23,11 @@ exports.main = async (event, context) => {
       case 'childStats':
         return await getChildStatistics(wxContext.OPENID, data)
       default:
-        return { code: -1, message: '未知操作' }
+        return { code: -1, msg: '未知操作' }
     }
   } catch (error) {
     console.error('dataAnalysis error:', error)
-    return { code: -1, message: '系统错误，请稍后重试' }
+    return { code: -1, msg: '系统错误，请稍后重试' }
   }
 }
 
@@ -68,7 +68,7 @@ async function getTaskStatistics(parentId, filters) {
     
     return { 
       code: 0, 
-      message: 'success', 
+      msg: 'success', 
       data: { 
         completionStats: completionStats.data,
         taskTypeStats: taskTypeStats.data
@@ -76,7 +76,7 @@ async function getTaskStatistics(parentId, filters) {
     }
   } catch (error) {
     console.error('getTaskStatistics error:', error)
-    return { code: -1, message: '获取任务统计失败' }
+    return { code: -1, msg: '获取任务统计失败' }
   }
 }
 
@@ -119,7 +119,7 @@ async function getPointStatistics(parentId, filters) {
     
     return { 
       code: 0, 
-      message: 'success', 
+      msg: 'success', 
       data: { 
         pointStats: pointStats.data,
         typeSummary: typeSummary.data
@@ -127,7 +127,7 @@ async function getPointStatistics(parentId, filters) {
     }
   } catch (error) {
     console.error('getPointStatistics error:', error)
-    return { code: -1, message: '获取积分统计失败' }
+    return { code: -1, msg: '获取积分统计失败' }
   }
 }
 
@@ -169,7 +169,7 @@ async function getRewardStatistics(parentId, filters) {
     
     return { 
       code: 0, 
-      message: 'success', 
+      msg: 'success', 
       data: { 
         exchangeStats: exchangeStats.data,
         rewardTypeStats: rewardTypeStats.data
@@ -177,7 +177,7 @@ async function getRewardStatistics(parentId, filters) {
     }
   } catch (error) {
     console.error('getRewardStatistics error:', error)
-    return { code: -1, message: '获取奖励统计失败' }
+    return { code: -1, msg: '获取奖励统计失败' }
   }
 }
 
@@ -192,7 +192,7 @@ async function getChildStatistics(parentId, data) {
     }).get()
     
     if (childResult.data.length === 0) {
-      return { code: -1, message: '儿童不存在或权限不足' }
+      return { code: -1, msg: '儿童不存在或权限不足' }
     }
     
     // 获取儿童任务完成统计
@@ -231,7 +231,7 @@ async function getChildStatistics(parentId, data) {
     
     return { 
       code: 0, 
-      message: 'success', 
+      msg: 'success', 
       data: { 
         child: childResult.data[0],
         taskCompletionStats: taskCompletionStats.data,
@@ -240,6 +240,6 @@ async function getChildStatistics(parentId, data) {
     }
   } catch (error) {
     console.error('getChildStatistics error:', error)
-    return { code: -1, message: '获取儿童统计失败' }
+    return { code: -1, msg: '获取儿童统计失败' }
   }
 }

@@ -1,4 +1,10 @@
 <!-- 家长管理页面结构 -->
 <view class="container">
   <text>家长管理</text>
+  
+  <!-- 初始化云数据库按钮 -->
+  <view class="init-section">
+    <button class="init-btn" bindtap="initCloudDatabase">初始化云数据库</button>
+    <text class="init-status">{{initStatus}}</text>
+  </view>
 </view>

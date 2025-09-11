@@ -5,6 +5,7 @@ cloud.init({
 });
 
 const db = cloud.database();
+const _ = require('lodash');
 
 // 默认奖励模板数据（适配新的数据结构）
 const defaultRewards = [
@@ -67,12 +68,16 @@ exports.main = async (event, context) => {
 
 async function initializeDefaultRewards(parentId) {
   try {
+    // 首先确保rewards集合存在
+    await createRewardsCollectionIfNotExist();
+    
     const rewardsCollection = db.collection('rewards');
     
     // 检查是否已存在默认奖励
+    const existingRewardNames = defaultRewards.map(r => r.name);
     const existingResult = await rewardsCollection.where({
       parentId: parentId,
-      name: _.in(defaultRewards.map(r => r.name))
+      name: db.command.in(existingRewardNames)
     }).get();
     
     if (existingResult.data.length === 0) {
@@ -104,14 +109,47 @@ async function initializeDefaultRewards(parentId) {
   }
 }
 
+// 创建rewards集合（如果不存在）
+async function createRewardsCollectionIfNotExist() {
+  try {
+    // 尝试获取集合信息，如果不存在会抛出错误
+    await db.collection('rewards').get();
+    console.log('集合 rewards 已存在');
+  } catch (error) {
+    if (error.errCode === 'DATABASE_COLLECTION_NOT_EXIST') {
+      console.log('集合 rewards 不存在，将自动创建');
+      // 通过添加一条记录来隐式创建集合
+      await db.collection('rewards').add({
+        data: {
+          _createTime: new Date(),
+          _updateTime: new Date(),
+          isTemp: true
+        }
+      });
+      // 删除临时记录
+      const result = await db.collection('rewards').where({
+        isTemp: true
+      }).get();
+      
+      if (result.data.length > 0) {
+        await db.collection('rewards').doc(result.data[0]._id).remove();
+      }
+      console.log('集合 rewards 创建成功');
+    } else {
+      throw error;
+    }
+  }
+}
+
 async function resetDefaultRewards(parentId) {
   try {
     const rewardsCollection = db.collection('rewards');
     
     // 删除现有的默认奖励
+    const existingRewardNames = defaultRewards.map(r => r.name);
     const existingResult = await rewardsCollection.where({
       parentId: parentId,
-      name: _.in(defaultRewards.map(r => r.name))
+      name: db.command.in(existingRewardNames)
     }).get();
     
     for (const reward of existingResult.data) {

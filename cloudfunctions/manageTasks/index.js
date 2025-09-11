@@ -24,11 +24,11 @@ exports.main = async (event, context) => {
       case 'complete':
         return await completeTask(wxContext.OPENID, data)
       default:
-        return { code: -1, message: '未知操作' }
+        return { code: -1, msg: '未知操作' }
     }
   } catch (error) {
     console.error('manageTasks error:', error)
-    return { code: -1, message: '系统错误，请稍后重试' }
+    return { code: -1, msg: '系统错误，请稍后重试' }
   }
 }
 
@@ -53,10 +53,10 @@ async function getTasks(parentId, filters) {
     
     const result = await query.get()
     
-    return { code: 0, message: 'success', data: result.data }
+    return { code: 0, msg: 'success', data: result.data }
   } catch (error) {
     console.error('getTasks error:', error)
-    return { code: -1, message: '获取任务列表失败' }
+    return { code: -1, msg: '获取任务列表失败' }
   }
 }
 
@@ -80,10 +80,10 @@ async function createTask(parentId, data) {
     })
     
     taskData._id = result._id
-    return { code: 0, message: '创建成功', data: taskData }
+    return { code: 0, msg: '创建成功', data: taskData }
   } catch (error) {
     console.error('createTask error:', error)
-    return { code: -1, message: '创建任务失败' }
+    return { code: -1, msg: '创建任务失败' }
   }
 }
 
@@ -96,7 +96,7 @@ async function updateTask(parentId, data) {
     }).get()
     
     if (taskResult.data.length === 0) {
-      return { code: -1, message: '权限不足或任务不存在' }
+      return { code: -1, msg: '权限不足或任务不存在' }
     }
     
     // 更新任务信息
@@ -115,10 +115,10 @@ async function updateTask(parentId, data) {
       data: updateData
     })
     
-    return { code: 0, message: '更新成功' }
+    return { code: 0, msg: '更新成功' }
   } catch (error) {
     console.error('updateTask error:', error)
-    return { code: -1, message: '更新任务失败' }
+    return { code: -1, msg: '更新任务失败' }
   }
 }
 
@@ -131,16 +131,16 @@ async function deleteTask(parentId, data) {
     }).get()
     
     if (taskResult.data.length === 0) {
-      return { code: -1, message: '权限不足或任务不存在' }
+      return { code: -1, msg: '权限不足或任务不存在' }
     }
     
     // 删除任务
     await db.collection('tasks').doc(data._id).remove()
     
-    return { code: 0, message: '删除成功' }
+    return { code: 0, msg: '删除成功' }
   } catch (error) {
     console.error('deleteTask error:', error)
-    return { code: -1, message: '删除任务失败' }
+    return { code: -1, msg: '删除任务失败' }
   }
 }
 
@@ -155,14 +155,14 @@ async function completeTask(parentId, data) {
     }).get()
     
     if (taskResult.data.length === 0) {
-      return { code: -1, message: '权限不足或任务不存在' }
+      return { code: -1, msg: '权限不足或任务不存在' }
     }
     
     const task = taskResult.data[0]
     
     // 验证儿童权限
     if (!task.childIds.includes(childId)) {
-      return { code: -1, message: '该任务未分配给此儿童' }
+      return { code: -1, msg: '该任务未分配给此儿童' }
     }
     
     // 检查是否已经完成
@@ -173,7 +173,7 @@ async function completeTask(parentId, data) {
     }).get()
     
     if (recordResult.data.length > 0) {
-      return { code: -1, message: '今日任务已完成' }
+      return { code: -1, msg: '今日任务已完成' }
     }
     
     // 创建任务完成记录
@@ -217,9 +217,9 @@ async function completeTask(parentId, data) {
       data: pointRecord
     })
     
-    return { code: 0, message: '任务完成成功', data: { pointsEarned: task.points } }
+    return { code: 0, msg: '任务完成成功', data: { pointsEarned: task.points } }
   } catch (error) {
     console.error('completeTask error:', error)
-    return { code: -1, message: '完成任务失败' }
+    return { code: -1, msg: '完成任务失败' }
   }
 }

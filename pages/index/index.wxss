@@ -1,51 +1,163 @@
 /* pages/index/index.wxss */
-/* 首页样式 */
+/* 新版首页样式 */
 .container {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 20rpx;
+  padding: 32rpx;
   box-sizing: border-box;
+  background-color: #f8f9fa;
 }
 
+/* 顶部用户信息 */
 .header {
   display: flex;
   align-items: center;
-  margin-bottom: 40rpx;
+  margin-bottom: 48rpx;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  padding: 32rpx;
+  border-radius: 24rpx;
+  color: white;
 }
 
 .user-avatar {
-  width: 80rpx;
-  height: 80rpx;
+  width: 96rpx;
+  height: 96rpx;
   border-radius: 50%;
-  margin-right: 20rpx;
+  margin-right: 24rpx;
+  border: 3rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
 }
 
 .welcome-text {
   font-size: 36rpx;
   font-weight: bold;
+  margin-bottom: 8rpx;
+}
+
+.date-text {
+  font-size: 28rpx;
+  opacity: 0.9;
+}
+
+/* 统计卡片区域 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24rpx;
+  margin-bottom: 48rpx;
+}
+
+.stat-card {
+  background: white;
+  padding: 32rpx 24rpx;
+  border-radius: 20rpx;
+  text-align: center;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.stat-value {
+  font-size: 42rpx;
+  font-weight: bold;
+  color: #4CAF50;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 快捷功能入口 */
+.quick-actions {
+  margin-bottom: 48rpx;
 }
 
 .section-title {
-  font-size: 32rpx;
+  font-size: 36rpx;
   font-weight: bold;
-  margin-bottom: 20rpx;
+  color: #333;
+  margin-bottom: 32rpx;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24rpx;
+}
+
+.action-item {
+  background: white;
+  padding: 32rpx 24rpx;
+  border-radius: 20rpx;
+  text-align: center;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.action-item:active {
+  transform: scale(0.98);
+}
+
+.action-icon {
+  font-size: 48rpx;
+  margin-bottom: 16rpx;
+}
+
+.action-text {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+/* 我的孩子区域 */
+.children-section {
+  background: white;
+  padding: 32rpx;
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.section-more {
+  font-size: 28rpx;
+  color: #4CAF50;
+  font-weight: 500;
 }
 
 .children-list {
-  flex: 1;
-  overflow-y: auto;
+  margin-bottom: 24rpx;
 }
 
 .add-child-button {
-  background-color: #4CAF50;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
   color: white;
   text-align: center;
-  padding: 20rpx;
-  border-radius: 10rpx;
-  margin-top: 20rpx;
+  padding: 28rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+.add-icon {
+  font-size: 36rpx;
+  font-weight: bold;
 }
 
 .add-text {
   font-size: 32rpx;
+  font-weight: 500;
 }

@@ -22,11 +22,11 @@ exports.main = async (event, context) => {
       case 'balance':
         return await getPointBalance(wxContext.OPENID, data)
       default:
-        return { code: -1, message: '未知操作' }
+        return { code: -1, msg: '未知操作' }
     }
   } catch (error) {
     console.error('managePoints error:', error)
-    return { code: -1, message: '系统错误，请稍后重试' }
+    return { code: -1, msg: '系统错误，请稍后重试' }
   }
 }
 
@@ -40,7 +40,7 @@ async function getPointRecords(parentId, filters) {
       }).get()
       
       if (childResult.data.length === 0) {
-        return { code: -1, message: '儿童不存在或权限不足' }
+        return { code: -1, msg: '儿童不存在或权限不足' }
       }
     }
     
@@ -64,10 +64,10 @@ async function getPointRecords(parentId, filters) {
     
     const result = await query.get()
     
-    return { code: 0, message: 'success', data: result.data }
+    return { code: 0, msg: 'success', data: result.data }
   } catch (error) {
     console.error('getPointRecords error:', error)
-    return { code: -1, message: '获取积分记录失败' }
+    return { code: -1, msg: '获取积分记录失败' }
   }
 }
 
@@ -82,7 +82,7 @@ async function addPoints(parentId, data) {
     }).get()
     
     if (childResult.data.length === 0) {
-      return { code: -1, message: '儿童不存在或权限不足' }
+      return { code: -1, msg: '儿童不存在或权限不足' }
     }
     
     // 更新儿童积分
@@ -110,10 +110,10 @@ async function addPoints(parentId, data) {
       data: pointRecord
     })
     
-    return { code: 0, message: '积分增加成功' }
+    return { code: 0, msg: '积分增加成功' }
   } catch (error) {
     console.error('addPoints error:', error)
-    return { code: -1, message: '增加积分失败' }
+    return { code: -1, msg: '增加积分失败' }
   }
 }
 
@@ -128,14 +128,14 @@ async function subtractPoints(parentId, data) {
     }).get()
     
     if (childResult.data.length === 0) {
-      return { code: -1, message: '儿童不存在或权限不足' }
+      return { code: -1, msg: '儿童不存在或权限不足' }
     }
     
     const child = childResult.data[0]
     
     // 检查积分是否足够
     if (child.totalPoints < points) {
-      return { code: -1, message: '积分不足' }
+      return { code: -1, msg: '积分不足' }
     }
     
     // 更新儿童积分
@@ -163,10 +163,10 @@ async function subtractPoints(parentId, data) {
       data: pointRecord
     })
     
-    return { code: 0, message: '积分扣减成功' }
+    return { code: 0, msg: '积分扣减成功' }
   } catch (error) {
     console.error('subtractPoints error:', error)
-    return { code: -1, message: '扣减积分失败' }
+    return { code: -1, msg: '扣减积分失败' }
   }
 }
 
@@ -181,18 +181,18 @@ async function getPointBalance(parentId, data) {
     }).get()
     
     if (childResult.data.length === 0) {
-      return { code: -1, message: '儿童不存在或权限不足' }
+      return { code: -1, msg: '儿童不存在或权限不足' }
     }
     
     const child = childResult.data[0]
     
-    return { code: 0, message: 'success', data: { 
+    return { code: 0, msg: 'success', data: { 
       totalPoints: child.totalPoints,
       totalEarnedPoints: child.totalEarnedPoints,
       totalConsumedPoints: child.totalConsumedPoints
     }}
   } catch (error) {
     console.error('getPointBalance error:', error)
-    return { code: -1, message: '获取积分余额失败' }
+    return { code: -1, msg: '获取积分余额失败' }
   }
 }
