@@ -176,7 +176,7 @@ Page(createPageWithChildManager({
           try {
             wx.showLoading({ title: '兑换中...' });
             
-            const result = await rewardsApi.exchange(reward._id, currentChild._id);
+           // const result = await rewardsApi.exchange(reward._id, currentChild._id);
             
             if (result.code === 0) {
               wx.showToast({ title: '兑换成功！', icon: 'success' });

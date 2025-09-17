@@ -275,6 +275,7 @@ Page(createPageWithChildManager({
 
   // 筛选类型变化
   onFilterTypeChange: function(e) {
+    console.log("eee:",{e})
     const filterType = e.currentTarget.dataset.value;
     this.setData({ filterType });
     this.loadPointRecords(true);

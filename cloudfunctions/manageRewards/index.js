@@ -205,8 +205,12 @@ async function deleteReward(parentId, data) {
 }
 
 async function exchangeReward(parentId, data) {
+  console.log('=== 开始兑换奖励 ===')
+    console.log('收到参数:', { parentId, data })  
   try {
-    const { rewardId, childId } = data
+    
+    const {rewardId,childId}=  data
+
     
     // 验证奖励是否存在且启用
     const rewardResult = await db.collection('rewards').where({
@@ -250,7 +254,6 @@ async function exchangeReward(parentId, data) {
       exchangeTime: new Date(),
       status: 'pending',
       parentId: parentId,
-      _openid: wxContext.OPENID,
       createTime: new Date()
     }
     

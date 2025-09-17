@@ -353,7 +353,7 @@ Page(createPageWithChildManager({
       
       const result = await rewardsApi.exchange(reward._id, this.data.currentChild._id);
       if (result.code === 0) {
-        wx.showToast({ title: `恭喜！获得${reward.points}积分`, icon: 'success' });
+        wx.showToast({ title: `恭喜！兑换成功`, icon: 'success' });
         
         // 刷新数据
         await this.loadPageData();

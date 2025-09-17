@@ -84,9 +84,6 @@
       <view class="filter-tab {{filterType === 'consume' ? 'active' : ''}}" bindtap="onFilterTypeChange" data-value="consume">
         <text>消费</text>
       </view>
-      <view class="filter-tab {{filterType === 'adjustment' ? 'active' : ''}}" bindtap="onFilterTypeChange" data-value="adjustment">
-        <text>调整</text>
-      </view>
     </view>
   </view>
 
@@ -105,7 +102,7 @@
       <view class="record-item" wx:for="{{pointRecords}}" wx:key="_id">
         <view class="record-icon {{getRecordTypeColor(item)}}">
           <text wx:if="{{item.changeType === 'earn'}}">💰</text>
-          <text wx:elif="{{item.changeType === 'exchange'}}">🎁</text>
+          <text wx:elif="{{item.changeType === 'consume'}}">🎁</text>
           <text wx:elif="{{item.changeType === 'adjustment_add'}}">➕</text>
           <text wx:elif="{{item.changeType === 'adjustment_subtract'}}">➖</text>
           <text wx:else>📝</text>
@@ -118,7 +115,7 @@
           </view>
           <view class="record-right">
             <text class="record-points {{item.changeType === 'earn' || item.changeType === 'adjustment_add' ? 'positive' : 'negative'}}">
-              {{item.changeType === 'earn' || item.changeType === 'adjustment_add' ? '+' : '-'}}{{item.points}}
+              {{item.changeType === 'earn' || item.changeType === 'adjustment_add' ? '+' : ''}}{{item.points}}
             </text>
             <text class="record-time">{{formatDate(item.createdAt)}}</text>
           </view>
