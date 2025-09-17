@@ -228,7 +228,7 @@ Page({
     }
   },
 
-  // 加载挑战任务
+  // 加载任务
   loadChallengeTasks: async function() {
     if (!this.data.currentChild) return;
     
@@ -268,7 +268,6 @@ Page({
     
     try {
       const result = await rewardsApi.getList();
-      
       if (result.code === 0) {
         const allRewards = result.data || [];
         const currentPoints = this.data.currentChild.totalPoints || 0;
