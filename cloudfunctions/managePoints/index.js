@@ -21,6 +21,20 @@ exports.main = async (event, context) => {
         return await subtractPoints(wxContext.OPENID, data)
       case 'balance':
         return await getPointBalance(wxContext.OPENID, data)
+      case 'getStatistics':
+        return await getPointStatistics(wxContext.OPENID, data)
+      case 'getHistory':
+        return await getPointRecords(wxContext.OPENID, data)
+      case 'getBalance':
+        return await getPointBalance(wxContext.OPENID, data)
+      case 'createExchange':
+        return await createExchange(wxContext.OPENID, data)
+      case 'getExchangeHistory':
+        return await getExchangeHistory(wxContext.OPENID, data)
+      case 'approveExchange':
+        return await approveExchange(wxContext.OPENID, data)
+      case 'rejectExchange':
+        return await rejectExchange(wxContext.OPENID, data)
       default:
         return { code: -1, msg: '未知操作' }
     }
@@ -194,5 +208,275 @@ async function getPointBalance(parentId, data) {
   } catch (error) {
     console.error('getPointBalance error:', error)
     return { code: -1, msg: '获取积分余额失败' }
+  }
+}
+
+async function getPointStatistics(parentId, data) {
+  try {
+    const { childId } = data
+    
+    // 验证儿童是否存在且属于当前家长
+    const childResult = await db.collection('children').where({
+      _id: childId,
+      parentId: parentId
+    }).get()
+    
+    if (childResult.data.length === 0) {
+      return { code: -1, msg: '儿童不存在或权限不足' }
+    }
+    
+    const child = childResult.data[0]
+    
+    // 获取积分记录统计
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    const weekAgo = new Date(today)
+    weekAgo.setDate(weekAgo.getDate() - 7)
+    
+    const monthAgo = new Date(today)
+    monthAgo.setDate(monthAgo.getDate() - 30)
+    
+    // 获取今日积分
+    const todayPointsResult = await db.collection('point_records').where({
+      childId: childId,
+      recordTime: _.gte(today),
+      changeType: _.in(['earn', 'adjustment_add'])
+    }).get()
+    
+    const todayPoints = todayPointsResult.data.reduce((sum, record) => sum + (record.points || 0), 0)
+    
+    // 获取本周积分
+    const weekPointsResult = await db.collection('point_records').where({
+      childId: childId,
+      recordTime: _.gte(weekAgo),
+      changeType: _.in(['earn', 'adjustment_add'])
+    }).get()
+    
+    const weekPoints = weekPointsResult.data.reduce((sum, record) => sum + (record.points || 0), 0)
+    
+    // 获取本月积分
+    const monthPointsResult = await db.collection('point_records').where({
+      childId: childId,
+      recordTime: _.gte(monthAgo),
+      changeType: _.in(['earn', 'adjustment_add'])
+    }).get()
+    
+    const monthPoints = monthPointsResult.data.reduce((sum, record) => sum + (record.points || 0), 0)
+    
+    // 获取任务完成统计
+    const taskCompletionResult = await db.collection('task_completion_records').where({
+      childId: childId
+    }).count()
+    
+    const tasksCompleted = taskCompletionResult.total
+    
+    return { 
+      code: 0, 
+      msg: 'success', 
+      data: {
+        totalPoints: child.totalPoints || 0,
+        totalEarnedPoints: child.totalEarnedPoints || 0,
+        totalConsumedPoints: child.totalConsumedPoints || 0,
+        todayPoints: todayPoints,
+        weekPoints: weekPoints,
+        monthPoints: monthPoints,
+        tasksCompleted: tasksCompleted
+      }
+    }
+  } catch (error) {
+    console.error('getPointStatistics error:', error)
+    return { code: -1, msg: '获取积分统计失败' }
+  }
+}
+
+async function createExchange(parentId, data) {
+  try {
+    const { childId, rewardId, quantity = 1 } = data
+    
+    // 验证儿童是否存在且属于当前家长
+    const childResult = await db.collection('children').where({
+      _id: childId,
+      parentId: parentId
+    }).get()
+    
+    if (childResult.data.length === 0) {
+      return { code: -1, msg: '儿童不存在或权限不足' }
+    }
+    
+    const child = childResult.data[0]
+    
+    // 获取奖励信息
+    const rewardResult = await db.collection('rewards').doc(rewardId).get()
+    if (!rewardResult.data) {
+      return { code: -1, msg: '奖励不存在' }
+    }
+    
+    const reward = rewardResult.data
+    const totalCost = reward.pointsCost * quantity
+    
+    // 检查积分是否足够
+    if (child.totalPoints < totalCost) {
+      return { code: -1, msg: '积分不足' }
+    }
+    
+    // 创建兑换申请
+    const exchangeData = {
+      childId: childId,
+      rewardId: rewardId,
+      rewardName: reward.name,
+      quantity: quantity,
+      pointsCost: totalCost,
+      status: 'pending', // pending, approved, rejected
+      createTime: new Date(),
+      updateTime: new Date(),
+      createBy: parentId
+    }
+    
+    const result = await db.collection('exchange_records').add({
+      data: exchangeData
+    })
+    
+    exchangeData._id = result._id
+    
+    return { code: 0, msg: '兑换申请已提交', data: exchangeData }
+  } catch (error) {
+    console.error('createExchange error:', error)
+    return { code: -1, msg: '创建兑换申请失败' }
+  }
+}
+
+async function getExchangeHistory(parentId, data) {
+  try {
+    const { childId } = data
+    
+    // 验证儿童是否存在且属于当前家长
+    const childResult = await db.collection('children').where({
+      _id: childId,
+      parentId: parentId
+    }).get()
+    
+    if (childResult.data.length === 0) {
+      return { code: -1, msg: '儿童不存在或权限不足' }
+    }
+    
+    // 获取兑换记录
+    const result = await db.collection('exchange_records').where({
+      childId: childId
+    }).orderBy('createTime', 'desc').get()
+    
+    return { code: 0, msg: 'success', data: result.data }
+  } catch (error) {
+    console.error('getExchangeHistory error:', error)
+    return { code: -1, msg: '获取兑换记录失败' }
+  }
+}
+
+async function approveExchange(parentId, data) {
+  try {
+    const { exchangeId } = data
+    
+    // 获取兑换记录
+    const exchangeResult = await db.collection('exchange_records').doc(exchangeId).get()
+    if (!exchangeResult.data) {
+      return { code: -1, msg: '兑换记录不存在' }
+    }
+    
+    const exchange = exchangeResult.data
+    
+    // 验证儿童权限
+    const childResult = await db.collection('children').where({
+      _id: exchange.childId,
+      parentId: parentId
+    }).get()
+    
+    if (childResult.data.length === 0) {
+      return { code: -1, msg: '权限不足' }
+    }
+    
+    const child = childResult.data[0]
+    
+    // 检查积分是否足够
+    if (child.totalPoints < exchange.pointsCost) {
+      return { code: -1, msg: '积分不足，无法完成兑换' }
+    }
+    
+    // 更新兑换状态为已批准
+    await db.collection('exchange_records').doc(exchangeId).update({
+      data: {
+        status: 'approved',
+        updateTime: new Date(),
+        approveBy: parentId
+      }
+    })
+    
+    // 扣除积分
+    await db.collection('children').doc(exchange.childId).update({
+      data: {
+        totalPoints: _.inc(-exchange.pointsCost),
+        totalConsumedPoints: _.inc(exchange.pointsCost),
+        updateTime: new Date()
+      }
+    })
+    
+    // 创建积分扣除记录
+    const pointRecord = {
+      childId: exchange.childId,
+      points: -exchange.pointsCost,
+      changeType: 'exchange',
+      reason: `兑换奖励: ${exchange.rewardName}`,
+      sourceType: 'exchange',
+      recordTime: new Date(),
+      createTime: new Date(),
+      createBy: parentId
+    }
+    
+    await db.collection('point_records').add({
+      data: pointRecord
+    })
+    
+    return { code: 0, msg: '兑换已批准' }
+  } catch (error) {
+    console.error('approveExchange error:', error)
+    return { code: -1, msg: '批准兑换失败' }
+  }
+}
+
+async function rejectExchange(parentId, data) {
+  try {
+    const { exchangeId, reason } = data
+    
+    // 获取兑换记录
+    const exchangeResult = await db.collection('exchange_records').doc(exchangeId).get()
+    if (!exchangeResult.data) {
+      return { code: -1, msg: '兑换记录不存在' }
+    }
+    
+    const exchange = exchangeResult.data
+    
+    // 验证儿童权限
+    const childResult = await db.collection('children').where({
+      _id: exchange.childId,
+      parentId: parentId
+    }).get()
+    
+    if (childResult.data.length === 0) {
+      return { code: -1, msg: '权限不足' }
+    }
+    
+    // 更新兑换状态为已拒绝
+    await db.collection('exchange_records').doc(exchangeId).update({
+      data: {
+        status: 'rejected',
+        rejectReason: reason || '兑换申请被拒绝',
+        updateTime: new Date(),
+        rejectBy: parentId
+      }
+    })
+    
+    return { code: 0, msg: '兑换已拒绝' }
+  } catch (error) {
+    console.error('rejectExchange error:', error)
+    return { code: -1, msg: '拒绝兑换失败' }
   }
 }

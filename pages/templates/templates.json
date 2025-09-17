@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "预设模板",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#667eea",
+  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarTextStyle": "white",
+  "backgroundTextStyle": "light",
+  "usingComponents": {
+    "template-card": "/components/template-card/template-card"
+  }
+}

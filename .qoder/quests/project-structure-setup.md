@@ -1184,7 +1184,7 @@ Page({
   // 添加儿童
   addChild: function() {
     wx.navigateTo({
-      url: '/pages/parent/add-child/add-child'
+      url: '/pages/parent/add-child/addchild'
     });
   },
 

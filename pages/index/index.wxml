@@ -1,76 +1,218 @@
-<!-- pages/index/index.wxml -->
-<!-- 新版首页页面结构 -->
-<view class="container">
-  <!-- 顶部用户信息 -->
-  <view class="header">
-    <image class="user-avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
-    <view class="user-info">
-      <text class="welcome-text">欢迎回来, {{userInfo.nickName}}!</text>
-      <text class="date-text">{{currentDate}}</text>
+<!-- 家长管理首页 - 重构版 -->
+<scroll-view class="container" scroll-y="true" enhanced="true" show-scrollbar="false">
+  
+  <!-- 头部区域 -->
+  <view class="header-section">
+    <!-- 用户信息和日期 -->
+    <view class="user-header">
+      <view class="user-info">
+        <image class="user-avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+        <view class="user-details">
+          <text class="welcome-text">你好，{{userInfo.nickName || '家长'}}！</text>
+          <text class="date-text">{{currentDate}}</text>
+        </view>
+      </view>
+      <view class="notification-icon" bindtap="onNotificationTap">
+        <text class="icon">🔔</text>
+        <view class="badge" wx:if="{{unreadCount > 0}}">{{unreadCount}}</view>
+      </view>
+    </view>
+
+    <!-- 孩子管理区域 -->
+    <view class="child-management" wx:if="{{childrenList.length > 0}}">
+      <text class="child-count">共 {{childrenList.length}} 个孩子</text>
+      <view class="child-actions">
+        <button class="child-action-btn" bindtap="onAddChild">添加孩子</button>
+        <button class="child-action-btn" bindtap="onSwitchChild" wx:if="{{childrenList.length > 1}}">切换孩子</button>
+      </view>
+    </view>
+
+    <!-- 孩子切换器 -->
+    <view class="child-switcher" wx:if="{{childrenList.length > 0}}">
+      <swiper class="child-swiper" indicator-dots="{{childrenList.length > 1}}" indicator-color="rgba(255,255,255,0.3)" indicator-active-color="white" bindchange="onChildSwiperChange" autoplay="{{false}}" circular="{{childrenList.length > 1}}">
+        <swiper-item wx:for="{{childrenList}}" wx:key="_id">
+          <view class="child-card-main">
+            <image class="child-avatar-large" src="{{item.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+            <view class="child-info-main">
+              <text class="child-name-large">{{item.name}}</text>
+              <text class="child-details-main">{{item.gender === 'male' ? '👦' : '👧'}} {{item.age}}岁 {{item.grade || ''}}</text>
+              <view class="child-stats">
+                <view class="stat-item-small">
+                  <text class="stat-number-small">{{item.totalPoints || 0}}</text>
+                  <text class="stat-label-small">积分</text>
+                </view>
+                <view class="stat-item-small">
+                  <text class="stat-number-small">{{item.completedTasksToday || 0}}</text>
+                  <text class="stat-label-small">今日完成</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </swiper-item>
+      </swiper>
     </view>
   </view>
 
-  <!-- 统计卡片区域 -->
-  <view class="stats-grid">
-    <view class="stat-card">
-      <text class="stat-value">{{stats.totalPoints || 0}}</text>
-      <text class="stat-label">总积分</text>
+  <!-- 今日任务情况 -->
+  <view class="section today-tasks" wx:if="{{currentChild}}">
+    <view class="section-header">
+      <text class="section-title">📋 今日任务</text>
+      <text class="section-more" bindtap="navigateToTasks">管理</text>
     </view>
-    <view class="stat-card">
-      <text class="stat-value">{{stats.completedTasks || 0}}</text>
-      <text class="stat-label">完成任务</text>
+    
+    <!-- 任务进度概览 -->
+    <view class="task-overview">
+      <view class="progress-circle">
+        <view class="circle-bg">
+          <view class="circle-fill" style="transform: rotate({{todayTaskProgress * 3.6}}deg)"></view>
+          <view class="circle-inner">
+            <text class="progress-text">{{Math.round(todayTaskProgress)}}%</text>
+          </view>
+        </view>
+      </view>
+      <view class="progress-info">
+        <text class="progress-title">今日完成度</text>
+        <text class="progress-desc">{{todayCompletedTasks}}/{{todayTotalTasks}} 个任务</text>
+        <text class="progress-points">已获得 {{todayEarnedPoints}} 积分</text>
+      </view>
     </view>
-    <view class="stat-card">
-      <text class="stat-value">{{stats.activeChildren || 0}}</text>
-      <text class="stat-label">活跃孩子</text>
+
+    <!-- 今日任务列表 -->
+    <view class="today-task-list" wx:if="{{todayTasks.length > 0}}">
+      <task-item 
+        wx:for="{{todayTasks.slice(0, 3)}}" 
+        wx:key="_id" 
+        task="{{item}}"
+        show-actions="{{item.status !== 'completed'}}"
+        bind:complete="onTaskComplete"
+      ></task-item>
+      <view class="view-more" wx:if="{{todayTasks.length > 3}}" bindtap="navigateToTasks">
+        <text>查看更多任务 ({{todayTasks.length - 3}})</text>
+      </view>
+    </view>
+
+    <view class="empty-tasks" wx:else>
+      <text class="empty-text">今天还没有安排任务</text>
+      <button class="add-task-btn" bindtap="onAddTask">添加任务</button>
     </view>
   </view>
 
-  <!-- 快捷功能入口 -->
-  <view class="quick-actions">
-    <view class="section-title">
-      <text>快捷操作</text>
+  <!-- 挑战任务进度 -->
+  <view class="section challenge-tasks" wx:if="{{currentChild && challengeTasks.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">🏆 挑战任务</text>
+      <text class="section-more" bindtap="navigateToTasks">查看全部</text>
     </view>
+    
+    <view class="challenge-list">
+      <view class="challenge-item" wx:for="{{challengeTasks}}" wx:key="_id">
+        <view class="challenge-info">
+          <text class="challenge-name">{{item.name}}</text>
+          <text class="challenge-desc">{{item.description}}</text>
+          <view class="challenge-reward">
+            <text class="reward-points">奖励: {{item.points}}积分</text>
+            <text class="challenge-deadline" wx:if="{{item.deadline}}">截止: {{item.deadline}}</text>
+          </view>
+        </view>
+        <view class="challenge-progress">
+          <view class="progress-bar-small">
+            <view class="progress-fill-small" style="width: {{item.progress || 0}}%"></view>
+          </view>
+          <text class="progress-percent-small">{{item.progress || 0}}%</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 奖励管理 -->
+  <view class="section rewards-section" wx:if="{{currentChild}}">
+    <view class="section-header">
+      <text class="section-title">🎁 奖励商店</text>
+      <text class="section-more" bindtap="navigateToRewards">管理</text>
+    </view>
+    
+    <!-- 可兑换奖励 -->
+    <view class="available-rewards" wx:if="{{availableRewards.length > 0}}">
+      <text class="subsection-title">可兑换奖励</text>
+      <scroll-view class="reward-scroll" scroll-x="true" show-scrollbar="false">
+        <view class="reward-horizontal-list">
+          <view class="reward-card" wx:for="{{availableRewards.slice(0, 5)}}" wx:key="_id" bindtap="onRewardTap" data-reward="{{item}}">
+            <image class="reward-image" src="{{item.icon || '/images/default-reward.png'}}" mode="aspectFill"></image>
+            <text class="reward-name-small">{{item.name}}</text>
+            <text class="reward-points-small">{{item.points}}积分</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 热门奖励 -->
+    <view class="popular-rewards" wx:if="{{popularRewards.length > 0}}">
+      <text class="subsection-title">热门奖励</text>
+      <view class="reward-grid">
+        <view class="reward-grid-item" wx:for="{{popularRewards.slice(0, 4)}}" wx:key="_id" bindtap="onRewardTap" data-reward="{{item}}">
+          <image class="reward-icon-small" src="{{item.icon || '/images/default-reward.png'}}" mode="aspectFill"></image>
+          <view class="reward-info-small">
+            <text class="reward-name-grid">{{item.name}}</text>
+            <text class="reward-points-grid">{{item.points}}积分</text>
+          </view>
+          <view class="exchange-status {{item.points <= (currentChild.totalPoints || 0) ? 'can-exchange' : 'cannot-exchange'}}">
+            <text>{{item.points <= (currentChild.totalPoints || 0) ? '可兑换' : '积分不足'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快捷操作 -->
+  <view class="section quick-actions">
+    <view class="section-header">
+      <text class="section-title">⚡ 快捷操作</text>
+    </view>
+    
     <view class="action-grid">
-      <view class="action-item" bindtap="navigateToTasks">
-        <view class="action-icon">📋</view>
-        <text class="action-text">任务管理</text>
+      <view class="action-card" bindtap="onAddTask">
+        <view class="action-icon">➕</view>
+        <text class="action-text">添加任务</text>
       </view>
-      <view class="action-item" bindtap="navigateToRewards">
+      <view class="action-card" bindtap="onAddReward">
         <view class="action-icon">🎁</view>
-        <text class="action-text">奖励商店</text>
+        <text class="action-text">添加奖励</text>
       </view>
-      <view class="action-item" bindtap="navigateToChildren">
-        <view class="action-icon">👶</view>
-        <text class="action-text">孩子管理</text>
-      </view>
-      <view class="action-item" bindtap="navigateToAnalysis">
+      <view class="action-card" bindtap="navigateToAnalysis">
         <view class="action-icon">📊</view>
         <text class="action-text">数据分析</text>
       </view>
+      <view class="action-card" bindtap="navigateToSettings">
+        <view class="action-icon">⚙️</view>
+        <text class="action-text">设置</text>
+      </view>
     </view>
   </view>
 
-  <!-- 我的孩子区域 -->
-  <view class="children-section">
-    <view class="section-header">
-      <text class="section-title">我的孩子</text>
-      <text class="section-more" bindtap="navigateToChildren">查看全部</text>
-    </view>
-    
-    <view class="children-list">
-      <child-card 
-        wx:for="{{childrenList.slice(0, 3)}}" 
-        wx:key="id" 
-        child="{{item}}" 
-        showActions="{{false}}"
-        bind:tap="onChildTap">
-      </child-card>
-    </view>
+  <!-- 空状态 - 无孩子时显示 -->
+  <view class="empty-child-state" wx:if="{{childrenList.length === 0}}">
+    <image class="empty-icon" src="/images/empty-child.png" mode="aspectFit"></image>
+    <text class="empty-title">还没有添加孩子</text>
+    <text class="empty-desc">添加孩子信息，开始积分奖励管理</text>
+    <button class="add-child-btn-main" bindtap="onAddChild">添加孩子</button>
+  </view>
 
-    <view class="add-child-button" bindtap="onAddChild" wx:if="{{childrenList.length === 0}}">
-      <text class="add-icon">+</text>
-      <text class="add-text">添加第一个孩子</text>
-    </view>
+  <!-- 底部安全区域 -->
+  <view class="safe-area-bottom"></view>
+</scroll-view>
+
+<!-- 加载状态 -->
+<view class="loading-overlay" wx:if="{{loading}}">
+  <view class="loading-content">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+</view>
+
+<!-- 错误提示 -->
+<view class="error-overlay" wx:if="{{error}}">
+  <view class="error-content">
+    <text class="error-text">{{error}}</text>
+    <button class="retry-button" bindtap="onRetry">重试</button>
   </view>
 </view>

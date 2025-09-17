@@ -1,0 +1,71 @@
+<!--模板导入页面-->
+<view class="container">
+  <view class="header">
+    <text class="title">模板数据导入</text>
+    <text class="subtitle">批量导入任务和奖励模板</text>
+  </view>
+
+  <view class="import-section">
+    <view class="section-title">3-6岁模板</view>
+    
+    <view class="import-item">
+      <view class="item-info">
+        <text class="item-name">任务模板 (8个)</text>
+        <text class="item-desc">适合3-6岁幼儿的日常任务</text>
+      </view>
+      <button class="import-btn" bindtap="importTaskTemplates3_6" disabled="{{importing}}">
+        {{taskTemplates3_6Imported ? '已导入' : '导入'}}
+      </button>
+    </view>
+
+    <view class="import-item">
+      <view class="item-info">
+        <text class="item-name">奖励模板 (8个)</text>
+        <text class="item-desc">适合3-6岁幼儿的奖励项目</text>
+      </view>
+      <button class="import-btn" bindtap="importRewardTemplates3_6" disabled="{{importing}}">
+        {{rewardTemplates3_6Imported ? '已导入' : '导入'}}
+      </button>
+    </view>
+  </view>
+
+  <view class="import-section">
+    <view class="section-title">6-9岁模板</view>
+    
+    <view class="import-item">
+      <view class="item-info">
+        <text class="item-name">任务模板 (10个)</text>
+        <text class="item-desc">适合6-9岁儿童的学习和生活任务</text>
+      </view>
+      <button class="import-btn" bindtap="importTaskTemplates6_9" disabled="{{importing}}">
+        {{taskTemplates6_9Imported ? '已导入' : '导入'}}
+      </button>
+    </view>
+
+    <view class="import-item">
+      <view class="item-info">
+        <text class="item-name">奖励模板 (10个)</text>
+        <text class="item-desc">适合6-9岁儿童的奖励项目</text>
+      </view>
+      <button class="import-btn" bindtap="importRewardTemplates6_9" disabled="{{importing}}">
+        {{rewardTemplates6_9Imported ? '已导入' : '导入'}}
+      </button>
+    </view>
+  </view>
+
+  <view class="batch-import">
+    <button class="batch-btn" bindtap="importAllTemplates" disabled="{{importing}}">
+      {{importing ? '导入中...' : '一键导入所有模板'}}
+    </button>
+  </view>
+
+  <view class="import-log" wx:if="{{importLog.length > 0}}">
+    <view class="log-title">导入日志</view>
+    <scroll-view class="log-content" scroll-y="true">
+      <view class="log-item" wx:for="{{importLog}}" wx:key="index">
+        <text class="log-time">{{item.time}}</text>
+        <text class="log-message {{item.type}}">{{item.message}}</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>

@@ -73,6 +73,13 @@ const tasksApi = {
   },
 
   /**
+   * 获取分配给自己的任务列表（根据完成状态筛选）
+   */
+  async getMyTasks(data) {
+    return await apiClient.callFunction('manageTasks', { action: 'getMyTasks', data });
+  },
+
+  /**
    * 创建任务
    */
   async create(data) {
@@ -97,7 +104,7 @@ const tasksApi = {
    * 完成任务
    */
   async complete(taskId, childId) {
-    return await apiClient.callFunction('manageTasks', { action: 'complete', taskId, childId });
+    return await apiClient.callFunction('manageTasks', { action: 'complete', data: { taskId, childId } });
   }
 };
 
@@ -108,6 +115,13 @@ const rewardsApi = {
    */
   async getList(options = {}) {
     return await apiClient.callFunction('manageRewards', { action: 'list', ...options });
+  },
+
+  /**
+   * 获取分配给指定孩子的奖励列表
+   */
+  async getMyRewards(data) {
+    return await apiClient.callFunction('manageRewards', { action: 'getMyRewards', data });
   },
 
   /**
@@ -129,6 +143,13 @@ const rewardsApi = {
    */
   async delete(id) {
     return await apiClient.callFunction('manageRewards', { action: 'delete', id });
+  },
+
+  /**
+   * 兑换奖励
+   */
+  async exchange(rewardId, childId) {
+    return await apiClient.callFunction('manageRewards', { action: 'exchange', data: { rewardId, childId } });
   }
 };
 
@@ -145,14 +166,28 @@ const pointsApi = {
    * 获取积分余额
    */
   async getBalance(childId) {
-    return await apiClient.callFunction('managePoints', { action: 'getBalance', childId });
+    return await apiClient.callFunction('managePoints', { action: 'getBalance', data: { childId } });
   },
 
   /**
    * 获取积分统计
    */
   async getStatistics(childId) {
-    return await apiClient.callFunction('managePoints', { action: 'getStatistics', childId });
+    return await apiClient.callFunction('managePoints', { action: 'getStatistics', data: { childId } });
+  },
+
+  /**
+   * 增加积分
+   */
+  async add(childId, points, reason) {
+    return await apiClient.callFunction('managePoints', { action: 'add', data: { childId, points, reason } });
+  },
+
+  /**
+   * 扣减积分
+   */
+  async subtract(childId, points, reason) {
+    return await apiClient.callFunction('managePoints', { action: 'subtract', data: { childId, points, reason } });
   }
 };
 
@@ -235,104 +270,165 @@ const dictionaryApi = {
 // 预设模板管理API
 const templatesApi = {
   /**
-   * 获取任务模板
-   */
-  async getTaskTemplates(ageGroup) {
-    return await apiClient.callFunction('manageTemplates', { action: 'getTaskTemplates', ageGroup });
-  },
-
-  /**
-   * 获取奖励模板
-   */
-  async getRewardTemplates(ageGroup) {
-    return await apiClient.callFunction('manageTemplates', { action: 'getRewardTemplates', ageGroup });
-  },
-
-  /**
-   * 应用模板
-   */
-  async applyTemplate(data) {
-    return await apiClient.callFunction('manageTemplates', { action: 'applyTemplate', data });
-  },
-
-  /**
-   * 根据年龄段获取模板
-   */
-  async getByAgeGroup(ageGroup) {
-    return await apiClient.callFunction('manageTemplates', { action: 'getByAgeGroup', ageGroup });
-  }
-};
-
-// 模板管理API（新增）
-const templateManagementApi = {
-  /**
    * 获取任务模板列表
    */
-  async getTaskTemplateList(options = {}) {
-    return await apiClient.callFunction('manageTemplateData', { action: 'getTaskTemplateList', ...options });
+  async getTaskTemplates(options = {}) {
+    return await apiClient.callFunction('manageTemplateData', { action: 'list', templateType: 'task', ...options });
   },
 
   /**
    * 获取奖励模板列表
    */
-  async getRewardTemplateList(options = {}) {
-    return await apiClient.callFunction('manageTemplateData', { action: 'getRewardTemplateList', ...options });
+  async getRewardTemplates(options = {}) {
+    return await apiClient.callFunction('manageTemplateData', { action: 'list', templateType: 'reward', ...options });
+  },
+
+  /**
+   * 获取指定年龄段的任务模板
+   */
+  async getTaskTemplatesByAge(ageGroup) {
+    return await apiClient.callFunction('manageTemplateData', { 
+      action: 'list', 
+      templateType: 'task',
+      ageGroup 
+    });
+  },
+
+  /**
+   * 获取指定年龄段的奖励模板
+   */
+  async getRewardTemplatesByAge(ageGroup) {
+    return await apiClient.callFunction('manageTemplateData', { 
+      action: 'list', 
+      templateType: 'reward',
+      ageGroup 
+    });
+  },
+
+  /**
+   * 应用任务模板到儿童
+   */
+  async applyTaskTemplate(templateId, childIds, options = {}) {
+    return await apiClient.callFunction('manageTemplateData', { 
+      action: 'applyTemplate', 
+      templateType: 'task',
+      templateId,
+      childIds,
+      ...options
+    });
+  },
+
+  /**
+   * 应用奖励模板到儿童
+   */
+  async applyRewardTemplate(templateId, childIds, options = {}) {
+    return await apiClient.callFunction('manageTemplateData', { 
+      action: 'applyTemplate', 
+      templateType: 'reward',
+      templateId,
+      childIds,
+      ...options
+    });
+  },
+
+  /**
+   * 批量应用模板到儿童
+   */
+  async applyBatchTemplates(data) {
+    return await apiClient.callFunction('manageTemplateData', { 
+      action: 'applyBatchTemplates', 
+      data 
+    });
+  },
+
+  /**
+   * 获取模板应用历史
+   */
+  async getApplicationHistory(childId) {
+    return await apiClient.callFunction('manageTemplateData', { 
+      action: 'getApplicationHistory', 
+      childId 
+    });
+  },
+
+  /**
+   * 获取模板包组列表
+   */
+  async getPackageGroups(filters = {}) {
+    return await apiClient.callFunction('manageTemplateData', { 
+      action: 'getPackageGroups', 
+      ...filters 
+    });
+  },
+
+  /**
+   * 应用模板包组到儿童
+   */
+  async applyPackageGroup(packageGroup, childIds, templateType) {
+    return await apiClient.callFunction('manageTemplateData', { 
+      action: 'applyPackageGroup', 
+      data: {
+        packageGroup, 
+        childIds, 
+        templateType 
+      }
+    });
+  },
+
+  /**
+   * 更新模板的包组信息
+   */
+  async updateTemplatePackageGroup(templateId, templateType, packageData) {
+    return await apiClient.callFunction('manageTemplateData', { 
+      action: 'updateTemplatePackageGroup', 
+      data: {
+        templateId, 
+        templateType, 
+        ...packageData 
+      }
+    });
   },
 
   /**
    * 创建任务模板
    */
   async createTaskTemplate(data) {
-    return await apiClient.callFunction('manageTemplateData', { action: 'createTaskTemplate', data });
+    return await apiClient.callFunction('manageTemplateData', { action: 'create', templateType: 'task', data });
   },
 
   /**
    * 更新任务模板
    */
   async updateTaskTemplate(id, data) {
-    return await apiClient.callFunction('manageTemplateData', { action: 'updateTaskTemplate', id, data });
+    return await apiClient.callFunction('manageTemplateData', { action: 'update', templateType: 'task', id, data });
   },
 
   /**
    * 删除任务模板
    */
   async deleteTaskTemplate(id) {
-    return await apiClient.callFunction('manageTemplateData', { action: 'deleteTaskTemplate', id });
+    return await apiClient.callFunction('manageTemplateData', { action: 'delete', templateType: 'task', id });
   },
 
   /**
    * 创建奖励模板
    */
   async createRewardTemplate(data) {
-    return await apiClient.callFunction('manageTemplateData', { action: 'createRewardTemplate', data });
+    return await apiClient.callFunction('manageTemplateData', { action: 'create', templateType: 'reward', data });
   },
 
   /**
    * 更新奖励模板
    */
   async updateRewardTemplate(id, data) {
-    return await apiClient.callFunction('manageTemplateData', { action: 'updateRewardTemplate', id, data });
+    return await apiClient.callFunction('manageTemplateData', { action: 'update', templateType: 'reward', id, data });
   },
 
   /**
    * 删除奖励模板
    */
   async deleteRewardTemplate(id) {
-    return await apiClient.callFunction('manageTemplateData', { action: 'deleteRewardTemplate', id });
-  },
-
-  /**
-   * 导入模板
-   */
-  async importTemplates(data) {
-    return await apiClient.callFunction('importExportTemplates', { action: 'import', data });
-  },
-
-  /**
-   * 导出模板
-   */
-  async exportTemplates(options = {}) {
-    return await apiClient.callFunction('importExportTemplates', { action: 'export', ...options });
+    return await apiClient.callFunction('manageTemplateData', { action: 'delete', templateType: 'reward', id });
   },
 
   /**
@@ -347,15 +443,10 @@ const templateManagementApi = {
    */
   async toggleTemplateStatus(id, isActive) {
     return await apiClient.callFunction('manageTemplateData', { action: 'toggleStatus', id, isActive });
-  },
-
-  /**
-   * 获取模板导入导出记录
-   */
-  async getTemplateImportExportRecords() {
-    return await apiClient.callFunction('importExportTemplates', { action: 'getRecords' });
   }
 };
+
+// 将模板管理功能整合到 templatesApi 中，移除重复的 API
 
 // 导出所有API服务
 module.exports = {
@@ -366,6 +457,5 @@ module.exports = {
   pointsApi,
   exchangeApi,
   dictionaryApi,
-  templatesApi,
-  templateManagementApi
+  templatesApi
 };

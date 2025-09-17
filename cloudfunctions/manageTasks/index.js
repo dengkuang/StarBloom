@@ -15,6 +15,8 @@ exports.main = async (event, context) => {
     switch (action) {
       case 'list':
         return await getTasks(wxContext.OPENID, data)
+      case 'getMyTasks':
+        return await getMyTasks(wxContext.OPENID, data)
       case 'create':
         return await createTask(wxContext.OPENID, data)
       case 'update':
@@ -32,31 +34,135 @@ exports.main = async (event, context) => {
   }
 }
 
-async function getTasks(parentId, filters) {
+async function getTasks(parentId, data) {
   try {
-    let query = db.collection('tasks').where({
+    // 构建查询条件
+    const whereConditions = {
       parentId: parentId
-    })
-    
+    }
+    console.log('=== 开始获取任务列表 ===')
+    console.log('收到参数:', { parentId, data })
     // 应用过滤条件
-    if (filters && filters.childId) {
-      query = query.where({
-        childIds: _.in([filters.childId])
-      })
+    if (data && data.childId) {
+       console.log('收到参数:', [data.childId])
+      whereConditions.childIds = _.in([data.childId])
     }
     
-    if (filters && filters.status) {
-      query = query.where({
-        status: filters.status
-      })
+    if (data && data.status) {
+      whereConditions.status = data.status
     }
     
-    const result = await query.get()
+    const result = await db.collection('tasks').where(whereConditions).get()
     
     return { code: 0, msg: 'success', data: result.data }
   } catch (error) {
     console.error('getTasks error:', error)
     return { code: -1, msg: '获取任务列表失败' }
+  }
+}
+
+async function getMyTasks(parentId, data) {
+  try {
+    console.log('=== 开始获取我的任务列表 ===')
+    console.log('收到参数:', { parentId, data })
+    
+    const childId  = data
+    if (!childId) {
+      return { code: -1, msg: '参数错误：缺少儿童ID' }
+    }
+    
+    // 获取分配给该儿童的所有活跃任务
+    const tasksResult = await db.collection('tasks').where({
+      childIds: _.in([childId]),
+      status: 'active'
+    }).get()
+    
+    if (tasksResult.data.length === 0) {
+      return { code: 0, msg: 'success', data: [] }
+    }
+    
+    const tasks = tasksResult.data
+    const tasksWithStatus = []
+    
+    // 获取当前时间信息
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    
+    // 获取本周的开始时间（周一）
+    const dayOfWeek = now.getDay()
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek // 如果是周日，往前推6天到周一
+    const weekStart = new Date(today)
+    weekStart.setDate(today.getDate() + mondayOffset)
+    
+    // 获取本周的结束时间（周日）
+    const weekEnd = new Date(weekStart)
+    weekEnd.setDate(weekStart.getDate() + 6)
+    weekEnd.setHours(23, 59, 59, 999)
+    
+    console.log('时间范围:', {
+      today: today.toISOString(),
+      weekStart: weekStart.toISOString(),
+      weekEnd: weekEnd.toISOString()
+    })
+    
+    // 批量查询所有任务的完成记录
+    const taskIds = tasks.map(task => task._id)
+    
+    for (const task of tasks) {
+      let isCompleted = false
+      let completionRecord = null
+      
+      if (task.taskType === 'daily') {
+        // 检查今日是否有完成记录
+        const dailyRecords = await db.collection('task_completion_records').where({
+          taskId: task._id,
+          childId: childId,
+          completeDate: _.gte(today)
+        }).get()
+        
+        if (dailyRecords.data.length > 0) {
+          isCompleted = true
+          completionRecord = dailyRecords.data[0]
+        }
+        
+      } else if (task.taskType === 'weekly') {
+        // 检查本周是否有完成记录
+        const weeklyRecords = await db.collection('task_completion_records').where({
+          taskId: task._id,
+          childId: childId,
+          completeDate: _.gte(weekStart).and(_.lte(weekEnd))
+        }).get()
+        
+        if (weeklyRecords.data.length > 0) {
+          isCompleted = true
+          completionRecord = weeklyRecords.data[0]
+        }
+      }
+      
+      // 添加任务状态信息
+      tasksWithStatus.push({
+        ...task,
+        isCompleted,
+        completionRecord,
+        completionStatus: isCompleted ? 'completed' : 'pending'
+      })
+    }
+    
+    console.log(`处理完成，共${tasksWithStatus.length}个任务`)
+    
+    return { 
+      code: 0, 
+      msg: 'success', 
+      data: tasksWithStatus,
+      meta: {
+        total: tasksWithStatus.length,
+        completed: tasksWithStatus.filter(t => t.isCompleted).length,
+        pending: tasksWithStatus.filter(t => !t.isCompleted).length
+      }
+    }
+  } catch (error) {
+    console.error('getMyTasks error:', error)
+    return { code: -1, msg: '获取我的任务列表失败' }
   }
 }
 
@@ -146,7 +252,22 @@ async function deleteTask(parentId, data) {
 
 async function completeTask(parentId, data) {
   try {
+    console.log('=== 开始完成任务 ===')
+    console.log('收到参数:', { parentId, data })
+    
+    if (!data) {
+      console.error('data 参数为 undefined')
+      return { code: -1, msg: '参数错误：缺少任务数据' }
+    }
+    
     const { taskId, childId } = data
+    
+    if (!taskId || !childId) {
+      console.error('缺少必需参数:', { taskId, childId })
+      return { code: -1, msg: '参数错误：缺少任务ID或儿童ID' }
+    }
+    
+    console.log('解析参数成功:', { taskId, childId })
     
     // 验证任务权限
     const taskResult = await db.collection('tasks').where({

@@ -1,0 +1,253 @@
+/* pages/template-editor/template-editor.wxss */
+/* 模板编辑器页面样式 */
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 0;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #f3f3f3;
+  border-top: 4rpx solid #4CAF50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20rpx;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: #6c757d;
+  font-size: 28rpx;
+}
+
+/* 表单容器 */
+.form-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20rpx;
+}
+
+/* 表单区域 */
+.form-section {
+  background: white;
+  border-radius: 15rpx;
+  margin-bottom: 30rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #212529;
+  margin-bottom: 30rpx;
+  padding-bottom: 15rpx;
+  border-bottom: 2rpx solid #e9ecef;
+}
+
+/* 表单项 */
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #495057;
+  margin-bottom: 15rpx;
+}
+
+.form-label::after {
+  content: ' *';
+  color: #dc3545;
+}
+
+.form-input {
+  width: 100%;
+  padding: 20rpx;
+  border: 2rpx solid #e9ecef;
+  border-radius: 10rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+  background: #f8f9fa;
+}
+
+.form-input:focus {
+  border-color: #4CAF50;
+  background: white;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 120rpx;
+  padding: 20rpx;
+  border: 2rpx solid #e9ecef;
+  border-radius: 10rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+  background: #f8f9fa;
+  resize: vertical;
+}
+
+.form-textarea:focus {
+  border-color: #4CAF50;
+  background: white;
+}
+
+.form-switch {
+  transform: scale(1.2);
+}
+
+/* 选择器 */
+.picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx;
+  border: 2rpx solid #e9ecef;
+  border-radius: 10rpx;
+  background: #f8f9fa;
+  font-size: 28rpx;
+  color: #495057;
+}
+
+.picker-arrow {
+  color: #6c757d;
+  font-size: 24rpx;
+}
+
+/* 开关 */
+.form-switch {
+  transform: scale(0.8);
+}
+
+/* 标签相关 */
+.tag-input-container {
+  display: flex;
+  gap: 15rpx;
+  margin-bottom: 20rpx;
+}
+
+.tag-input {
+  flex: 1;
+  padding: 15rpx;
+  border: 2rpx solid #e9ecef;
+  border-radius: 10rpx;
+  font-size: 26rpx;
+  box-sizing: border-box;
+  background: #f8f9fa;
+}
+
+.add-tag-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 10rpx;
+  padding: 15rpx 25rpx;
+  font-size: 26rpx;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15rpx;
+  margin-bottom: 20rpx;
+}
+
+.tag-item {
+  display: flex;
+  align-items: center;
+  background: #4CAF50;
+  color: white;
+  padding: 10rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+}
+
+.tag-remove {
+  margin-left: 10rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+.available-tags {
+  margin-top: 20rpx;
+}
+
+.available-title {
+  font-size: 24rpx;
+  color: #6c757d;
+  margin-bottom: 15rpx;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.available-tag {
+  background: #e9ecef;
+  color: #495057;
+  padding: 8rpx 16rpx;
+  border-radius: 15rpx;
+  font-size: 24rpx;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.available-tag:active {
+  background: #4CAF50;
+  color: white;
+}
+
+/* 操作按钮 */
+.form-actions {
+  display: flex;
+  gap: 20rpx;
+  padding: 30rpx 0;
+}
+
+.delete-btn {
+  flex: 1;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 15rpx;
+  padding: 25rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+.save-btn {
+  flex: 2;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 15rpx;
+  padding: 25rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+.save-btn[disabled] {
+  background: #6c757d;
+  opacity: 0.6;
+}

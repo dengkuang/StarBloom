@@ -1,0 +1,45 @@
+<!--模板导入调试页面-->
+<view class="container">
+  <view class="header">
+    <text class="title">模板导入调试页面</text>
+    <text class="subtitle">用于排查模板导入问题</text>
+  </view>
+
+  <view class="test-section">
+    <view class="section-title">基础测试</view>
+    
+    <button class="test-btn" bindtap="testDatabaseConnection" disabled="{{testing}}">
+      {{testing ? '测试中...' : '测试数据库连接'}}
+    </button>
+    
+    <button class="test-btn" bindtap="testSingleTemplate" disabled="{{testing}}">
+      {{testing ? '测试中...' : '测试单个模板导入'}}
+    </button>
+    
+    <button class="test-btn" bindtap="initCollections" disabled="{{testing}}">
+      {{testing ? '初始化中...' : '初始化数据库集合'}}
+    </button>
+    
+    <button class="test-btn cleanup" bindtap="cleanupTestData" disabled="{{testing}}">
+      {{testing ? '清理中...' : '清理测试数据'}}
+    </button>
+  </view>
+
+  <view class="result-section" wx:if="{{testResult}}">
+    <view class="section-title">测试结果</view>
+    <view class="result-box">
+      <text class="result-text">{{testResult}}</text>
+    </view>
+  </view>
+
+  <view class="instructions">
+    <view class="section-title">使用说明</view>
+    <text class="instruction-text">
+      1. 点击"测试数据库连接"检查集合是否可访问\n
+      2. 点击"初始化数据库集合"创建必要的集合\n
+      3. 点击"测试单个模板导入"验证基本功能\n
+      4. 查看浏览器控制台获取详细日志\n
+      5. 测试完成后清理测试数据
+    </text>
+  </view>
+</view>

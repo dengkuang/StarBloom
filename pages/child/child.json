@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "孩子视图",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f8f9fa",
+  "usingComponents": {
+    "task-item": "/components/task-item/task-item",
+    "reward-item": "/components/reward-item/reward-item"
+  }
+}

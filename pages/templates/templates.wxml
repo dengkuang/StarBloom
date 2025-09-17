@@ -1,4 +1,303 @@
-<!-- 预设模板页面结构 -->
-<view class="container">
-  <text>预设模板</text>
+<!-- 预设模板页面 -->
+<scroll-view class="container" scroll-y="true" enhanced="true" show-scrollbar="false" bindscrolltolower="onReachBottom">
+  
+  <!-- 头部区域 -->
+  <view class="header-section">
+    <!-- 页面标题和描述 -->
+    <view class="page-header">
+      <text class="page-title">预设模板</text>
+      <text class="page-desc">精选优质模板，快速开始积分管理</text>
+    </view>
+
+    <!-- 统计信息 -->
+    <view class="stats-overview">
+      <view class="stat-item">
+        <text class="stat-number">{{taskTemplateCount || 0}}</text>
+        <text class="stat-label">任务模板</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-number">{{rewardTemplateCount || 0}}</text>
+        <text class="stat-label">奖励模板</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-number">{{packageCount || 0}}</text>
+        <text class="stat-label">模板包</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快捷操作区域 -->
+  <view class="quick-actions-section">
+    <view class="section-title">
+      <text class="title-text">快捷操作</text>
+    </view>
+    <view class="action-grid">
+      <view class="action-card" bindtap="navigateToManagement">
+        <view class="action-icon">⚙️</view>
+        <text class="action-title">模板管理</text>
+        <text class="action-desc">管理和编辑模板</text>
+      </view>
+      <view class="action-card" bindtap="navigateToEditor">
+        <view class="action-icon">✏️</view>
+        <text class="action-title">创建模板</text>
+        <text class="action-desc">自定义新模板</text>
+      </view>
+      <view class="action-card" bindtap="showImportModal">
+        <view class="action-icon">📥</view>
+        <text class="action-title">导入模板</text>
+        <text class="action-desc">从文件导入</text>
+      </view>
+      <view class="action-card" bindtap="showExportModal">
+        <view class="action-icon">📤</view>
+        <text class="action-title">导出模板</text>
+        <text class="action-desc">备份到文件</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 标签页导航 -->
+  <view class="tab-section">
+    <view class="tab-bar">
+      <view class="tab {{activeTab === 'task' ? 'active' : ''}}" bindtap="onTabChange" data-tab="task">
+        <view class="tab-icon">📋</view>
+        <text class="tab-text">任务模板</text>
+        <view class="tab-badge" wx:if="{{taskTemplates.length > 0}}">{{taskTemplates.length}}</view>
+      </view>
+      <view class="tab {{activeTab === 'reward' ? 'active' : ''}}" bindtap="onTabChange" data-tab="reward">
+        <view class="tab-icon">🎁</view>
+        <text class="tab-text">奖励模板</text>
+        <view class="tab-badge" wx:if="{{rewardTemplates.length > 0}}">{{rewardTemplates.length}}</view>
+      </view>
+      <view class="tab {{activeTab === 'package' ? 'active' : ''}}" bindtap="onTabChange" data-tab="package">
+        <view class="tab-icon">📦</view>
+        <text class="tab-text">模板包</text>
+        <view class="tab-badge" wx:if="{{packageGroups.length > 0}}">{{packageGroups.length}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 筛选器 -->
+  <view class="filter-section" wx:if="{{activeTab !== 'package'}}">
+    <scroll-view class="filter-scroll" scroll-x="true" show-scrollbar="false">
+      <view class="filter-list">
+        <view class="filter-item {{ageFilter === '' ? 'active' : ''}}" bindtap="onAgeFilterChange" data-age="">
+          <text>全部年龄</text>
+        </view>
+        <view class="filter-item {{ageFilter === '3-6' ? 'active' : ''}}" bindtap="onAgeFilterChange" data-age="3-6">
+          <text>3-6岁</text>
+        </view>
+        <view class="filter-item {{ageFilter === '6-9' ? 'active' : ''}}" bindtap="onAgeFilterChange" data-age="6-9">
+          <text>6-9岁</text>
+        </view>
+        <view class="filter-item {{ageFilter === '9-12' ? 'active' : ''}}" bindtap="onAgeFilterChange" data-age="9-12">
+          <text>9-12岁</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 内容区域 -->
+  <view class="content-section">
+    
+    <!-- 任务模板列表 -->
+    <view class="template-list" wx:if="{{activeTab === 'task'}}">
+      <view wx:if="{{filteredTaskTemplates.length > 0}}">
+        <view class="template-card-modern" wx:for="{{filteredTaskTemplates}}" wx:key="id" wx:for-index="index">
+          <view class="card-header">
+            <view class="template-icon task-icon">📋</view>
+            <view class="template-info">
+              <text class="template-name">{{item.name}}</text>
+              <text class="template-category">{{item.category || '日常任务'}}</text>
+            </view>
+            <view class="template-points">
+              <text class="points-value">{{item.points}}</text>
+              <text class="points-unit">积分</text>
+            </view>
+          </view>
+          
+          <view class="card-body">
+            <text class="template-description">{{item.description}}</text>
+            <view class="template-tags">
+              <text class="tag age-tag">{{getAgeGroupText(item.ageGroup)}}</text>
+              <text class="tag difficulty-tag">{{getDifficultyText(item.difficulty)}}</text>
+            </view>
+          </view>
+          
+          <view class="card-actions">
+            <button class="action-btn preview-btn" bindtap="onPreviewTemplate" data-template="{{item}}" data-index="{{index}}">
+              <text class="btn-icon">👁</text>
+              <text>预览</text>
+            </button>
+            <button class="action-btn apply-btn" bindtap="onApplyTemplate" data-template="{{item}}" data-type="task">
+              <text class="btn-icon">✓</text>
+              <text>应用</text>
+            </button>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 空状态 -->
+      <view class="empty-state" wx:else>
+        <view class="empty-icon">📋</view>
+        <text class="empty-title">暂无任务模板</text>
+        <text class="empty-desc">{{ageFilter ? '当前年龄段暂无模板' : '还没有预设的任务模板'}}</text>
+        <button class="empty-action-btn" bindtap="navigateToEditor">创建模板</button>
+      </view>
+    </view>
+
+    <!-- 奖励模板列表 -->
+    <view class="template-list" wx:if="{{activeTab === 'reward'}}">
+      <view wx:if="{{filteredRewardTemplates.length > 0}}">
+        <view class="template-card-modern" wx:for="{{filteredRewardTemplates}}" wx:key="id" wx:for-index="index">
+          <view class="card-header">
+            <view class="template-icon reward-icon">🎁</view>
+            <view class="template-info">
+              <text class="template-name">{{item.name}}</text>
+              <text class="template-category">{{item.category || '奖励'}}</text>
+            </view>
+            <view class="template-points">
+              <text class="points-value">{{item.pointsRequired}}</text>
+              <text class="points-unit">积分</text>
+            </view>
+          </view>
+          
+          <view class="card-body">
+            <text class="template-description">{{item.description}}</text>
+            <view class="template-tags">
+              <text class="tag age-tag">{{getAgeGroupText(item.ageGroup)}}</text>
+              <text class="tag type-tag">{{getRewardTypeText(item.type)}}</text>
+            </view>
+          </view>
+          
+          <view class="card-actions">
+            <button class="action-btn preview-btn" bindtap="onPreviewTemplate" data-template="{{item}}" data-index="{{index}}">
+              <text class="btn-icon">👁</text>
+              <text>预览</text>
+            </button>
+            <button class="action-btn apply-btn" bindtap="onApplyTemplate" data-template="{{item}}" data-type="reward">
+              <text class="btn-icon">✓</text>
+              <text>应用</text>
+            </button>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 空状态 -->
+      <view class="empty-state" wx:else>
+        <view class="empty-icon">🎁</view>
+        <text class="empty-title">暂无奖励模板</text>
+        <text class="empty-desc">{{ageFilter ? '当前年龄段暂无模板' : '还没有预设的奖励模板'}}</text>
+        <button class="empty-action-btn" bindtap="navigateToEditor">创建模板</button>
+      </view>
+    </view>
+
+    <!-- 模板包列表 -->
+    <view class="package-list" wx:if="{{activeTab === 'package'}}">
+      <view wx:if="{{packageGroups.length > 0}}">
+        <view class="package-card" wx:for="{{packageGroups}}" wx:key="packageGroup">
+          <view class="package-header">
+            <view class="package-icon">📦</view>
+            <view class="package-info">
+              <text class="package-name">{{item.packageName}}</text>
+              <text class="package-stats">{{item.taskCount}}个任务 · {{item.rewardCount}}个奖励</text>
+            </view>
+            <view class="package-badge">套装</view>
+          </view>
+          
+          <view class="package-body">
+            <text class="package-description">{{item.description || '完整的积分管理方案'}}</text>
+            <view class="package-preview">
+              <text class="preview-label">包含内容:</text>
+              <view class="preview-items">
+                <text class="preview-item" wx:if="{{item.taskCount > 0}}">📋 {{item.taskCount}}个任务模板</text>
+                <text class="preview-item" wx:if="{{item.rewardCount > 0}}">🎁 {{item.rewardCount}}个奖励模板</text>
+              </view>
+            </view>
+          </view>
+          
+          <view class="package-actions">
+            <button class="action-btn preview-btn" bindtap="onPreviewPackage" data-package="{{item}}">
+              <text class="btn-icon">👁</text>
+              <text>查看详情</text>
+            </button>
+            <button class="action-btn apply-btn" bindtap="onApplyPackage" data-package="{{item}}">
+              <text class="btn-icon">📦</text>
+              <text>应用套装</text>
+            </button>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 空状态 -->
+      <view class="empty-state" wx:else>
+        <view class="empty-icon">📦</view>
+        <text class="empty-title">暂无模板包</text>
+        <text class="empty-desc">模板包包含多个相关的任务和奖励模板</text>
+        <button class="empty-action-btn" bindtap="navigateToManagement">管理模板</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部安全区域 -->
+  <view class="safe-area-bottom"></view>
+</scroll-view>
+
+<!-- 模板预览弹窗 -->
+<view class="modal-overlay" wx:if="{{showPreviewModal}}" bindtap="hidePreviewModal">
+  <view class="modal-content preview-modal" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">模板预览</text>
+      <view class="modal-close" bindtap="hidePreviewModal">✕</view>
+    </view>
+    
+    <view class="modal-body" wx:if="{{previewTemplate}}">
+      <view class="preview-header">
+        <view class="preview-icon {{previewTemplate.type === 'task' ? 'task-icon' : 'reward-icon'}}">
+          {{previewTemplate.type === 'task' ? '📋' : '🎁'}}
+        </view>
+        <view class="preview-info">
+          <text class="preview-name">{{previewTemplate.name}}</text>
+          <text class="preview-category">{{previewTemplate.category}}</text>
+        </view>
+        <view class="preview-points">
+          <text class="points-value">{{previewTemplate.points || previewTemplate.pointsRequired}}</text>
+          <text class="points-unit">积分</text>
+        </view>
+      </view>
+      
+      <view class="preview-details">
+        <view class="detail-item">
+          <text class="detail-label">描述</text>
+          <text class="detail-value">{{previewTemplate.description}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">适用年龄</text>
+          <text class="detail-value">{{getAgeGroupText(previewTemplate.ageGroup)}}</text>
+        </view>
+        <view class="detail-item" wx:if="{{previewTemplate.difficulty}}">
+          <text class="detail-label">难度</text>
+          <text class="detail-value">{{getDifficultyText(previewTemplate.difficulty)}}</text>
+        </view>
+        <view class="detail-item" wx:if="{{previewTemplate.type}}">
+          <text class="detail-label">类型</text>
+          <text class="detail-value">{{getRewardTypeText(previewTemplate.type)}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <view class="modal-footer">
+      <button class="modal-btn cancel-btn" bindtap="hidePreviewModal">关闭</button>
+      <button class="modal-btn confirm-btn" bindtap="onApplyFromPreview">应用模板</button>
+    </view>
+  </view>
+</view>
+
+<!-- 加载状态 -->
+<view class="loading-overlay" wx:if="{{loading}}">
+  <view class="loading-content">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
 </view>

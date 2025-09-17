@@ -1,4 +1,188 @@
-<!-- 积分中心页面结构 -->
-<view class="container">
-  <text>积分中心</text>
+<!-- 积分中心页面 -->
+<scroll-view class="container" scroll-y="true" enhanced="true" show-scrollbar="false" bindscrolltolower="onReachBottom">
+  
+  <!-- 头部区域 -->
+  <view class="header-section">
+    <!-- 孩子选择器 -->
+    <view class="child-selector" wx:if="{{childrenList.length > 0}}">
+      <picker range="{{childrenList}}" range-key="name" value="{{currentChildIndex}}" bindchange="onChildChange">
+        <view class="picker-content">
+          <image class="child-avatar-header" src="{{currentChild.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+          <view class="child-info-header">
+            <text class="child-name-header">{{currentChild.name}}</text>
+            <text class="child-points-header">当前积分: {{currentChild.totalPoints || 0}}</text>
+          </view>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 积分统计概览 -->
+    <view class="points-overview" wx:if="{{currentChild}}">
+      <view class="overview-card main-card">
+        <view class="main-points">
+          <text class="points-number">{{pointStats.totalPoints || 0}}</text>
+          <text class="points-label">总积分</text>
+        </view>
+        <view class="points-trend">
+          <view class="trend-item">
+            <text class="trend-label">今日</text>
+            <text class="trend-value positive">+{{pointStats.todayPoints || 0}}</text>
+          </view>
+          <view class="trend-item">
+            <text class="trend-label">本周</text>
+            <text class="trend-value positive">+{{pointStats.weekPoints || 0}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 积分统计卡片 -->
+  <view class="stats-section" wx:if="{{currentChild}}">
+    <view class="stats-grid">
+      <view class="stat-card">
+        <view class="stat-icon earn">📈</view>
+        <view class="stat-info">
+          <text class="stat-value">{{pointStats.totalEarnedPoints || 0}}</text>
+          <text class="stat-label">累计获得</text>
+        </view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-icon consume">📉</view>
+        <view class="stat-info">
+          <text class="stat-value">{{pointStats.totalConsumedPoints || 0}}</text>
+          <text class="stat-label">累计消费</text>
+        </view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-icon tasks">✅</view>
+        <view class="stat-info">
+          <text class="stat-value">{{pointStats.tasksCompleted || 0}}</text>
+          <text class="stat-label">完成任务</text>
+        </view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-icon month">📅</view>
+        <view class="stat-info">
+          <text class="stat-value">{{pointStats.monthPoints || 0}}</text>
+          <text class="stat-label">本月获得</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 筛选器 -->
+  <view class="filter-section" wx:if="{{currentChild}}">
+    <view class="filter-tabs">
+      <view class="filter-tab {{filterType === 'all' ? 'active' : ''}}" bindtap="onFilterTypeChange" data-value="all">
+        <text>全部</text>
+      </view>
+      <view class="filter-tab {{filterType === 'earn' ? 'active' : ''}}" bindtap="onFilterTypeChange" data-value="earn">
+        <text>获得</text>
+      </view>
+      <view class="filter-tab {{filterType === 'consume' ? 'active' : ''}}" bindtap="onFilterTypeChange" data-value="consume">
+        <text>消费</text>
+      </view>
+      <view class="filter-tab {{filterType === 'adjustment' ? 'active' : ''}}" bindtap="onFilterTypeChange" data-value="adjustment">
+        <text>调整</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 积分记录列表 -->
+  <view class="records-section" wx:if="{{currentChild}}">
+    <view class="section-header">
+      <text class="section-title">积分记录</text>
+      <view class="header-actions">
+        <button class="action-btn add" bindtap="showAdjustPointsModal" data-type="add">增加</button>
+        <button class="action-btn subtract" bindtap="showAdjustPointsModal" data-type="subtract">扣减</button>
+      </view>
+    </view>
+
+    <!-- 记录列表 -->
+    <view class="records-list" wx:if="{{pointRecords.length > 0}}">
+      <view class="record-item" wx:for="{{pointRecords}}" wx:key="_id">
+        <view class="record-icon {{getRecordTypeColor(item)}}">
+          <text wx:if="{{item.changeType === 'earn'}}">💰</text>
+          <text wx:elif="{{item.changeType === 'exchange'}}">🎁</text>
+          <text wx:elif="{{item.changeType === 'adjustment_add'}}">➕</text>
+          <text wx:elif="{{item.changeType === 'adjustment_subtract'}}">➖</text>
+          <text wx:else>📝</text>
+        </view>
+        <view class="record-content">
+          <view class="record-main">
+            <text class="record-title">{{getRecordTypeText(item)}}</text>
+            <text class="record-desc" wx:if="{{item.description}}">{{item.description}}</text>
+            <text class="record-reason" wx:if="{{item.reason}}">原因: {{item.reason}}</text>
+          </view>
+          <view class="record-right">
+            <text class="record-points {{item.changeType === 'earn' || item.changeType === 'adjustment_add' ? 'positive' : 'negative'}}">
+              {{item.changeType === 'earn' || item.changeType === 'adjustment_add' ? '+' : '-'}}{{item.points}}
+            </text>
+            <text class="record-time">{{formatDate(item.createdAt)}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-records" wx:else>
+      <view class="empty-icon">📊</view>
+      <text class="empty-text">暂无积分记录</text>
+      <text class="empty-desc">完成任务或手动调整积分后会显示记录</text>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore && pointRecords.length > 0}}">
+      <text wx:if="{{loading}}">加载中...</text>
+      <text wx:else>上拉加载更多</text>
+    </view>
+  </view>
+
+  <!-- 空状态 - 无孩子 -->
+  <view class="empty-child-state" wx:if="{{childrenList.length === 0}}">
+    <view class="empty-icon-large">👶</view>
+    <text class="empty-title">还没有添加孩子</text>
+    <text class="empty-desc">添加孩子信息后才能查看积分记录</text>
+    <button class="add-child-btn" bindtap="navigateToChild">添加孩子</button>
+  </view>
+
+  <!-- 底部安全区域 -->
+  <view class="safe-area-bottom"></view>
+</scroll-view>
+
+<!-- 调整积分弹窗 -->
+<view class="modal-overlay" wx:if="{{showAdjustModal}}" bindtap="hideAdjustPointsModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">{{adjustType === 'add' ? '增加积分' : '扣减积分'}}</text>
+      <view class="modal-close" bindtap="hideAdjustPointsModal">✕</view>
+    </view>
+    
+    <view class="modal-body">
+      <view class="input-group">
+        <text class="input-label">积分数量</text>
+        <input class="input-field" type="number" placeholder="请输入积分数量" value="{{adjustPoints}}" bindinput="onAdjustPointsInput" />
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">调整原因</text>
+        <textarea class="textarea-field" placeholder="请输入调整原因" value="{{adjustReason}}" bindinput="onAdjustReasonInput" maxlength="100"></textarea>
+      </view>
+    </view>
+    
+    <view class="modal-footer">
+      <button class="modal-btn cancel" bindtap="hideAdjustPointsModal">取消</button>
+      <button class="modal-btn confirm {{adjustType}}" bindtap="confirmAdjustPoints">确认{{adjustType === 'add' ? '增加' : '扣减'}}</button>
+    </view>
+  </view>
+</view>
+
+<!-- 加载状态 -->
+<view class="loading-overlay" wx:if="{{loading && !pointRecords.length}}">
+  <view class="loading-content">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
 </view>

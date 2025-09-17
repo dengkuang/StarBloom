@@ -1,16 +1,25 @@
 <!-- components/reward-item/reward-item.wxml -->
 <!-- 奖励项组件结构 -->
-<view class="reward-item">
-  <image class="reward-icon" src="{{reward.icon || '/images/default-reward.png'}}" mode="aspectFill"></image>
+<view class="reward-item {{showActions ? 'can-exchange' : 'cannot-exchange'}}">
+  <view class="reward-icon-container">
+    <image class="reward-icon" src="{{reward.icon || '/images/default-reward.png'}}" mode="aspectFill"></image>
+    <text class="reward-emoji" wx:if="{{!reward.icon}}">{{reward.emoji || '🎁'}}</text>
+  </view>
+  
   <view class="reward-info">
     <text class="reward-name">{{reward.name}}</text>
-    <text class="reward-description">{{reward.description}}</text>
-    <text class="reward-points">{{reward.points}} 积分</text>
+    <text class="reward-description" wx:if="{{reward.description}}">{{reward.description}}</text>
+    <view class="reward-meta">
+      <text class="reward-points">{{reward.pointsRequired}}积分</text>
+      <text class="reward-category" wx:if="{{reward.category}}">{{reward.category}}</text>
+    </view>
   </view>
   
   <view wx:if="{{showActions}}" class="reward-actions">
     <button class="action-btn exchange-btn" bindtap="onExchange">兑换</button>
-    <button class="action-btn edit-btn" bindtap="onEdit">编辑</button>
-    <button class="action-btn delete-btn" bindtap="onDelete">删除</button>
+  </view>
+  
+  <view wx:else class="reward-status">
+    <text class="insufficient-points">积分不足</text>
   </view>
 </view>

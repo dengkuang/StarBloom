@@ -1,50 +1,316 @@
 <!-- pages/template-management/template-management.wxml -->
 <!-- 模板管理页面结构 -->
 <view class="container">
-  <view class="header">
-    <text class="page-title">模板管理</text>
+ 
+
+  <!-- 模式切换器 -->
+  <view class="mode-switcher">
+    <view class="mode-option {{!showPackageGroups ? 'active' : ''}}" bindtap="togglePackageGroups" data-mode="template">
+      <view class="mode-icon">📋</view>
+      <text class="mode-label">模板列表</text>
+      <text class="mode-desc">按分类筛选模板</text>
+    </view>
+    <view class="mode-option {{showPackageGroups ? 'active' : ''}}" bindtap="togglePackageGroups" data-mode="package">
+      <view class="mode-icon">📦</view>
+      <text class="mode-label">模板包组</text>
+      <text class="mode-desc">批量应用模板包</text>
+    </view>
   </view>
 
+  <!-- 标签页导航 -->
   <view class="tab-bar">
     <view class="tab {{activeTab === 'task' ? 'active' : ''}}" data-tab="task" bindtap="onTabChange">
-      <text>任务模板</text>
+      <text class="tab-text">任务模板</text>
+      <text class="tab-count" wx:if="{{!showPackageGroups}}">{{taskTemplates.length}}</text>
     </view>
     <view class="tab {{activeTab === 'reward' ? 'active' : ''}}" data-tab="reward" bindtap="onTabChange">
-      <text>奖励模板</text>
+      <text class="tab-text">奖励模板</text>
+      <text class="tab-count" wx:if="{{!showPackageGroups}}">{{rewardTemplates.length}}</text>
     </view>
   </view>
 
-  <view class="template-list">
-    <!-- 任务模板列表 -->
-    <view wx:if="{{activeTab === 'task'}}">
-      <template-card 
-        wx:for="{{taskTemplates}}" 
-        wx:key="id" 
-        template="{{item}}" 
-        type="task"
-        bind:apply="onApplyTemplate"
-        bind:preview="onPreviewTemplate"
-        bind:edit="onEditTemplate"
-        bind:delete="onDeleteTemplate">
-      </template-card>
+  <!-- 包组模式内容 -->
+  <view class="content-area package-mode" wx:if="{{showPackageGroups && !loading}}">
+    <!-- 调试信息 -->
+    <view style="background: #fff3cd; padding: 10rpx; margin: 10rpx; border-radius: 10rpx; font-size: 24rpx; color: #856404;" wx:if="{{packageGroups.length === 0}}">
+      调试：包组数据为空，请检查控制台日志
     </view>
-
-    <!-- 奖励模板列表 -->
-    <view wx:if="{{activeTab === 'reward'}}">
-      <template-card 
-        wx:for="{{rewardTemplates}}" 
-        wx:key="id" 
-        template="{{item}}" 
-        type="reward"
-        bind:apply="onApplyTemplate"
-        bind:preview="onPreviewTemplate"
-        bind:edit="onEditTemplate"
-        bind:delete="onDeleteTemplate">
-      </template-card>
+    
+    <!-- 包组网格 -->
+    <view class="package-grid">
+      <view class="package-card {{selectedPackageGroup === item.packageGroup ? 'selected' : ''}}" 
+            wx:for="{{packageGroups}}" 
+            wx:key="packageGroup">
+        
+        <!-- 包组头部 -->
+        <view class="package-header" bindtap="onPackageGroupSelect" data-package-group="{{item.packageGroup}}">
+          <view class="package-icon">📦</view>
+          <view class="package-info">
+            <text class="package-name">{{item.packageName}}</text>
+            <text class="package-stats">{{item.taskCount}} 任务 · {{item.rewardCount}} 奖励</text>
+          </view>
+          <view class="package-checkbox">{{selectedPackageGroup === item.packageGroup ? '✓' : ''}}</view>
+        </view>
+        
+        <!-- 包组操作 -->
+        <view class="package-actions">
+          <button class="package-action-btn task-btn" 
+                  wx:if="{{item.taskCount > 0 && activeTab === 'task'}}"
+                  bindtap="applyPackageGroupToChildren" 
+                  data-package-group="{{item.packageGroup}}">
+            <text class="btn-icon">📋</text>
+            <text>应用任务包</text>
+          </button>
+          <button class="package-action-btn reward-btn" 
+                  wx:if="{{item.rewardCount > 0 && activeTab === 'reward'}}"
+                  bindtap="applyPackageGroupToChildren" 
+                  data-package-group="{{item.packageGroup}}">
+            <text class="btn-icon">🎁</text>
+            <text>应用奖励包</text>
+          </button>
+        </view>
+        
+        <!-- 包组模板预览 -->
+        <view class="package-preview" wx:if="{{selectedPackageGroup === item.packageGroup}}">
+          <text class="preview-title">包含模板:</text>
+          <view class="preview-items">
+            <!-- 这里可以显示包组内的模板列表 -->
+            <text class="preview-item">点击查看详情</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{packageGroups.length === 0}}">
+      <view class="empty-icon">📦</view>
+      <text class="empty-title">暂无模板包组</text>
+      <text class="empty-desc">请先创建模板并设置包组信息</text>
+      <button class="create-empty-btn" bindtap="onCreateTemplate">创建模板</button>
     </view>
   </view>
 
-  <view class="add-button" bindtap="onAddTemplate">
-    <text class="add-text">+</text>
+  <!-- 模板列表模式内容 -->
+  <view class="content-area template-mode" wx:if="{{!showPackageGroups && !loading}}">
+    <!-- 筛选栏 -->
+    <view class="filter-bar">
+      <view class="filter-group">
+        <picker mode="selector" range="{{ageGroups}}" range-key="label" bindchange="onAgeFilterChange" value="{{ageFilterIndex}}">
+          <view class="filter-btn {{ageFilter ? 'active' : ''}}">
+            <text class="filter-icon">👶</text>
+            <text class="filter-text">{{ageFilterIndex >= 0 ? ageGroups[ageFilterIndex].label : '年龄段'}}</text>
+            <text class="filter-arrow">▼</text>
+          </view>
+        </picker>
+        
+        <picker mode="selector" range="{{categories}}" range-key="label" bindchange="onCategoryFilterChange" value="{{categoryFilterIndex}}">
+          <view class="filter-btn {{categoryFilter ? 'active' : ''}}">
+            <text class="filter-icon">📂</text>
+            <text class="filter-text">{{categoryFilterIndex >= 0 ? categories[categoryFilterIndex].label : '分类'}}</text>
+            <text class="filter-arrow">▼</text>
+          </view>
+        </picker>
+        
+        <button class="filter-btn clear-btn" bindtap="clearFilters" wx:if="{{ageFilter || categoryFilter}}">
+          <text class="filter-icon">🗑️</text>
+          <text class="filter-text">清除</text>
+        </button>
+      </view>
+    </view>
+    
+    <!-- 模板网格 -->
+    <view class="template-grid">
+      <!-- 任务模板列表 -->
+      <view wx:if="{{activeTab === 'task'}}">
+        <view wx:if="{{taskTemplates.length > 0}}">
+          <view class="template-card" wx:for="{{taskTemplates}}" wx:key="_id">
+            <view class="template-card-header">
+              <view class="template-type-icon">📋</view>
+              <view class="template-title-area">
+                <text class="template-name">{{item.name}}</text>
+                <view class="template-badges">
+                  <text class="badge points">{{item.points}}积分</text>
+                  <text class="badge age">{{getAgeGroupLabel(item.ageGroup)}}</text>
+                  <text class="badge category">{{getCategoryLabel(item.category)}}</text>
+                </view>
+              </view>
+              <view class="template-status {{item.isActive ? 'active' : 'inactive'}}">
+                {{item.isActive ? '启用' : '禁用'}}
+              </view>
+            </view>
+            
+            <view class="template-card-body">
+              <text class="template-desc">{{item.description}}</text>
+              <view class="template-package" wx:if="{{item.isInPackage}}">
+                <text class="package-tag">📦 {{item.packageName}}</text>
+              </view>
+            </view>
+            
+            <view class="template-card-actions">
+              <button class="card-btn primary-btn" bindtap="showChildSelectorModal" data-template="{{item}}">
+                <text class="btn-icon">✓</text>
+                <text>应用</text>
+              </button>
+              <button class="card-btn secondary-btn" bindtap="onViewTemplate" data-template="{{item}}">
+                <text class="btn-icon">👁</text>
+                <text>详情</text>
+              </button>
+              <button class="card-btn edit-btn" bindtap="onEditTemplate" data-template="{{item}}">
+                <text class="btn-icon">✏️</text>
+                <text>编辑</text>
+              </button>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 空状态 -->
+        <view class="empty-state" wx:else>
+          <view class="empty-icon">📋</view>
+          <text class="empty-title">暂无任务模板</text>
+          <text class="empty-desc">创建第一个任务模板来开始管理</text>
+          <button class="create-empty-btn" bindtap="onCreateTemplate">创建任务模板</button>
+        </view>
+      </view>
+      
+      <!-- 奖励模板列表 -->
+      <view wx:if="{{activeTab === 'reward'}}">
+        <view wx:if="{{rewardTemplates.length > 0}}">
+          <view class="template-card" wx:for="{{rewardTemplates}}" wx:key="_id">
+            <view class="template-card-header">
+              <view class="template-type-icon">🎁</view>
+              <view class="template-title-area">
+                <text class="template-name">{{item.name}}</text>
+                <view class="template-badges">
+                  <text class="badge points">{{item.pointsRequired}}积分</text>
+                  <text class="badge age">{{getAgeGroupLabel(item.ageGroup)}}</text>
+                  <text class="badge category">{{getCategoryLabel(item.category)}}</text>
+                </view>
+              </view>
+              <view class="template-status {{item.isActive ? 'active' : 'inactive'}}">
+                {{item.isActive ? '启用' : '禁用'}}
+              </view>
+            </view>
+            
+            <view class="template-card-body">
+              <text class="template-desc">{{item.description}}</text>
+              <view class="template-package" wx:if="{{item.isInPackage}}">
+                <text class="package-tag">📦 {{item.packageName}}</text>
+              </view>
+            </view>
+            
+            <view class="template-card-actions">
+              <button class="card-btn primary-btn" bindtap="showChildSelectorModal" data-template="{{item}}">
+                <text class="btn-icon">✓</text>
+                <text>应用</text>
+              </button>
+              <button class="card-btn secondary-btn" bindtap="onViewTemplate" data-template="{{item}}">
+                <text class="btn-icon">👁</text>
+                <text>详情</text>
+              </button>
+              <button class="card-btn edit-btn" bindtap="onEditTemplate" data-template="{{item}}">
+                <text class="btn-icon">✏️</text>
+                <text>编辑</text>
+              </button>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 空状态 -->
+        <view class="empty-state" wx:else>
+          <view class="empty-icon">🎁</view>
+          <text class="empty-title">暂无奖励模板</text>
+          <text class="empty-desc">创建第一个奖励模板来激励孩子</text>
+          <button class="create-empty-btn" bindtap="onCreateTemplate">创建奖励模板</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 悬浮创建按钮 -->
+  <view class="floating-add-btn" bindtap="onCreateTemplate" wx:if="{{!loading}}">
+    <text class="add-icon">+</text>
+  </view>
+</view>
+
+<!-- 儿童选择器弹窗 -->
+<view class="modal-mask" wx:if="{{showChildSelector}}" bindtap="hideChildSelectorModal"></view>
+<view class="modal-container" wx:if="{{showChildSelector}}">
+  <view class="modal-header">
+    <text class="modal-title">选择应用儿童</text>
+    <text class="modal-close" bindtap="hideChildSelectorModal">×</text>
+  </view>
+  
+  <view class="modal-content">
+    <!-- 模板信息预览 -->
+    <view class="template-preview">
+      <text class="preview-title">模板信息</text>
+      <view class="preview-info">
+        <text class="preview-name">{{currentTemplate.packageName || currentTemplate.name || '模板'}}</text>
+        <text class="preview-desc">{{currentTemplate.description || '暂无描述'}}</text>
+        <view class="preview-type" wx:if="{{currentTemplate.packageGroup}}">
+          <text class="type-badge">包组模板</text>
+          <text class="type-detail" wx:if="{{currentTemplate.templateType === 'task'}}">
+            {{currentTemplate.taskCount || 0}} 个任务模板
+          </text>
+          <text class="type-detail" wx:elif="{{currentTemplate.templateType === 'reward'}}">
+            {{currentTemplate.rewardCount || 0}} 个奖励模板
+          </text>
+          <text class="type-detail" wx:else>
+            {{currentTemplate.taskCount || 0}} 任务 · {{currentTemplate.rewardCount || 0}} 奖励
+          </text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 儿童选择区域 -->
+    <view class="child-selector">
+      <view class="selector-header">
+        <text class="selector-title">选择儿童</text>
+        <button class="select-all-btn" bindtap="onToggleSelectAll" disabled="{{children.length === 0}}">
+          {{selectedChildren.length === children.length ? '取消全选' : '全选'}}
+        </button>
+      </view>
+      
+      <!-- 使用标准的 checkbox-group 组件 - 优化性能版本 -->
+      <checkbox-group bindchange="onCheckboxChange" class="child-checkbox-group">
+        <view class="child-list">
+          <label class="child-item" wx:for="{{children}}" wx:key="_id" wx:for-item="child">
+            <checkbox value="{{child._id}}" checked="{{childSelectionMap[child._id] || false}}" class="child-checkbox"/>
+            <view class="child-info">
+              <text class="child-name">{{child.name}}</text>
+              <text class="child-age">{{child.age}}岁</text>
+            </view>
+          </label>
+          
+          <view class="empty-children" wx:if="{{children.length === 0}}">
+            <text>暂无儿童，请先添加儿童</text>
+            <button class="add-child-btn" bindtap="goToAddChild">添加儿童</button>
+          </view>
+        </view>
+      </checkbox-group>
+      
+      <!-- 选择的儿童数量显示 -->
+      <view class="selection-summary" wx:if="{{selectedChildren.length > 0}}">
+        <text class="summary-text">已选择 {{selectedChildren.length}} 个儿童</text>
+        <view class="selected-names">
+          <text class="selected-name" wx:for="{{getSelectedChildrenNames()}}" wx:key="*this">{{item}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <view class="modal-footer">
+    <button class="cancel-btn" bindtap="hideChildSelectorModal">取消</button>
+    <button class="confirm-btn" bindtap="applyTemplateToChildren" disabled="{{loading || selectedChildren.length === 0}}">
+      <text wx:if="{{currentTemplate.packageGroup}}">应用{{currentTemplate.templateType === 'task' ? '任务包' : '奖励包'}}</text>
+      <text wx:else>应用模板</text>
+      到{{selectedChildren.length}}个儿童
+    </button>
   </view>
 </view>

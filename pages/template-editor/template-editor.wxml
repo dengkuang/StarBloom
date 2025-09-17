@@ -1,0 +1,306 @@
+<!-- pages/template-editor/template-editor.wxml -->
+<!-- 模板编辑器页面结构 -->
+<view class="container">
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 表单内容 -->
+  <view class="form-container" wx:else>
+    <!-- 基本信息 -->
+    <view class="form-section">
+      <view class="section-title">
+        <text>基本信息</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">模板名称 *</text>
+        <input class="form-input" 
+               placeholder="请输入模板名称" 
+               value="{{formData.name}}" 
+               bindinput="onInputChange" 
+               data-field="name" />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">模板描述 *</text>
+        <textarea class="form-textarea" 
+                  placeholder="请输入模板描述" 
+                  value="{{formData.description}}" 
+                  bindinput="onInputChange" 
+                  data-field="description" />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">模板ID *</text>
+        <input class="form-input" 
+               placeholder="请输入模板ID" 
+               value="{{formData.templateId}}" 
+               bindinput="onInputChange" 
+               data-field="templateId" />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">年龄段</text>
+        <picker mode="selector" 
+                range="{{ageGroups}}" 
+                range-key="label" 
+                bindchange="onPickerChange" 
+                data-field="ageGroup"
+                value="{{ageGroupIndex}}">
+          <view class="picker-item">
+            <text>{{ageGroups[ageGroupIndex].label}}</text>
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">分类</text>
+        <picker mode="selector" 
+                range="{{categories}}" 
+                range-key="label" 
+                bindchange="onPickerChange" 
+                data-field="category"
+                value="{{categoryIndex}}">
+          <view class="picker-item">
+            <text>{{categories[categoryIndex].label}}</text>
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">排序</text>
+        <input class="form-input" 
+               type="number" 
+               value="{{formData.sort_order}}" 
+               bindinput="onInputChange" 
+               data-field="sort_order" />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">状态</text>
+        <switch class="form-switch" 
+                checked="{{formData.isActive}}" 
+                bindchange="onSwitchChange" 
+                data-field="isActive" />
+      </view>
+    </view>
+
+    <!-- 任务特有字段 -->
+    <view class="form-section" wx:if="{{templateType === 'task'}}">
+      <view class="section-title">
+        <text>任务设置</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">任务类型</text>
+        <picker mode="selector" 
+                range="{{taskTypes}}" 
+                range-key="name" 
+                bindchange="onPickerChange" 
+                data-field="taskFields.taskType"
+                value="{{taskTypeIndex}}">
+          <view class="picker-item">
+            <text>{{taskTypes[taskTypeIndex].name}}</text>
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">周期类型</text>
+        <picker mode="selector" 
+                range="{{cycleTypes}}" 
+                range-key="name" 
+                bindchange="onPickerChange" 
+                data-field="taskFields.cycleType"
+                value="{{cycleTypeIndex}}">
+          <view class="picker-item">
+            <text>{{cycleTypes[cycleTypeIndex].name}}</text>
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">积分</text>
+        <input class="form-input" 
+               type="number" 
+               value="{{taskFields.points}}" 
+               bindinput="onInputChange" 
+               data-field="taskFields.points" />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">难度</text>
+        <picker mode="selector" 
+                range="{{difficulties}}" 
+                range-key="label" 
+                bindchange="onPickerChange" 
+                data-field="taskFields.difficulty"
+                value="{{difficultyIndex}}">
+          <view class="picker-item">
+            <text>{{difficulties[difficultyIndex].label}}</text>
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 奖励特有字段 -->
+    <view class="form-section" wx:if="{{templateType === 'reward'}}">
+      <view class="section-title">
+        <text>奖励设置</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">奖励类型</text>
+        <picker mode="selector" 
+                range="{{rewardTypes}}" 
+                range-key="name" 
+                bindchange="onPickerChange" 
+                data-field="rewardFields.rewardType"
+                value="{{rewardTypeIndex}}">
+          <view class="picker-item">
+            <text>{{rewardTypes[rewardTypeIndex].name}}</text>
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">所需积分</text>
+        <input class="form-input" 
+               type="number" 
+               value="{{rewardFields.pointsRequired}}" 
+               bindinput="onInputChange" 
+               data-field="rewardFields.pointsRequired" />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">推荐库存</text>
+        <input class="form-input" 
+               type="number" 
+               value="{{rewardFields.recommendedStock}}" 
+               bindinput="onInputChange" 
+               data-field="rewardFields.recommendedStock" />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">兑换规则</text>
+        <textarea class="form-textarea" 
+                  placeholder="请输入兑换规则" 
+                  value="{{rewardFields.exchangeRules}}" 
+                  bindinput="onInputChange" 
+                  data-field="rewardFields.exchangeRules" />
+      </view>
+    </view>
+
+    <!-- 标签设置 -->
+    <view class="form-section">
+      <view class="section-title">
+        <text>标签设置</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">习惯标签</text>
+        <view class="tag-input-container">
+          <input class="tag-input" 
+                 placeholder="输入标签后按回车添加" 
+                 value="{{tagInput}}" 
+                 bindinput="onTagInput" 
+                 bindconfirm="addTag" />
+          <button class="add-tag-btn" bindtap="addTag">添加</button>
+        </view>
+        
+        <view class="selected-tags" wx:if="{{formData.habitTags.length > 0}}">
+          <view class="tag-item" wx:for="{{formData.habitTags}}" wx:key="*this">
+            <text>{{item}}</text>
+            <text class="tag-remove" bindtap="removeTag" data-tag="{{item}}">×</text>
+          </view>
+        </view>
+        
+        <view class="available-tags">
+          <text class="available-title">常用标签：</text>
+          <view class="tag-list">
+            <view class="available-tag" 
+                  wx:for="{{availableTags}}" 
+                  wx:key="*this" 
+                  bindtap="selectAvailableTag" 
+                  data-tag="{{item}}"
+                  wx:if="{{!formData.habitTags.includes(item)}}">
+              {{item}}
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">使用提示</text>
+        <textarea class="form-textarea" 
+                  placeholder="请输入使用提示" 
+                  value="{{formData.tips}}" 
+                  bindinput="onInputChange" 
+                  data-field="tips" />
+      </view>
+    </view>
+
+    <!-- 包组设置 -->
+    <view class="form-section">
+      <view class="section-title">
+        <text>包组设置</text>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">加入包组</text>
+        <switch class="form-switch" 
+                checked="{{formData.isInPackage}}" 
+                bindchange="onPackageToggle" />
+      </view>
+      
+      <view wx:if="{{formData.isInPackage}}">
+        <view class="form-item">
+          <text class="form-label">包组标识 *</text>
+          <input class="form-input" 
+                 placeholder="请输入包组标识，如: general_boy" 
+                 value="{{formData.packageGroup}}" 
+                 bindinput="onInputChange" 
+                 data-field="packageGroup" />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">包组名称 *</text>
+          <input class="form-input" 
+                 placeholder="请输入包组名称，如: 男孩通用包" 
+                 value="{{formData.packageName}}" 
+                 bindinput="onInputChange" 
+                 data-field="packageName" />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">排序顺序</text>
+          <input class="form-input" 
+                 type="number" 
+                 placeholder="请输入排序顺序" 
+                 value="{{formData.packageOrder}}" 
+                 bindinput="onInputChange" 
+                 data-field="packageOrder" />
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="form-actions">
+      <button class="delete-btn" 
+              wx:if="{{isEdit}}" 
+              bindtap="deleteTemplate">删除模板</button>
+      <button class="save-btn" bindtap="saveTemplate" disabled="{{loading}}">
+        {{isEdit ? '更新模板' : '创建模板'}}
+      </button>
+    </view>
+  </view>
+</view>

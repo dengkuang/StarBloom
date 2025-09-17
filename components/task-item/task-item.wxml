@@ -1,16 +1,20 @@
 <!-- components/task-item/task-item.wxml -->
 <!-- 任务项组件结构 -->
 <view class="task-item">
+  <view class="task-icon">
+    <text class="task-emoji">{{task.emoji || '📝'}}</text>
+  </view>
+  
   <view class="task-info">
     <text class="task-name">{{task.name}}</text>
-    <text class="task-description">{{task.description}}</text>
-    <text class="task-points">{{task.points}} 积分</text>
-    <text class="task-type">{{task.type}}</text>
+    <text class="task-description" wx:if="{{task.description}}">{{task.description}}</text>
+    <view class="task-meta">
+      <text class="task-points">+{{task.points}}积分</text>
+      <text class="task-type" wx:if="{{task.type}}">{{task.type}}</text>
+    </view>
   </view>
   
   <view wx:if="{{showActions}}" class="task-actions">
     <button class="action-btn complete-btn" bindtap="onComplete">完成</button>
-    <button class="action-btn edit-btn" bindtap="onEdit">编辑</button>
-    <button class="action-btn delete-btn" bindtap="onDelete">删除</button>
   </view>
 </view>

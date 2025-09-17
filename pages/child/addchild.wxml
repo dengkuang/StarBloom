@@ -1,0 +1,58 @@
+<!-- 添加孩子页面 -->
+<view class="container">
+  <view class="header">
+    <text class="title">添加孩子信息</text>
+    <text class="subtitle">为您的孩子创建专属档案</text>
+  </view>
+
+  <form bindsubmit="onSubmit" class="form" style="width: 651rpx; display: block; box-sizing: border-box">
+    <view class="form-group">
+      <text class="label">孩子姓名</text>
+      <input class="input" name="name" placeholder="请输入孩子姓名" value="{{formData.name}}" bindinput="onInputChange" data-field="name" />
+    </view>
+
+    <view class="form-group">
+      <text class="label">性别</text>
+      <radio-group name="gender" bindchange="onGenderChange">
+        <label class="radio-item">
+          <radio value="male" checked="{{formData.gender === 'male'}}" />
+          <text>男孩 👦</text>
+        </label>
+        <label class="radio-item">
+          <radio value="female" checked="{{formData.gender === 'female'}}" />
+          <text>女孩 👧</text>
+        </label>
+      </radio-group>
+    </view>
+
+    <view class="form-group">
+      <text class="label">年龄</text>
+      <picker mode="selector" range="{{ageRange}}" value="{{ageIndex}}" bindchange="onAgeChange">
+        <view class="picker">
+          <text>{{formData.age ? formData.age + '岁' : '请选择年龄'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-group">
+      <text class="label">生日</text>
+      <picker mode="date" value="{{formData.birthday}}" bindchange="onBirthdayChange">
+        <view class="picker">
+          <text>{{formData.birthday || '请选择生日'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-group">
+      <text class="label">兴趣爱好</text>
+      <input class="input" name="interests" placeholder="如：画画、足球、阅读等" value="{{formData.interests}}" bindinput="onInputChange" data-field="interests" />
+    </view>
+
+    <view class="button-group">
+      <button class="cancel-btn" bindtap="onCancel">取消</button>
+      <button class="submit-btn" form-type="submit" disabled="{{!canSubmit}}">保存</button>
+    </view>
+  </form>
+</view>

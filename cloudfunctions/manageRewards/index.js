@@ -15,6 +15,8 @@ exports.main = async (event, context) => {
     switch (action) {
       case 'list':
         return await getRewards(wxContext.OPENID, data)
+      case 'getMyRewards':
+        return await getMyRewards(wxContext.OPENID, data)
       case 'create':
         return await createReward(wxContext.OPENID, data)
       case 'update':
@@ -54,6 +56,70 @@ async function getRewards(parentId, filters) {
   }
 }
 
+async function getMyRewards(parentId, data) {
+  try {
+    console.log('=== 开始获取我的奖励列表 ===')
+    console.log('收到参数:', { parentId, data })
+    
+    const childId = data
+    if (!childId) {
+      return { code: -1, msg: '参数错误：缺少儿童ID' }
+    }
+    
+    // 获取分配给该儿童的所有活跃奖励
+    const rewardsResult = await db.collection('rewards').where({
+      childIds: _.in([childId]),
+      status: 'active'
+    }).get()
+    
+    if (rewardsResult.data.length === 0) {
+      return { code: 0, msg: 'success', data: [] }
+    }
+    
+    const rewards = rewardsResult.data
+    
+    // 获取儿童当前积分
+    const childResult = await db.collection('children').doc(childId).get()
+    if (!childResult.data) {
+      return { code: -1, msg: '儿童信息不存在' }
+    }
+    
+    const currentPoints = childResult.data.totalPoints || 0
+    console.log(`当前积分：${currentPoints}`)
+    
+    // 为每个奖励添加可兑换状态
+    const rewardsWithStatus = rewards.map(reward => ({
+      ...reward,
+      canExchange: currentPoints >= (reward.pointsRequired || 0) && (reward.recommendedStock || 0) > 0,
+      currentPoints,
+      pointsNeeded: Math.max(0, (reward.pointsRequired || 0) - currentPoints)
+    }))
+    
+    // 按积分要求排序，可兑换的在前
+    rewardsWithStatus.sort((a, b) => {
+      if (a.canExchange && !b.canExchange) return -1
+      if (!a.canExchange && b.canExchange) return 1
+      return (a.pointsRequired || 0) - (b.pointsRequired || 0)
+    })
+    
+    console.log(`处理完成，共${rewardsWithStatus.length}个奖励`)
+    
+    return { 
+      code: 0, 
+      msg: 'success', 
+      data: rewardsWithStatus,
+      meta: {
+        total: rewardsWithStatus.length,
+        canExchange: rewardsWithStatus.filter(r => r.canExchange).length,
+        currentPoints
+      }
+    }
+  } catch (error) {
+    console.error('getMyRewards error:', error)
+    return { code: -1, msg: '获取我的奖励列表失败' }
+  }
+}
+
 async function createReward(parentId, data) {
   try {
     const rewardData = {
@@ -64,6 +130,7 @@ async function createReward(parentId, data) {
       stock: data.stock || 0,
       status: data.status || 'active',
       parentId: parentId,
+      childIds: data.childIds || [], // 新增childIds字段
       createTime: new Date(),
       updateTime: new Date()
     }
@@ -100,6 +167,7 @@ async function updateReward(parentId, data) {
       rewardType: data.rewardType,
       stock: data.stock,
       status: data.status,
+      childIds: data.childIds || [], // 新增childIds字段支持
       updateTime: new Date()
     }
     

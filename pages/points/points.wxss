@@ -1,4 +1,655 @@
 /* 积分中心页面样式 */
 .container {
-  padding: 20rpx;
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 0;
+}
+
+/* 头部区域 */
+.header-section {
+  padding: 40rpx 32rpx 32rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 孩子选择器 */
+.child-selector {
+  margin-bottom: 32rpx;
+}
+
+.picker-content {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20rpx;
+  padding: 24rpx;
+  backdrop-filter: blur(10rpx);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.child-avatar-header {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 24rpx;
+  border: 3rpx solid rgba(102, 126, 234, 0.2);
+}
+
+.child-info-header {
+  flex: 1;
+}
+
+.child-name-header {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.child-points-header {
+  font-size: 24rpx;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.picker-arrow {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 16rpx;
+}
+
+/* 积分概览 */
+.points-overview {
+  margin-bottom: 16rpx;
+}
+
+.overview-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24rpx;
+  padding: 40rpx 32rpx;
+  backdrop-filter: blur(10rpx);
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.main-points {
+  text-align: left;
+}
+
+.points-number {
+  display: block;
+  font-size: 72rpx;
+  font-weight: bold;
+  color: #667eea;
+  line-height: 1;
+  margin-bottom: 8rpx;
+}
+
+.points-label {
+  font-size: 28rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.points-trend {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.trend-item {
+  text-align: right;
+}
+
+.trend-label {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 4rpx;
+}
+
+.trend-value {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.trend-value.positive {
+  color: #28a745;
+}
+
+.trend-value.negative {
+  color: #dc3545;
+}
+
+/* 统计卡片区域 */
+.stats-section {
+  margin: 0 32rpx 32rpx;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16rpx;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 20rpx;
+  padding: 32rpx 24rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.stat-icon.earn {
+  background: rgba(40, 167, 69, 0.1);
+}
+
+.stat-icon.consume {
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.stat-icon.tasks {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.stat-icon.month {
+  background: rgba(255, 193, 7, 0.1);
+}
+
+.stat-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-value {
+  display: block;
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 4rpx;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 22rpx;
+  color: #666;
+  line-height: 1;
+}
+
+/* 筛选器 */
+.filter-section {
+  margin: 0 32rpx 24rpx;
+}
+
+.filter-tabs {
+  display: flex;
+  background: white;
+  border-radius: 16rpx;
+  padding: 8rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.filter-tab {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 12rpx;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  color: #666;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.filter-tab.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  font-weight: bold;
+}
+
+/* 记录区域 */
+.records-section {
+  background: white;
+  border-radius: 32rpx 32rpx 0 0;
+  margin-top: 16rpx;
+  min-height: 60vh;
+  padding: 32rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32rpx;
+  padding-bottom: 24rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.section-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12rpx;
+}
+
+.action-btn {
+  padding: 16rpx 24rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  border: none;
+  min-width: 80rpx;
+}
+
+.action-btn.add {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+}
+
+.action-btn.subtract {
+  background: linear-gradient(135deg, #dc3545, #e74c3c);
+  color: white;
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+/* 记录列表 */
+.records-list {
+  margin-top: 24rpx;
+}
+
+.record-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.record-item:last-child {
+  border-bottom: none;
+}
+
+.record-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.record-icon.success {
+  background: rgba(40, 167, 69, 0.1);
+}
+
+.record-icon.error {
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.record-icon.default {
+  background: rgba(108, 117, 125, 0.1);
+}
+
+.record-content {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.record-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.record-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.record-desc {
+  display: block;
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 4rpx;
+  line-height: 1.4;
+}
+
+.record-reason {
+  font-size: 22rpx;
+  color: #999;
+  line-height: 1.3;
+}
+
+.record-right {
+  text-align: right;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+.record-points {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+
+.record-points.positive {
+  color: #28a745;
+}
+
+.record-points.negative {
+  color: #dc3545;
+}
+
+.record-time {
+  font-size: 22rpx;
+  color: #999;
+}
+
+/* 空状态 */
+.empty-records {
+  text-align: center;
+  padding: 80rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 32rpx;
+  opacity: 0.6;
+}
+
+.empty-text {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.empty-desc {
+  font-size: 26rpx;
+  color: #999;
+  line-height: 1.5;
+}
+
+.empty-child-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 60rpx;
+  text-align: center;
+}
+
+.empty-icon-large {
+  font-size: 200rpx;
+  margin-bottom: 40rpx;
+  opacity: 0.6;
+}
+
+.empty-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 16rpx;
+}
+
+.add-child-btn {
+  background: white;
+  color: #667eea;
+  border-radius: 50rpx;
+  padding: 24rpx 48rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  border: none;
+  margin-top: 32rpx;
+}
+
+.add-child-btn:active {
+  background: #f0f0f0;
+}
+
+/* 加载更多 */
+.load-more {
+  text-align: center;
+  padding: 40rpx;
+  color: #999;
+  font-size: 26rpx;
+}
+
+/* 调整积分弹窗 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 40rpx;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 24rpx;
+  width: 100%;
+  max-width: 600rpx;
+  max-height: 80vh;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.modal-close {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.modal-body {
+  padding: 32rpx;
+}
+
+.input-group {
+  margin-bottom: 32rpx;
+}
+
+.input-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.input-field {
+  width: 100%;
+  padding: 24rpx;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  background: #f8f9fa;
+  box-sizing: border-box;
+}
+
+.input-field:focus {
+  border-color: #667eea;
+  background: white;
+}
+
+.textarea-field {
+  width: 100%;
+  min-height: 120rpx;
+  padding: 24rpx;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  background: #f8f9fa;
+  box-sizing: border-box;
+  resize: none;
+}
+
+.textarea-field:focus {
+  border-color: #667eea;
+  background: white;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 16rpx;
+  padding: 32rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 24rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  border: none;
+}
+
+.modal-btn.cancel {
+  background: #f8f9fa;
+  color: #666;
+}
+
+.modal-btn.confirm {
+  color: white;
+}
+
+.modal-btn.confirm.add {
+  background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.modal-btn.confirm.subtract {
+  background: linear-gradient(135deg, #dc3545, #e74c3c);
+}
+
+.modal-btn:active {
+  transform: scale(0.98);
+}
+
+/* 底部安全区域 */
+.safe-area-bottom {
+  height: 120rpx;
+}
+
+/* 加载状态 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.loading-content {
+  background: white;
+  border-radius: 16rpx;
+  padding: 40rpx;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 6rpx solid #f3f3f3;
+  border-top: 6rpx solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 24rpx;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 响应式适配 */
+@media (max-width: 750rpx) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12rpx;
+  }
+  
+  .stat-card {
+    padding: 24rpx 20rpx;
+  }
+  
+  .points-number {
+    font-size: 60rpx;
+  }
+  
+  .overview-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 24rpx;
+  }
+  
+  .points-trend {
+    flex-direction: row;
+    justify-content: center;
+    gap: 40rpx;
+  }
 }

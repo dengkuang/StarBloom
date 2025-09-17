@@ -12,10 +12,12 @@ exports.main = async (event, context) => {
   
   try {
     switch (action) {
-      case 'get':
+      case 'getCurrent':
         return await getUserInfo(wxContext.OPENID)
       case 'update':
         return await updateUserInfo(wxContext.OPENID, data)
+      case 'loginOrRegister':
+        return await loginOrRegister(wxContext.OPENID, data)
       default:
         return { code: -1, msg: '未知操作' }
     }
@@ -86,5 +88,52 @@ async function updateUserInfo(openid, data) {
   } catch (error) {
     console.error('updateUserInfo error:', error)
     return { code: -1, msg: '更新用户信息失败' }
+  }
+}
+
+async function loginOrRegister(openid, userInfo) {
+  try {
+    // 检查用户是否已存在
+    const result = await db.collection('users').where({
+      openid: openid
+    }).get()
+    
+    if (result.data.length > 0) {
+      // 用户已存在，更新信息
+      const updateData = {
+        nickName: userInfo.nickName || '',
+        avatarUrl: userInfo.avatarUrl || '',
+        updateTime: new Date()
+      }
+      
+      await db.collection('users').where({
+        openid: openid
+      }).update({
+        data: updateData
+      })
+      
+      return { code: 0, msg: '登录成功', data: { ...result.data[0], ...updateData } }
+    } else {
+      // 用户不存在，创建新用户
+      const newUser = {
+        openid: openid,
+        nickName: userInfo.nickName || '',
+        avatarUrl: userInfo.avatarUrl || '',
+        isAdmin: false,
+        isAdvancedUser: false,
+        createTime: new Date(),
+        updateTime: new Date()
+      }
+      
+      const addResult = await db.collection('users').add({
+        data: newUser
+      })
+      
+      newUser._id = addResult._id
+      return { code: 0, msg: '注册成功', data: newUser }
+    }
+  } catch (error) {
+    console.error('loginOrRegister error:', error)
+    return { code: -1, msg: '登录/注册失败' }
   }
 }

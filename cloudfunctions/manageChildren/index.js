@@ -20,6 +20,8 @@ exports.main = async (event, context) => {
         return await updateChild(wxContext.OPENID, data)
       case 'delete':
         return await deleteChild(wxContext.OPENID, data)
+      case 'getStats':
+        return await getChildStats(wxContext.OPENID, data)
       default:
         return { code: -1, msg: '未知操作' }
     }
@@ -46,8 +48,12 @@ async function createChild(parentId, data) {
   try {
     const childData = {
       name: data.name,
+      gender: data.gender || 'male',
+      birthday: data.birthday || '',
       age: data.age || 0,
       avatar: data.avatar || '',
+      grade: data.grade || '',
+      school: data.school || '',
       parentId: parentId,
       totalPoints: 0,
       totalEarnedPoints: 0,
@@ -83,8 +89,12 @@ async function updateChild(parentId, data) {
     // 更新儿童信息
     const updateData = {
       name: data.name,
+      gender: data.gender,
+      birthday: data.birthday,
       age: data.age,
       avatar: data.avatar,
+      grade: data.grade,
+      school: data.school,
       updateTime: new Date()
     }
     
@@ -118,5 +128,70 @@ async function deleteChild(parentId, data) {
   } catch (error) {
     console.error('deleteChild error:', error)
     return { code: -1, msg: '删除儿童信息失败' }
+  }
+}
+
+async function getChildStats(parentId, data) {
+  try {
+    const { childId } = data
+    
+    // 验证儿童是否存在且属于当前家长
+    const childResult = await db.collection('children').where({
+      _id: childId,
+      parentId: parentId
+    }).get()
+    
+    if (childResult.data.length === 0) {
+      return { code: -1, msg: '儿童不存在或权限不足' }
+    }
+    
+    const child = childResult.data[0]
+    
+    // 获取任务完成统计
+    const taskCompletionResult = await db.collection('task_completion_records').where({
+      childId: childId
+    }).count()
+    
+    const tasksCompleted = taskCompletionResult.total
+    
+    // 获取奖励兑换统计
+    const exchangeResult = await db.collection('exchange_records').where({
+      childId: childId
+    }).count()
+    
+    const rewardsExchanged = exchangeResult.total
+    
+    // 获取积分记录统计
+    const pointRecordsResult = await db.collection('point_records').where({
+      childId: childId
+    }).count()
+    
+    const pointRecords = pointRecordsResult.total
+    
+    return { 
+      code: 0, 
+      msg: 'success', 
+      data: {
+        childInfo: {
+          name: child.name,
+          gender: child.gender,
+          birthday: child.birthday,
+          age: child.age,
+          avatar: child.avatar,
+          grade: child.grade
+        },
+        stats: {
+          totalPoints: child.totalPoints || 0,
+          totalEarnedPoints: child.totalEarnedPoints || 0,
+          totalConsumedPoints: child.totalConsumedPoints || 0,
+          tasksCompleted: tasksCompleted,
+          rewardsExchanged: rewardsExchanged,
+          pointRecords: pointRecords
+        }
+      }
+    }
+  } catch (error) {
+    console.error('getChildStats error:', error)
+    return { code: -1, msg: '获取儿童统计信息失败' }
   }
 }

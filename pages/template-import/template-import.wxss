@@ -1,0 +1,157 @@
+/* 模板导入页面样式 */
+.container {
+  padding: 40rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 60rpx;
+}
+
+.title {
+  display: block;
+  font-size: 48rpx;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 20rpx;
+}
+
+.subtitle {
+  display: block;
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.import-section {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20rpx;
+  padding: 40rpx;
+  margin-bottom: 40rpx;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 30rpx;
+  text-align: center;
+}
+
+.import-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+
+.import-item:last-child {
+  border-bottom: none;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.item-desc {
+  display: block;
+  font-size: 26rpx;
+  color: #666;
+}
+
+.import-btn {
+  background: linear-gradient(45deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  border-radius: 25rpx;
+  padding: 20rpx 40rpx;
+  font-size: 28rpx;
+  min-width: 120rpx;
+}
+
+.import-btn[disabled] {
+  background: #ccc;
+  color: #999;
+}
+
+.batch-import {
+  text-align: center;
+  margin: 60rpx 0;
+}
+
+.batch-btn {
+  background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+  color: white;
+  border: none;
+  border-radius: 50rpx;
+  padding: 30rpx 80rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  box-shadow: 0 10rpx 30rpx rgba(255, 107, 107, 0.3);
+}
+
+.batch-btn[disabled] {
+  background: #ccc;
+  color: #999;
+  box-shadow: none;
+}
+
+.import-log {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20rpx;
+  padding: 40rpx;
+  margin-top: 40rpx;
+}
+
+.log-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.log-content {
+  max-height: 400rpx;
+  background: #f8f9fa;
+  border-radius: 10rpx;
+  padding: 20rpx;
+}
+
+.log-item {
+  display: flex;
+  margin-bottom: 15rpx;
+  font-size: 24rpx;
+}
+
+.log-time {
+  color: #999;
+  margin-right: 20rpx;
+  min-width: 120rpx;
+}
+
+.log-message {
+  flex: 1;
+}
+
+.log-message.success {
+  color: #4CAF50;
+}
+
+.log-message.error {
+  color: #f44336;
+}
+
+.log-message.info {
+  color: #2196F3;
+}

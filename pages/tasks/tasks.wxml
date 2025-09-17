@@ -1,4 +1,106 @@
 <!-- 任务管理页面结构 -->
 <view class="container">
-  <text>任务管理</text>
+  <!-- 页面标题和操作按钮 -->
+  <view class="page-header">
+    <text class="page-title">任务管理</text>
+    <view class="header-actions">
+      <button class="filter-button" bindtap="toggleFilterPanel">
+        <text class="filter-icon">⚡</text>
+        <text>筛选</text>
+      </button>
+      <button class="add-button" bindtap="navigateToAddTask">
+        <text class="add-icon">+</text>
+        <text>添加</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 筛选面板 -->
+  <view class="filter-panel" wx:if="{{showFilterPanel}}">
+    <view class="filter-group">
+      <text class="filter-label">选择儿童:</text>
+      <picker 
+        range="{{filterOptions.children}}" 
+        range-key="name" 
+        value="{{filters.childId}}" 
+        bindchange="onFilterChange" 
+        data-field="childId">
+        <view class="filter-value">
+          {{filterOptions.children && filterOptions.children[filters.childId] && filterOptions.children[filters.childId].name ? filterOptions.children[filters.childId].name : '全部儿童'}}
+        </view>
+      </picker>
+    </view>
+
+    <view class="filter-group">
+      <text class="filter-label">任务状态:</text>
+      <picker 
+        range="{{filterOptions.statuses}}" 
+        range-key="name" 
+        value="{{filters.status}}" 
+        bindchange="onFilterChange" 
+        data-field="status">
+        <view class="filter-value">
+          {{filterOptions.statuses && filterOptions.statuses[filters.status] && filterOptions.statuses[filters.status].name ? filterOptions.statuses[filters.status].name : '全部状态'}}
+        </view>
+      </picker>
+    </view>
+
+    <view class="filter-group">
+      <text class="filter-label">任务类型:</text>
+      <picker 
+        range="{{filterOptions.types}}" 
+        range-key="name" 
+        value="{{filters.type}}" 
+        bindchange="onFilterChange" 
+        data-field="type">
+        <view class="filter-value">
+          {{filterOptions.types && filterOptions.types[filters.type] && filterOptions.types[filters.type].name ? filterOptions.types[filters.type].name : '全部类型'}}
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{loading && taskList.length === 0}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">任务加载中...</text>
+  </view>
+
+  <!-- 错误提示 -->
+  <view class="error-container" wx:if="{{error}}">
+    <text class="error-text">{{error}}</text>
+    <button class="retry-button" bindtap="onRetry">重试</button>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-container" wx:if="{{!loading && taskList.length === 0 && !error}}">
+    <text class="empty-icon">📋</text>
+    <text class="empty-text">暂无任务</text>
+    <text class="empty-subtext">点击"添加"按钮创建第一个任务</text>
+  </view>
+
+  <!-- 任务列表 -->
+  <view class="task-list" wx:if="{{!loading && taskList.length > 0}}">
+    <view class="list-header">
+      <text class="list-title">任务列表 ({{taskList.length}})</text>
+    </view>
+
+    <task-item 
+      wx:for="{{taskList}}" 
+      wx:key="_id" 
+      task="{{item}}" 
+      bind:complete="onCompleteTask"
+      bind:edit="onEditTask"
+      bind:delete="onDeleteTask">
+    </task-item>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore}}">
+      <text class="load-more-text" bindtap="onReachBottom">加载更多...</text>
+    </view>
+
+    <view class="no-more" wx:else>
+      <text class="no-more-text">没有更多任务了</text>
+    </view>
+  </view>
 </view>

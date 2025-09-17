@@ -76,11 +76,12 @@
   description: "string",      // 奖励描述
   pointsRequired: "number",   // 所需积分
   rewardType: "string",       // 奖励类型：physical/privilege/experience/virtual/charity
-  stock: "number",            // 库存数量
+  recommendedStock: "number",            // 库存数量
   status: "string",           // 状态
   parentId: "string",         // 创建者ID
   createTime: "date",         // 创建时间
-  updateTime: "date"          // 更新时间
+  updateTime: "date"
+  childIds: "array",          // 更新时间
 }
 ```
 

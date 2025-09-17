@@ -3,6 +3,7 @@
     "pages/index/index",
     "pages/parent/parent",
     "pages/child/child",
+    "pages/child/addchild",
     "pages/tasks/tasks",
     "pages/rewards/rewards",
     "pages/points/points",
@@ -10,7 +11,9 @@
     "pages/settings/settings",
     "pages/dictionary/dictionary",
     "pages/templates/templates",
-    "pages/template-management/template-management"
+    "pages/template-management/template-management",
+    "pages/template-editor/template-editor",
+    "pages/template-debug/template-debug"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -36,17 +39,18 @@
         "selectedIconPath": "images/child-active.png",
         "text": "孩子"
       },
+     
       {
-        "pagePath": "pages/parent/parent",
-        "iconPath": "images/parent.png",
-        "selectedIconPath": "images/parent-active.png",
-        "text": "家长"
-      },
-      {
-        "pagePath": "pages/analysis/analysis",
+        "pagePath": "pages/points/points",
         "iconPath": "images/analysis.png",
         "selectedIconPath": "images/analysis-active.png",
-        "text": "分析"
+        "text": "积分"
+      },
+       {
+        "pagePath": "pages/template-management/template-management",
+        "iconPath": "images/parent.png",
+        "selectedIconPath": "images/parent-active.png",
+        "text": "模板"
       }
     ]
   },

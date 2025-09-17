@@ -4,7 +4,7 @@
   <image class="child-avatar" src="{{child.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
   <view class="child-info">
     <text class="child-name">{{child.name}}</text>
-    <text class="child-age">{{child.age}}岁</text>
+    <text class="child-details">{{child.gender === 'male' ? '👦' : '👧'}} {{child.age}}岁 {{child.grade}}</text>
     <text class="child-points">积分: {{child.totalPoints}}</text>
   </view>
   

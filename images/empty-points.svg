@@ -1,0 +1,6 @@
+<!-- 空状态图标 SVG -->
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="60" cy="60" r="50" fill="#f0f0f0"/>
+  <path d="M60 30 L70 50 L90 50 L75 65 L80 85 L60 70 L40 85 L45 65 L30 50 L50 50 Z" fill="#ddd"/>
+  <text x="60" y="100" text-anchor="middle" font-size="12" fill="#999">暂无数据</text>
+</svg>

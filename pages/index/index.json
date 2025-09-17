@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "小星星成长记",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f8f9fa",
+  "usingComponents": {
+    "child-card": "/components/child-card/child-card",
+    "task-item": "/components/task-item/task-item",
+    "reward-item": "/components/reward-item/reward-item",
+    "stat-card": "/components/stat-card/stat-card"
+  }
+}

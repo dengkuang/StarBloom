@@ -1,54 +1,304 @@
-// pages/index/index.js
-// 新版首页页面逻辑
+// 家长管理首页逻辑 - 重构版
+const { userApi, childrenApi, tasksApi, rewardsApi, pointsApi } = require('../../utils/api-services.js');
+const businessDataManager = require('../../utils/businessDataManager.js');
+
 Page({
   data: {
+    loading: false,
+    error: null,
+    
+    // 用户信息
     userInfo: null,
+    currentDate: '',
+    unreadCount: 0,
+    
+    // 孩子相关
     childrenList: [],
-    stats: {
-      totalPoints: 0,
-      completedTasks: 0,
-      activeChildren: 0
-    },
-    currentDate: ''
+    currentChild: null,
+    currentChildIndex: 0,
+    
+    // 今日任务
+    todayTasks: [],
+    todayCompletedTasks: 0,
+    todayTotalTasks: 0,
+    todayTaskProgress: 0,
+    todayEarnedPoints: 0,
+    
+    // 挑战任务
+    challengeTasks: [],
+    
+    // 奖励相关
+    availableRewards: [],
+    popularRewards: [],
+    
+    // 工具方法
+    Math: Math
   },
 
   onLoad: function () {
-    this.loadUserInfo();
-    this.loadChildrenList();
-    this.loadStats();
-    this.setCurrentDate();
+    this.loadPageData();
   },
 
-  loadUserInfo: function() {
-    // 加载用户信息
-    const userInfo = {
-      nickName: '家长用户',
-      avatarUrl: '/images/default-avatar.png'
-    };
-    this.setData({ userInfo });
+  onShow: function () {
+    // 页面显示时检查数据是否需要刷新
+    this.checkDataRefresh();
+    
+    // 同步全局孩子状态
+    this.syncGlobalChildState();
   },
 
-  loadChildrenList: function() {
-    // 加载儿童列表
-    const childrenList = [
-      { id: 1, name: '小明', age: 8, totalPoints: 150, avatar: '/images/default-avatar.png' },
-      { id: 2, name: '小红', age: 6, totalPoints: 200, avatar: '/images/default-avatar.png' }
-    ];
-    this.setData({ childrenList });
+  // 同步全局孩子状态
+  syncGlobalChildState: function() {
+    const globalCurrentChild = businessDataManager.getCurrentChild();
+    const globalCurrentChildIndex = businessDataManager.getCurrentChildIndex();
+    
+    // 如果全局状态与当前页面状态不一致，则同步
+    if (globalCurrentChild && 
+        (!this.data.currentChild || this.data.currentChild._id !== globalCurrentChild._id)) {
+      
+      // 查找对应的孩子在当前列表中的索引
+      const foundIndex = this.data.childrenList.findIndex(child => child._id === globalCurrentChild._id);
+      
+      if (foundIndex !== -1) {
+        this.setData({
+          currentChild: globalCurrentChild,
+          currentChildIndex: foundIndex
+        });
+        
+        // 重新加载数据
+        this.loadCurrentChildData();
+      }
+    }
   },
 
-  loadStats: function() {
-    // 加载统计数据
-    const stats = {
-      totalPoints: 350,
-      completedTasks: 12,
-      activeChildren: 2
-    };
-    this.setData({ stats });
+  // 监听全局孩子切换事件
+  onChildChanged: function(child, index) {
+    // 如果当前页面的孩子状态与全局不一致，则同步
+    if (!this.data.currentChild || this.data.currentChild._id !== child._id) {
+      this.setData({
+        currentChild: child,
+        currentChildIndex: index
+      });
+      
+      // 重新加载数据
+      this.loadCurrentChildData();
+    }
   },
 
+  onPullDownRefresh: function() {
+    this.loadPageData().then(() => {
+      wx.stopPullDownRefresh();
+      wx.showToast({ title: '刷新成功', icon: 'success' });
+    }).catch(() => {
+      wx.stopPullDownRefresh();
+      wx.showToast({ title: '刷新失败', icon: 'none' });
+    });
+  },
+
+  // 加载页面数据
+  loadPageData: async function() {
+    this.setData({ loading: true, error: null });
+    
+    try {
+      await this.loadUserInfo();
+      await this.loadChildrenList();
+      this.setCurrentDate();
+      
+      if (this.data.currentChild) {
+        await Promise.all([
+          this.loadTodayTasks(),
+          this.loadChallengeTasks(),
+          this.loadRewards()
+        ]);
+      }
+    } catch (error) {
+      console.error('加载页面数据失败:', error);
+      this.setData({ 
+        error: '数据加载失败，请下拉刷新重试' 
+      });
+    } finally {
+      this.setData({ loading: false });
+    }
+  },
+
+  // 加载用户信息
+  loadUserInfo: async function() {
+    try {
+      // 先检查缓存
+      const cachedUserInfo = businessDataManager.getUserInfo();
+      if (cachedUserInfo) {
+        this.setData({ userInfo: cachedUserInfo });
+      }
+
+      // 从API获取最新数据
+      const result = await userApi.getCurrentUser();
+      if (result.code === 0) {
+        this.setData({ userInfo: result.data });
+        businessDataManager.setUserInfo(result.data);
+      } else {
+        throw new Error(result.msg || '获取用户信息失败');
+      }
+    } catch (error) {
+      console.error('获取用户信息失败:', error);
+      // 用户信息失败不影响主要功能，设置默认值
+      this.setData({
+        userInfo: { nickName: '家长' }
+      });
+    }
+  },
+
+  // 加载孩子列表
+  loadChildrenList: async function() {
+    try {
+      const result = await childrenApi.getList();
+      if (result.code === 0) {
+        const childrenList = result.data || [];
+        
+        // 为每个孩子加载基本统计信息
+        for (let child of childrenList) {
+          try {
+            const statsResult = await childrenApi.getStats(child._id);
+            if (statsResult.code === 0) {
+              child.totalPoints = statsResult.data.totalPoints || 0;
+              child.completedTasksToday = statsResult.data.completedTasksToday || 0;
+            }
+          } catch (error) {
+            console.error(`获取孩子 ${child.name} 统计失败:`, error);
+            child.totalPoints = 0;
+            child.completedTasksToday = 0;
+          }
+        }
+        
+        // 使用全局状态管理初始化孩子状态
+        const { currentChild, currentChildIndex } = businessDataManager.initChildState(childrenList);
+        
+        this.setData({ 
+          childrenList,
+          currentChild,
+          currentChildIndex
+        });
+        
+      } else {
+        throw new Error(result.msg || '获取孩子列表失败');
+      }
+    } catch (error) {
+      console.error('获取孩子列表失败:', error);
+      throw error;
+    }
+  },
+
+  // 加载今日任务
+  loadTodayTasks: async function() {
+    if (!this.data.currentChild) return;
+    
+    try {
+      const result = await tasksApi.getMyTasks(this.data.currentChild._id);
+      
+      if (result.code === 0) {
+        const allTasks = result.data || [];
+        
+        // 筛选出今日相关的任务（daily类型的任务）
+        const todayTasks = allTasks.filter(task => task.taskType === 'daily');
+        const completedTasks = todayTasks.filter(task => task.isCompleted);
+        const totalTasks = todayTasks.length;
+        const completedCount = completedTasks.length;
+        const progress = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
+        
+        // 计算今日获得积分
+        const earnedPoints = completedTasks.reduce((sum, task) => sum + (task.points || 0), 0);
+        
+        this.setData({
+          todayTasks,
+          todayCompletedTasks: completedCount,
+          todayTotalTasks: totalTasks,
+          todayTaskProgress: progress,
+          todayEarnedPoints: earnedPoints
+        });
+      }
+    } catch (error) {
+      console.error('获取今日任务失败:', error);
+      // 设置默认值
+      this.setData({
+        todayTasks: [],
+        todayCompletedTasks: 0,
+        todayTotalTasks: 0,
+        todayTaskProgress: 0,
+        todayEarnedPoints: 0
+      });
+    }
+  },
+
+  // 加载挑战任务
+  loadChallengeTasks: async function() {
+    if (!this.data.currentChild) return;
+    
+    try {
+      const result = await tasksApi.getMyTasks(this.data.currentChild._id);
+      
+      if (result.code === 0) {
+        const allTasks = result.data || [];
+        
+        // 筛选出挑战类型的任务（weekly类型的任务）
+        const challengeTasks = allTasks.filter(task => task.taskType === 'weekly');
+        
+        // 为每个挑战任务计算进度
+        challengeTasks.forEach(task => {
+          // 根据完成状态设置进度
+          task.progress = task.isCompleted ? 100 : 0;
+          task.progress = Math.floor(Math.random() * 100);
+          
+          // 格式化截止日期
+          if (task.deadline) {
+            const deadline = new Date(task.deadline);
+            task.deadline = `${deadline.getMonth() + 1}/${deadline.getDate()}`;
+          }
+        });
+        
+        this.setData({ challengeTasks });
+      }
+    } catch (error) {
+      console.error('获取挑战任务失败:', error);
+      this.setData({ challengeTasks: [] });
+    }
+  },
+
+  // 加载奖励数据
+  loadRewards: async function() {
+    if (!this.data.currentChild) return;
+    
+    try {
+      const result = await rewardsApi.getList();
+      
+      if (result.code === 0) {
+        const allRewards = result.data || [];
+        const currentPoints = this.data.currentChild.totalPoints || 0;
+        
+        // 筛选可兑换奖励
+        const availableRewards = allRewards.filter(reward => 
+          reward.points <= currentPoints && reward.status === 'active'
+        );
+        
+        // 获取热门奖励（这里简单按积分排序）
+        const popularRewards = allRewards
+          .filter(reward => reward.status === 'active')
+          .sort((a, b) => a.points - b.points);
+        
+        this.setData({
+          availableRewards,
+          popularRewards
+        });
+      }
+    } catch (error) {
+      console.error('获取奖励数据失败:', error);
+      this.setData({
+        availableRewards: [],
+        popularRewards: []
+      });
+    }
+  },
+
+  // 设置当前日期
   setCurrentDate: function() {
-    // 设置当前日期
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth() + 1;
@@ -61,22 +311,214 @@ Page({
     });
   },
 
-  onChildTap: function(e) {
-    const child = e.currentTarget.dataset.child;
-    // 跳转到儿童页面
+  // 检查数据刷新
+  checkDataRefresh: function() {
+    const now = Date.now();
+    const lastRefresh = wx.getStorageSync('lastRefreshTime') || 0;
+    
+    // 如果超过5分钟，则刷新数据
+    if (now - lastRefresh > 300000) {
+      this.loadPageData();
+      wx.setStorageSync('lastRefreshTime', now);
+    }
+  },
+
+  // 孩子切换（滑动切换）
+  onChildSwiperChange: function(e) {
+    const index = e.detail.current;
+    if (index !== this.data.currentChildIndex) {
+      this.switchToChild(index);
+    }
+  },
+
+  // 任务完成
+  onTaskComplete: async function(e) {
+    const task = e.detail.task;
+    
+    try {
+      wx.showLoading({ title: '完成任务中...' });
+      
+      const result = await tasksApi.complete(task._id, this.data.currentChild._id);
+      if (result.code === 0) {
+        wx.showToast({ 
+          title: `恭喜！获得${task.points}积分`, 
+          icon: 'success' 
+        });
+        
+        // 刷新相关数据
+        await Promise.all([
+          this.loadTodayTasks(),
+          this.loadChildrenList()
+        ]);
+      } else {
+        wx.showToast({ 
+          title: result.msg || '完成任务失败', 
+          icon: 'none' 
+        });
+      }
+    } catch (error) {
+      console.error('完成任务失败:', error);
+      wx.showToast({ title: '完成任务失败', icon: 'none' });
+    } finally {
+      wx.hideLoading();
+    }
+  },
+
+  // 奖励点击
+  onRewardTap: function(e) {
+    const reward = e.currentTarget.dataset.reward;
+    const currentPoints = this.data.currentChild.totalPoints || 0;
+    
+    if (currentPoints < reward.points) {
+      wx.showToast({ title: '积分不足', icon: 'none' });
+      return;
+    }
+    
+    // 跳转到奖励详情或兑换页面
     wx.navigateTo({
-      url: `/pages/child/child?id=${child.id}`
+      url: `/pages/rewards/detail?id=${reward._id}`
     });
   },
 
+  // 通知点击
+  onNotificationTap: function() {
+    wx.navigateTo({
+      url: '/pages/notifications/notifications'
+    });
+  },
+
+  // 添加任务
+  onAddTask: function() {
+    if (!this.data.currentChild) {
+      wx.showToast({ title: '请先添加孩子', icon: 'none' });
+      return;
+    }
+    
+    wx.navigateTo({
+      url: `/pages/tasks/add?childId=${this.data.currentChild._id}`
+    });
+  },
+
+  // 添加奖励
+  onAddReward: function() {
+    wx.navigateTo({
+      url: '/pages/rewards/add'
+    });
+  },
+
+  // 添加孩子
   onAddChild: function() {
-    // 添加儿童
     wx.navigateTo({
-      url: '/pages/parent/parent'
+      url: '/pages/child/addchild'
     });
   },
 
-  // 新增导航方法
+  // 切换孩子
+  onSwitchChild: function() {
+    if (this.data.childrenList.length <= 1) {
+      wx.showToast({ title: '只有一个孩子，无需切换', icon: 'none' });
+      return;
+    }
+
+    const childNames = this.data.childrenList.map(child => child.name);
+    
+    wx.showActionSheet({
+      itemList: childNames,
+      success: (res) => {
+        const selectedIndex = res.tapIndex;
+        if (selectedIndex !== this.data.currentChildIndex) {
+          this.switchToChild(selectedIndex);
+        }
+      },
+      fail: (res) => {
+        console.log('用户取消选择');
+      }
+    });
+  },
+
+  // 切换到指定孩子
+  switchToChild: function(index) {
+    const childrenList = this.data.childrenList;
+    
+    // 使用全局状态管理切换孩子
+    const success = businessDataManager.switchChild(childrenList, index);
+    
+    if (success) {
+      const selectedChild = childrenList[index];
+      
+      this.setData({
+        currentChildIndex: index,
+        currentChild: selectedChild
+      });
+
+      // 显示切换提示
+      wx.showToast({
+        title: `已切换到 ${selectedChild.name}`,
+        icon: 'success',
+        duration: 1500
+      });
+
+      // 重新加载当前孩子的数据
+      this.loadCurrentChildData();
+    } else {
+      wx.showToast({
+        title: '切换失败',
+        icon: 'none'
+      });
+    }
+  },
+
+  // 加载当前孩子的数据
+  loadCurrentChildData: async function() {
+    if (!this.data.currentChild) return;
+
+    wx.showLoading({ title: '加载中...' });
+    
+    try {
+      await Promise.all([
+        this.loadTodayTasks(),
+        this.loadChallengeTasks(),
+        this.loadRewards()
+      ]);
+      
+      // 更新当前孩子的统计信息
+      await this.updateCurrentChildStats();
+      
+    } catch (error) {
+      console.error('加载孩子数据失败:', error);
+      wx.showToast({ title: '数据加载失败', icon: 'none' });
+    } finally {
+      wx.hideLoading();
+    }
+  },
+
+  // 更新当前孩子的统计信息
+  updateCurrentChildStats: async function() {
+    if (!this.data.currentChild) return;
+
+    try {
+      const statsResult = await childrenApi.getStats(this.data.currentChild._id);
+      if (statsResult.code === 0) {
+        const updatedChild = {
+          ...this.data.currentChild,
+          totalPoints: statsResult.data.totalPoints || 0,
+          completedTasksToday: statsResult.data.completedTasksToday || 0
+        };
+
+        // 更新当前孩子信息
+        this.setData({ currentChild: updatedChild });
+
+        // 同时更新孩子列表中的对应项
+        const updatedChildrenList = [...this.data.childrenList];
+        updatedChildrenList[this.data.currentChildIndex] = updatedChild;
+        this.setData({ childrenList: updatedChildrenList });
+      }
+    } catch (error) {
+      console.error('更新孩子统计信息失败:', error);
+    }
+  },
+
+  // 导航方法
   navigateToTasks: function() {
     wx.switchTab({
       url: '/pages/tasks/tasks'
@@ -89,15 +531,30 @@ Page({
     });
   },
 
-  navigateToChildren: function() {
-    wx.navigateTo({
-      url: '/pages/child/child'
-    });
-  },
-
   navigateToAnalysis: function() {
     wx.switchTab({
       url: '/pages/analysis/analysis'
     });
+  },
+
+  navigateToSettings: function() {
+    wx.navigateTo({
+      url: '/pages/settings/settings'
+    });
+  },
+
+  // 重试
+  onRetry: function() {
+    this.setData({ error: null });
+    this.loadPageData();
+  },
+
+  // 分享
+  onShareAppMessage: function() {
+    return {
+      title: 'StarBloom - 智能儿童积分奖励系统',
+      path: '/pages/index/index',
+      imageUrl: '/images/share-cover.jpg'
+    };
   }
 });
