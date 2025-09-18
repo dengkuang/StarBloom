@@ -12,6 +12,37 @@
     </view>
 
     <view class="form-group">
+      <text class="label">头像</text>
+      <view class="avatar-section">
+        <view class="current-avatar">
+          <image class="avatar-preview" src="{{formData.avatar || '/images/default-avatar.png'}}" mode="aspectFill" />
+          <text class="avatar-tip">点击下方选择头像或上传自定义头像</text>
+        </view>
+        
+        <!-- 上传自定义头像按钮 -->
+        <view class="upload-section">
+          <button class="upload-btn" bindtap="onUploadAvatar">
+            <text class="upload-icon">📷</text>
+            <text class="upload-text">上传自定义头像</text>
+          </button>
+        </view>
+        
+        <view class="avatar-grid">
+          <view 
+            wx:for="{{avatarList}}" 
+            wx:key="path"
+            class="avatar-item {{formData.avatar === item.path ? 'selected' : ''}}"
+            bindtap="onAvatarSelect"
+            data-avatar="{{item.path}}"
+          >
+            <image class="avatar-thumb" src="{{item.path}}" mode="aspectFill" />
+            <view wx:if="{{formData.avatar === item.path}}" class="avatar-check">✓</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-group">
       <text class="label">性别</text>
       <radio-group name="gender" bindchange="onGenderChange">
         <label class="radio-item">
@@ -26,16 +57,6 @@
     </view>
 
     <view class="form-group">
-      <text class="label">年龄</text>
-      <picker mode="selector" range="{{ageRange}}" value="{{ageIndex}}" bindchange="onAgeChange">
-        <view class="picker">
-          <text>{{formData.age ? formData.age + '岁' : '请选择年龄'}}</text>
-          <text class="picker-arrow">▼</text>
-        </view>
-      </picker>
-    </view>
-
-    <view class="form-group">
       <text class="label">生日</text>
       <picker mode="date" value="{{formData.birthday}}" bindchange="onBirthdayChange">
         <view class="picker">
@@ -43,6 +64,14 @@
           <text class="picker-arrow">▼</text>
         </view>
       </picker>
+    </view>
+
+    <view class="form-group" wx:if="{{formData.age}}">
+      <text class="label">年龄</text>
+      <view class="age-display">
+        <text class="age-text">{{formData.age}}岁</text>
+        <text class="age-tip">根据生日自动计算</text>
+      </view>
     </view>
 
     <view class="form-group">

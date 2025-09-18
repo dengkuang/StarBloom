@@ -1,20 +1,131 @@
 <!-- components/task-item/task-item.wxml -->
-<!-- 任务项组件结构 -->
-<view class="task-item">
-  <view class="task-icon">
-    <text class="task-emoji">{{task.emoji || '📝'}}</text>
-  </view>
+<!-- 优化后的任务项组件结构 -->
+<view class="task-item {{task.isCompleted ? 'completed' : 'pending'}}" bindtap="onTaskTap">
+  <!-- 任务状态指示器 -->
+  <view class="status-indicator {{task.isCompleted ? 'completed' : 'pending'}}"></view>
   
-  <view class="task-info">
-    <text class="task-name">{{task.name}}</text>
-    <text class="task-description" wx:if="{{task.description}}">{{task.description}}</text>
-    <view class="task-meta">
-      <text class="task-points">+{{task.points}}积分</text>
-      <text class="task-type" wx:if="{{task.type}}">{{task.type}}</text>
+  <!-- 卡片头部 -->
+  <view class="task-header">
+    <view class="task-icon">
+      <text class="task-emoji">{{taskEmoji}}</text>
+      <view wx:if="{{task.isCompleted}}" class="completed-badge">✓</view>
+    </view>
+    
+    <view class="task-meta-tags">
+      <!-- 难度等级 -->
+      <view wx:if="{{task.difficulty}}" class="difficulty-tag {{task.difficulty}}">
+        <text class="difficulty-stars">{{difficultyStars}}</text>
+        <text class="difficulty-text">{{difficultyText}}</text>
+      </view>
+      
+      <!-- 任务类型 -->
+      <view wx:if="{{task.taskType}}" class="type-tag {{task.taskType}}">
+        {{taskTypeText}}
+      </view>
+      
+      <!-- 类别标签 -->
+      <view wx:if="{{task.category}}" class="category-tag {{task.category}}">
+        {{categoryText}}
+      </view>
     </view>
   </view>
   
-  <view wx:if="{{showActions}}" class="task-actions">
-    <button class="action-btn complete-btn" bindtap="onComplete">完成</button>
+  <!-- 任务主体信息 -->
+  <view class="task-body">
+    <view class="task-title-section">
+      <text class="task-name">{{task.name}}</text>
+      <text class="task-points">+{{task.points}}积分</text>
+    </view>
+    
+    <text wx:if="{{task.description}}" class="task-description">{{task.description}}</text>
+    
+    <!-- 习惯标签 -->
+    <view wx:if="{{task.habitTags && task.habitTags.length > 0}}" class="habit-tags">
+      <view wx:for="{{task.habitTags}}" wx:key="index" class="habit-tag">
+        {{item}}
+      </view>
+    </view>
+    
+    <!-- 年龄组和分类信息 -->
+    <view class="task-info-row">
+      <view wx:if="{{task.ageGroup}}" class="age-group">
+        <text class="info-label">适合年龄:</text>
+        <text class="info-value">{{ageGroupText}}</text>
+      </view>
+      <view wx:if="{{task.cycleType}}" class="cycle-type">
+        <text class="info-label">周期:</text>
+        <text class="info-value">{{cycleTypeText}}</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 挑战信息区域 -->
+  <view wx:if="{{task.challengeTarget}}" class="challenge-section">
+    <view class="challenge-header">
+      <text class="challenge-title">🎯 挑战目标</text>
+      <text wx:if="{{task.challengeReward}}" class="challenge-reward">+{{task.challengeReward.points}}积分</text>
+    </view>
+    <text class="challenge-description">{{task.challengeTarget.description}}</text>
+    
+    <!-- 挑战进度条 -->
+    <view wx:if="{{challengeProgress}}" class="challenge-progress">
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{challengeProgress.percentage}}%"></view>
+      </view>
+      <text class="progress-text">{{challengeProgress.current}}/{{challengeProgress.target}}天</text>
+    </view>
+  </view>
+  
+  <!-- 完成状态和时间 -->
+  <view wx:if="{{task.completionRecord}}" class="completion-info">
+    <view class="completion-status">
+      <text class="completion-icon">✅</text>
+      <text class="completion-text">已完成</text>
+      <text class="completion-time">{{completionTimeText}}</text>
+    </view>
+  </view>
+  
+  <!-- 操作区域 -->
+  <view class="task-actions">
+    <!-- 提示按钮 -->
+    <button wx:if="{{task.tips}}" class="action-btn tips-btn" bindtap="onShowTips" data-tips="{{task.tips}}">
+      <text class="btn-icon">💡</text>
+      <text class="btn-text">提示</text>
+    </button>
+    
+    <!-- 完成按钮 -->
+    <button wx:if="{{showActions && !task.isCompleted}}" 
+            class="action-btn complete-btn" 
+            bindtap="onComplete">
+      <text class="btn-icon">✓</text>
+      <text class="btn-text">完成任务</text>
+    </button>
+    
+    <!-- 已完成状态 -->
+    <view wx:if="{{task.isCompleted}}" class="completed-status">
+      <text class="completed-icon">🎉</text>
+      <text class="completed-text">任务完成</text>
+    </view>
+    
+    <!-- 编辑按钮（管理模式） -->
+    <button wx:if="{{showEditActions}}" 
+            class="action-btn edit-btn" 
+            bindtap="onEdit">
+      <text class="btn-icon">✏️</text>
+      <text class="btn-text">编辑</text>
+    </button>
+  </view>
+  
+  <!-- 展开的详细信息 -->
+  <view wx:if="{{expanded}}" class="task-details">
+    <view wx:if="{{task.tips}}" class="tips-section">
+      <text class="tips-title">💡 操作建议</text>
+      <text class="tips-content">{{task.tips}}</text>
+    </view>
+    
+    <view wx:if="{{task.sourceTemplateId}}" class="template-info">
+      <text class="template-label">来源模板:</text>
+      <text class="template-value">{{task.sourcePackageGroup}}</text>
+    </view>
   </view>
 </view>

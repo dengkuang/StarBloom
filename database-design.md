@@ -52,6 +52,36 @@
   updateTime: "date"          // 更新时间
 }
 ```
+### 2.4 task_示例数据
+```
+{
+  "_id": "77e2f3f368c7d11e00befc1d264864fe",
+  "ageGroup": "primary",
+  "category": "skill",
+  "challengeReward": {
+    "description": "额外奖励100积分",
+    "points": 100
+  },
+  "challengeTarget": {
+    "description": "一个月内学会一项新技能",
+    "weeks": 4
+  },
+  "childIds": ["3ff6635968c6aace009c11142935777c"],
+  "createTime": "Mon Sep 15 2025 16:41:02 GMT+0800 (中国标准时间)",
+  "cycleType": "weekly",
+  "description": "每周学习一项新技能，如画画、音乐、手工等",
+  "difficulty": "hard",
+  "habitTags": ["技能", "学习"],
+  "name": "学习新技能",
+  "parentId": "oAqn65QX6pXo13h007VOJ44raQ1A",
+  "points": 25,
+  "sourcePackageGroup": "general_boy",
+  "sourceTemplateId": "99e7701b68c7b6970430592426930b4b",
+  "status": "active",
+  "taskType": "weekly",
+  "tips": "根据孩子兴趣选择，不要给太大压力"
+}
+```
 
 ### 2.4 task_completion_records - 任务完成记录表
 ```javascript

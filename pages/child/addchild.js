@@ -9,13 +9,26 @@ Page({
       gender: 'male',
       age: '',
       birthday: '',
-      interests: ''
+      interests: '',
+      avatar: '/images/3dboy1.png' // 默认头像
     },
-    ageRange: ['3岁', '4岁', '5岁', '6岁', '7岁', '8岁', '9岁', '10岁', '11岁', '12岁', '13岁', '14岁', '15岁', '16岁', '17岁', '18岁'],
-    ageIndex: 0,
     canSubmit: false,
-    loading: false
+    loading: false,
+    uploadedAvatarPath: '', // 上传的头像路径
+    isCustomAvatar: false, // 是否使用自定义头像
+    // 可选头像列表
+    avatarList: [
+      { path: '/images/3dboy1.png', name: '3D男孩1', gender: 'male' },
+      { path: '/images/3dboy2.png', name: '3D男孩2', gender: 'male' },
+      { path: '/images/cartoonboy1.png', name: '卡通男孩1', gender: 'male' },
+      { path: '/images/cartoonboy2.png', name: '卡通男孩2', gender: 'male' },
+      { path: '/images/cartoongirl1.png', name: '卡通女孩1', gender: 'female' },
+      { path: '/images/cartoongirl2.png', name: '卡通女孩2', gender: 'female' },
+      { path: '/images/cartoongir.png', name: '卡通女孩3', gender: 'female' },
+      { path: '/images/cartoongir3.png', name: '卡通女孩4', gender: 'female' },
+    ]
   },
+
 
   onLoad: function (options) {
     this.checkCanSubmit();
@@ -35,35 +48,170 @@ Page({
 
   // 性别选择
   onGenderChange: function(e) {
+    const gender = e.detail.value;
     this.setData({
-      'formData.gender': e.detail.value
+      'formData.gender': gender
+    });
+    
+    // 根据性别自动推荐头像
+    this.recommendAvatarByGender(gender);
+  },
+
+  // 根据性别推荐头像
+  recommendAvatarByGender: function(gender) {
+    const currentAvatar = this.data.formData.avatar;
+    const avatarList = this.data.avatarList;
+    
+    // 如果当前头像已经匹配性别，不需要更改
+    const currentAvatarInfo = avatarList.find(item => item.path === currentAvatar);
+    if (currentAvatarInfo && (currentAvatarInfo.gender === gender || currentAvatarInfo.gender === 'both')) {
+      return;
+    }
+    
+    // 找到匹配性别的第一个头像
+    const recommendedAvatar = avatarList.find(item => item.gender === gender);
+    if (recommendedAvatar) {
+      this.setData({
+        'formData.avatar': recommendedAvatar.path
+      });
+      
+      wx.showToast({
+        title: `已为您推荐${gender === 'male' ? '男孩' : '女孩'}头像`,
+        icon: 'none',
+        duration: 1500
+      });
+    }
+  },
+
+  // 头像选择
+  onAvatarSelect: function(e) {
+    const avatar = e.currentTarget.dataset.avatar;
+    this.setData({
+      'formData.avatar': avatar,
+      isCustomAvatar: false // 选择预设头像时标记为非自定义
+    });
+    
+    wx.showToast({
+      title: '头像已选择',
+      icon: 'success',
+      duration: 1000
     });
   },
 
-  // 年龄选择
-  onAgeChange: function(e) {
-    const index = e.detail.value;
-    const age = parseInt(this.data.ageRange[index]);
+  // 上传自定义头像
+  onUploadAvatar: function() {
+    const that = this;
     
-    this.setData({
-      ageIndex: index,
-      'formData.age': age
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['album', 'camera'],
+      maxDuration: 30,
+      camera: 'back',
+      success: function(res) {
+        const tempFilePath = res.tempFiles[0].tempFilePath;
+        
+        // 显示加载提示
+        wx.showLoading({
+          title: '上传中...',
+          mask: true
+        });
+        
+        // 上传到云存储
+        that.uploadToCloud(tempFilePath);
+      },
+      fail: function(err) {
+        console.error('选择图片失败:', err);
+        wx.showToast({
+          title: '选择图片失败',
+          icon: 'none'
+        });
+      }
     });
+  },
+
+  // 上传到云存储
+  uploadToCloud: function(tempFilePath) {
+    const that = this;
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000);
+    const fileName = `avatars/child_avatar_${timestamp}_${random}.jpg`;
     
-    this.checkCanSubmit();
+    wx.cloud.uploadFile({
+      cloudPath: fileName,
+      filePath: tempFilePath,
+      success: function(res) {
+        console.log('上传成功:', res);
+        
+        // 更新头像路径
+        that.setData({
+          'formData.avatar': res.fileID,
+          uploadedAvatarPath: res.fileID,
+          isCustomAvatar: true
+        });
+        
+        wx.hideLoading();
+        wx.showToast({
+          title: '头像上传成功',
+          icon: 'success',
+          duration: 1500
+        });
+      },
+      fail: function(err) {
+        console.error('上传失败:', err);
+        wx.hideLoading();
+        wx.showToast({
+          title: '上传失败，请重试',
+          icon: 'none'
+        });
+      }
+    });
   },
 
   // 生日选择
   onBirthdayChange: function(e) {
+    const birthday = e.detail.value;
     this.setData({
-      'formData.birthday': e.detail.value
+      'formData.birthday': birthday
     });
+    
+    // 根据生日自动计算年龄
+    if (birthday) {
+      const age = this.calculateAge(birthday);
+      this.setData({
+        'formData.age': age
+      });
+    }
+    
+    this.checkCanSubmit();
+  },
+
+  // 计算年龄
+  calculateAge: function(birthday) {
+    if (!birthday) return '';
+    
+    const birthDate = new Date(birthday);
+    const today = new Date();
+    
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    // 如果还没到生日，年龄减1
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    // 确保年龄在合理范围内
+    if (age < 0) age = 0;
+    if (age > 18) age = 18;
+    
+    return age;
   },
 
   // 检查是否可以提交
   checkCanSubmit: function() {
-    const { name, age } = this.data.formData;
-    const canSubmit = name.trim().length > 0 && age > 0;
+    const { name, birthday } = this.data.formData;
+    const canSubmit = name.trim().length > 0 && birthday.length > 0;
     
     this.setData({ canSubmit });
   },
@@ -80,9 +228,18 @@ Page({
       return;
     }
     
-    if (!formData.age) {
-      wx.showToast({ title: '请选择孩子年龄', icon: 'none' });
+    if (!formData.birthday) {
+      wx.showToast({ title: '请选择孩子生日', icon: 'none' });
       return;
+    }
+    
+    // 确保年龄已计算
+    if (!formData.age && formData.age !== 0) {
+      const age = this.calculateAge(formData.birthday);
+      this.setData({
+        'formData.age': age
+      });
+      formData.age = age;
     }
 
     this.setData({ loading: true });
@@ -95,6 +252,8 @@ Page({
         age: formData.age,
         birthday: formData.birthday,
         interests: formData.interests.trim(),
+        avatar: formData.avatar || '/images/default-avatar.png', // 确保有默认头像
+        isCustomAvatar: this.data.isCustomAvatar, // 标记是否为自定义头像
         totalPoints: 0,
         createdAt: new Date().toISOString()
       };
