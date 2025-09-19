@@ -1,6 +1,7 @@
 // 家长管理首页逻辑 - 重构版
 const { userApi, childrenApi, tasksApi, rewardsApi, pointsApi } = require('../../utils/api-services.js');
 const businessDataManager = require('../../utils/businessDataManager.js');
+const { globalChildManager } = require('../../utils/global-child-manager.js');
 
 Page({
   data: {
@@ -49,19 +50,18 @@ Page({
 
   // 同步全局孩子状态
   syncGlobalChildState: function() {
-    const globalCurrentChild = businessDataManager.getCurrentChild();
-    const globalCurrentChildIndex = businessDataManager.getCurrentChildIndex();
+    const state = globalChildManager.getCurrentState();
     
     // 如果全局状态与当前页面状态不一致，则同步
-    if (globalCurrentChild && 
-        (!this.data.currentChild || this.data.currentChild._id !== globalCurrentChild._id)) {
+    if (state.currentChild && 
+        (!this.data.currentChild || this.data.currentChild._id !== state.currentChild._id)) {
       
       // 查找对应的孩子在当前列表中的索引
-      const foundIndex = this.data.childrenList.findIndex(child => child._id === globalCurrentChild._id);
+      const foundIndex = this.data.childrenList.findIndex(child => child._id === state.currentChild._id);
       
       if (foundIndex !== -1) {
         this.setData({
-          currentChild: globalCurrentChild,
+          currentChild: state.currentChild,
           currentChildIndex: foundIndex
         });
         
@@ -170,7 +170,7 @@ Page({
         }
         
         // 使用全局状态管理初始化孩子状态
-        const { currentChild, currentChildIndex } = businessDataManager.initChildState(childrenList);
+        const { currentChild, currentChildIndex } = globalChildManager.initChildState(childrenList);
         
         this.setData({ 
           childrenList,
@@ -322,12 +322,24 @@ Page({
     }
   },
 
-  // 孩子切换（滑动切换）
-  onChildSwiperChange: function(e) {
-    const index = e.detail.current;
+  // 孩子选择器变化事件
+  onChildSelectorChange: function(e) {
+    const { index, child, childrenList } = e.detail;
+    
+    console.log('孩子选择器变化:', child.name, index);
+    
     if (index !== this.data.currentChildIndex) {
       this.switchToChild(index);
     }
+  },
+
+  // 孩子选择器展开/收起事件
+  onChildSelectorToggle: function(e) {
+    const { show } = e.detail;
+    console.log('孩子选择器', show ? '展开' : '收起');
+    
+    // 可以在这里添加一些UI反馈，比如调整页面布局等
+    // 暂时不需要特殊处理
   },
 
   // 任务完成
@@ -412,35 +424,14 @@ Page({
     });
   },
 
-  // 切换孩子
-  onSwitchChild: function() {
-    if (this.data.childrenList.length <= 1) {
-      wx.showToast({ title: '只有一个孩子，无需切换', icon: 'none' });
-      return;
-    }
 
-    const childNames = this.data.childrenList.map(child => child.name);
-    
-    wx.showActionSheet({
-      itemList: childNames,
-      success: (res) => {
-        const selectedIndex = res.tapIndex;
-        if (selectedIndex !== this.data.currentChildIndex) {
-          this.switchToChild(selectedIndex);
-        }
-      },
-      fail: (res) => {
-        console.log('用户取消选择');
-      }
-    });
-  },
 
   // 切换到指定孩子
   switchToChild: function(index) {
     const childrenList = this.data.childrenList;
     
     // 使用全局状态管理切换孩子
-    const success = businessDataManager.switchChild(childrenList, index);
+    const success = globalChildManager.switchChild(childrenList, index);
     
     if (success) {
       const selectedChild = childrenList[index];

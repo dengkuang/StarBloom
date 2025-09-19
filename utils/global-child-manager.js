@@ -1,6 +1,135 @@
-
-// 全局孩子状态管理工具
+// 全局孩子状态管理器 - 专注于全局状态管理和事件通知
 const businessDataManager = require('./businessDataManager.js');
+
+/**
+ * 全局孩子状态管理器
+ */
+class GlobalChildManager {
+  constructor() {
+    this.dataManager = businessDataManager;
+    this.initialized = false;
+  }
+
+  /**
+   * 初始化孩子状态
+   */
+  initChildState(childrenList) {
+    if (!childrenList || childrenList.length === 0) {
+      this.dataManager.setCurrentChild(null);
+      this.dataManager.setCurrentChildIndex(0);
+      this.dataManager.setChildrenList([]);
+      return { currentChild: null, currentChildIndex: 0, childrenList: [] };
+    }
+
+    let currentChildIndex = this.dataManager.getCurrentChildIndex();
+    let currentChild = this.dataManager.getCurrentChild();
+
+    // 验证当前孩子是否还在列表中
+    if (currentChild) {
+      const foundIndex = childrenList.findIndex(child => child._id === currentChild._id);
+      if (foundIndex !== -1) {
+        currentChildIndex = foundIndex;
+      } else {
+        // 当前孩子不在列表中，重置为第一个
+        currentChildIndex = 0;
+        currentChild = childrenList[0];
+      }
+    } else {
+      // 没有当前孩子，选择第一个
+      currentChildIndex = 0;
+      currentChild = childrenList[0];
+    }
+
+    // 确保索引有效
+    if (currentChildIndex >= childrenList.length) {
+      currentChildIndex = 0;
+      currentChild = childrenList[0];
+    }
+
+    this.dataManager.setCurrentChild(currentChild);
+    this.dataManager.setCurrentChildIndex(currentChildIndex);
+    this.dataManager.setChildrenList(childrenList);
+
+    this.initialized = true;
+    return { currentChild, currentChildIndex, childrenList };
+  }
+
+  /**
+   * 切换孩子
+   */
+  switchChild(childrenList, index) {
+    if (!childrenList || index < 0 || index >= childrenList.length) {
+      console.error('切换孩子参数无效:', { childrenList, index });
+      return false;
+    }
+
+    const selectedChild = childrenList[index];
+    
+    // 更新数据
+    this.dataManager.setCurrentChild(selectedChild);
+    this.dataManager.setCurrentChildIndex(index);
+    this.dataManager.setChildrenList(childrenList);
+
+    // 通知页面更新
+    this.notifyChildChanged(selectedChild, index);
+    
+    return true;
+  }
+
+  /**
+   * 通知孩子切换事件
+   */
+  notifyChildChanged(child, index) {
+    // 使用小程序的事件总线机制
+    const pages = getCurrentPages();
+    pages.forEach(page => {
+      if (page.onChildChanged && typeof page.onChildChanged === 'function') {
+        try {
+          page.onChildChanged(child, index);
+        } catch (error) {
+          console.error('页面孩子切换回调执行失败:', error);
+        }
+      }
+    });
+
+    // 触发数据管理器的事件
+    this.dataManager.emit('child:switched', { child, index });
+  }
+
+  /**
+   * 获取当前孩子状态
+   */
+  getCurrentState() {
+    return {
+      currentChild: this.dataManager.getCurrentChild(),
+      currentChildIndex: this.dataManager.getCurrentChildIndex(),
+      childrenList: this.dataManager.getChildrenList() || []
+    };
+  }
+
+  /**
+   * 监听孩子状态变化
+   */
+  onChildStateChange(callback) {
+    this.dataManager.on('child:switched', callback);
+  }
+
+  /**
+   * 移除孩子状态变化监听
+   */
+  offChildStateChange(callback) {
+    this.dataManager.off('child:switched', callback);
+  }
+
+  /**
+   * 清除孩子状态
+   */
+  clearChildState() {
+    this.dataManager.clearChildCache();
+    this.initialized = false;
+    this.notifyChildChanged(null, 0);
+  }
+}
 
 /**
  * 全局孩子状态管理混入
@@ -16,57 +145,51 @@ const GlobalChildManagerMixin = {
 
   /**
    * 初始化全局孩子状态
-   * 在页面的 onLoad 或 onShow 中调用
    */
   initGlobalChildState: function() {
-    const currentChild = businessDataManager.getCurrentChild();
-    const currentChildIndex = businessDataManager.getCurrentChildIndex();
-    const childrenList = businessDataManager.getChildrenList() || [];
-
+    const state = globalChildManager.getCurrentState();
+    
     this.setData({
-      globalChildrenList: childrenList,
-      globalCurrentChild: currentChild,
-      globalCurrentChildIndex: currentChildIndex
+      globalChildrenList: state.childrenList,
+      globalCurrentChild: state.currentChild,
+      globalCurrentChildIndex: state.currentChildIndex
     });
 
-    return { currentChild, currentChildIndex, childrenList };
+    return state;
   },
 
   /**
    * 同步全局孩子状态
-   * 在页面的 onShow 中调用
    */
   syncGlobalChildState: function() {
-    const globalCurrentChild = businessDataManager.getCurrentChild();
-    const globalCurrentChildIndex = businessDataManager.getCurrentChildIndex();
-    const globalChildrenList = businessDataManager.getChildrenList() || [];
+    const state = globalChildManager.getCurrentState();
 
     // 检查是否需要更新
     const needUpdate = !this.data.globalCurrentChild || 
-                      this.data.globalCurrentChild._id !== globalCurrentChild?._id ||
-                      this.data.globalCurrentChildIndex !== globalCurrentChildIndex;
+                      this.data.globalCurrentChild._id !== state.currentChild?._id ||
+                      this.data.globalCurrentChildIndex !== state.currentChildIndex;
 
-    if (needUpdate && globalCurrentChild) {
+    if (needUpdate) {
       this.setData({
-        globalChildrenList: globalChildrenList,
-        globalCurrentChild: globalCurrentChild,
-        globalCurrentChildIndex: globalCurrentChildIndex
+        globalChildrenList: state.childrenList,
+        globalCurrentChild: state.currentChild,
+        globalCurrentChildIndex: state.currentChildIndex
       });
 
       // 如果页面有自定义的同步回调，则调用
       if (this.onGlobalChildStateChanged && typeof this.onGlobalChildStateChanged === 'function') {
-        this.onGlobalChildStateChanged(globalCurrentChild, globalCurrentChildIndex);
+        this.onGlobalChildStateChanged(state.currentChild, state.currentChildIndex);
       }
     }
 
-    return { globalCurrentChild, globalCurrentChildIndex, globalChildrenList };
+    return state;
   },
 
   /**
    * 全局切换孩子
    */
   switchGlobalChild: function(childrenList, index) {
-    const success = businessDataManager.switchChild(childrenList, index);
+    const success = globalChildManager.switchChild(childrenList, index);
     
     if (success) {
       const selectedChild = childrenList[index];
@@ -100,7 +223,6 @@ const GlobalChildManagerMixin = {
 
   /**
    * 监听全局孩子切换事件
-   * 页面可以重写此方法来处理孩子切换
    */
   onChildChanged: function(child, index) {
     // 更新页面状态
@@ -119,7 +241,7 @@ const GlobalChildManagerMixin = {
    * 获取当前选中的孩子
    */
   getCurrentChild: function() {
-    return this.data.globalCurrentChild || businessDataManager.getCurrentChild();
+    return this.data.globalCurrentChild || globalChildManager.getCurrentState().currentChild;
   },
 
   /**
@@ -128,7 +250,7 @@ const GlobalChildManagerMixin = {
   getCurrentChildIndex: function() {
     return this.data.globalCurrentChildIndex !== undefined ? 
            this.data.globalCurrentChildIndex : 
-           businessDataManager.getCurrentChildIndex();
+           globalChildManager.getCurrentState().currentChildIndex;
   },
 
   /**
@@ -137,22 +259,19 @@ const GlobalChildManagerMixin = {
   getChildrenList: function() {
     return this.data.globalChildrenList.length > 0 ? 
            this.data.globalChildrenList : 
-           businessDataManager.getChildrenList() || [];
+           globalChildManager.getCurrentState().childrenList;
   },
 
   /**
    * 设置全局孩子列表
    */
   setGlobalChildrenList: function(childrenList) {
-    businessDataManager.setGlobalChildrenList(childrenList);
-    
-    const currentChild = businessDataManager.getCurrentChild();
-    const currentChildIndex = businessDataManager.getCurrentChildIndex();
+    const state = globalChildManager.initChildState(childrenList);
     
     this.setData({
-      globalChildrenList: childrenList || [],
-      globalCurrentChild: currentChild,
-      globalCurrentChildIndex: currentChildIndex
+      globalChildrenList: state.childrenList,
+      globalCurrentChild: state.currentChild,
+      globalCurrentChildIndex: state.currentChildIndex
     });
   },
 
@@ -170,8 +289,6 @@ const GlobalChildManagerMixin = {
 
 /**
  * 为页面添加全局孩子状态管理功能
- * @param {Object} pageOptions 页面配置对象
- * @returns {Object} 增强后的页面配置对象
  */
 function withGlobalChildManager(pageOptions) {
   // 合并数据
@@ -203,8 +320,12 @@ function withGlobalChildManager(pageOptions) {
   return pageOptions;
 }
 
+// 创建全局实例
+const globalChildManager = new GlobalChildManager();
+
 module.exports = {
+  GlobalChildManager,
   GlobalChildManagerMixin,
   withGlobalChildManager,
-  businessDataManager
+  globalChildManager
 };

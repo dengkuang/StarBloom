@@ -128,19 +128,7 @@ App({
   box-sizing: border-box;
 }
 
-/* 绿色主题色 */
-.primary-color {
-  color: #4CAF50;
-}
 
-.background-green {
-  background-color: #4CAF50;
-}
-
-.border-green {
-  border: 1px solid #4CAF50;
-}
-```
 
 ## 4. 页面结构设计
 

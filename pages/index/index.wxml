@@ -23,33 +23,37 @@
       <text class="child-count">共 {{childrenList.length}} 个孩子</text>
       <view class="child-actions">
         <button class="child-action-btn" bindtap="onAddChild">添加孩子</button>
-        <button class="child-action-btn" bindtap="onSwitchChild" wx:if="{{childrenList.length > 1}}">切换孩子</button>
       </view>
     </view>
 
-    <!-- 孩子切换器 -->
-    <view class="child-switcher" wx:if="{{childrenList.length > 0}}">
-      <swiper class="child-swiper" indicator-dots="{{childrenList.length > 1}}" indicator-color="rgba(255,255,255,0.3)" indicator-active-color="white" bindchange="onChildSwiperChange" autoplay="{{false}}" circular="{{childrenList.length > 1}}">
-        <swiper-item wx:for="{{childrenList}}" wx:key="_id">
-          <view class="child-card-main">
-            <image class="child-avatar-large" src="{{item.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
-            <view class="child-info-main">
-              <text class="child-name-large">{{item.name}}</text>
-              <text class="child-details-main">{{item.gender === 'male' ? '👦' : '👧'}} {{item.age}}岁 {{item.grade || ''}}</text>
-              <view class="child-stats">
-                <view class="stat-item-small">
-                  <text class="stat-number-small">{{item.totalPoints || 0}}</text>
-                  <text class="stat-label-small">积分</text>
-                </view>
-                <view class="stat-item-small">
-                  <text class="stat-number-small">{{item.completedTasksToday || 0}}</text>
-                  <text class="stat-label-small">今日完成</text>
-                </view>
-              </view>
-            </view>
-          </view>
-        </swiper-item>
-      </swiper>
+    <!-- 孩子选择器 -->
+    <view class="child-selector-wrapper" wx:if="{{childrenList.length > 0}}">
+      <child-selector
+        childrenList="{{childrenList}}"
+        currentChild="{{currentChild}}"
+        selectedIndex="{{currentChildIndex}}"
+        showPoints="{{true}}"
+        bind:change="onChildSelectorChange"
+        bind:toggle="onChildSelectorToggle"
+      ></child-selector>
+    </view>
+
+    <!-- 当前孩子统计卡片 -->
+    <view class="current-child-stats" wx:if="{{currentChild}}">
+      <view class="stats-grid">
+        <view class="stat-item">
+          <text class="stat-number">{{currentChild.totalPoints || 0}}</text>
+          <text class="stat-label">总积分</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{todayCompletedTasks || 0}}</text>
+          <text class="stat-label">今日完成</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{todayEarnedPoints || 0}}</text>
+          <text class="stat-label">今日获得</text>
+        </view>
+      </view>
     </view>
   </view>
 

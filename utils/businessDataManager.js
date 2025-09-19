@@ -1,8 +1,9 @@
-// 业务数据管理器
+// 业务数据管理器 - 核心数据管理层
 class BusinessDataManager {
   constructor() {
     this.cache = new Map();
     this.cacheExpiry = new Map();
+    this.eventListeners = new Map(); // 事件监听器
   }
 
   /**
@@ -11,6 +12,9 @@ class BusinessDataManager {
   set(key, data, expiry = 300000) { // 默认5分钟过期
     this.cache.set(key, data);
     this.cacheExpiry.set(key, Date.now() + expiry);
+    
+    // 触发数据变更事件
+    this.emit(`${key}:changed`, data);
   }
 
   /**
@@ -32,6 +36,7 @@ class BusinessDataManager {
   delete(key) {
     this.cache.delete(key);
     this.cacheExpiry.delete(key);
+    this.emit(`${key}:deleted`);
   }
 
   /**
@@ -40,6 +45,46 @@ class BusinessDataManager {
   clear() {
     this.cache.clear();
     this.cacheExpiry.clear();
+    this.emit('cache:cleared');
+  }
+
+  /**
+   * 事件监听
+   */
+  on(event, callback) {
+    if (!this.eventListeners.has(event)) {
+      this.eventListeners.set(event, []);
+    }
+    this.eventListeners.get(event).push(callback);
+  }
+
+  /**
+   * 移除事件监听
+   */
+  off(event, callback) {
+    const listeners = this.eventListeners.get(event);
+    if (listeners) {
+      const index = listeners.indexOf(callback);
+      if (index > -1) {
+        listeners.splice(index, 1);
+      }
+    }
+  }
+
+  /**
+   * 触发事件
+   */
+  emit(event, data) {
+    const listeners = this.eventListeners.get(event);
+    if (listeners) {
+      listeners.forEach(callback => {
+        try {
+          callback(data);
+        } catch (error) {
+          console.error(`事件监听器执行失败 [${event}]:`, error);
+        }
+      });
+    }
   }
 
   /**
@@ -71,37 +116,16 @@ class BusinessDataManager {
   }
 
   /**
-   * 设置全局孩子列表（与setChildrenList相同，为了兼容性）
-   */
-  setGlobalChildrenList(childrenList) {
-    this.setChildrenList(childrenList);
-    
-    // 如果列表不为空，初始化当前孩子状态
-    if (childrenList && childrenList.length > 0) {
-      let currentChild = this.getCurrentChild();
-      let currentChildIndex = this.getCurrentChildIndex();
-      
-      // 如果当前孩子不在新列表中，重置为第一个
-      if (!currentChild || !childrenList.find(child => child._id === currentChild._id)) {
-        currentChild = childrenList[0];
-        currentChildIndex = 0;
-        this.setCurrentChild(currentChild);
-        this.setCurrentChildIndex(currentChildIndex);
-      }
-    } else {
-      // 如果列表为空，清除当前孩子状态
-      this.setCurrentChild(null);
-      this.setCurrentChildIndex(0);
-    }
-  }
-
-  /**
    * 设置当前选中的儿童
    */
   setCurrentChild(child) {
     this.set('currentChild', child, 3600000); // 1小时过期
     // 同时保存到本地存储，确保跨页面一致性
-    wx.setStorageSync('currentChild', child);
+    try {
+      wx.setStorageSync('currentChild', child);
+    } catch (error) {
+      console.error('保存当前孩子到本地存储失败:', error);
+    }
   }
 
   /**
@@ -128,7 +152,11 @@ class BusinessDataManager {
    */
   setCurrentChildIndex(index) {
     this.set('currentChildIndex', index, 3600000);
-    wx.setStorageSync('currentChildIndex', index);
+    try {
+      wx.setStorageSync('currentChildIndex', index);
+    } catch (error) {
+      console.error('保存当前孩子索引到本地存储失败:', error);
+    }
   }
 
   /**
@@ -153,89 +181,18 @@ class BusinessDataManager {
   }
 
   /**
-   * 全局切换孩子
-   */
-  switchChild(childrenList, index) {
-    if (!childrenList || index < 0 || index >= childrenList.length) {
-      console.error('切换孩子参数无效');
-      return false;
-    }
-
-    const selectedChild = childrenList[index];
-    this.setCurrentChild(selectedChild);
-    this.setCurrentChildIndex(index);
-    this.setChildrenList(childrenList);
-
-    // 触发全局事件通知其他页面
-    this.notifyChildChanged(selectedChild, index);
-    
-    return true;
-  }
-
-  /**
-   * 通知孩子切换事件
-   */
-  notifyChildChanged(child, index) {
-    // 使用小程序的事件总线机制
-    const pages = getCurrentPages();
-    pages.forEach(page => {
-      if (page.onChildChanged && typeof page.onChildChanged === 'function') {
-        page.onChildChanged(child, index);
-      }
-    });
-  }
-
-  /**
-   * 初始化孩子状态
-   */
-  initChildState(childrenList) {
-    if (!childrenList || childrenList.length === 0) {
-      this.setCurrentChild(null);
-      this.setCurrentChildIndex(0);
-      return { currentChild: null, currentChildIndex: 0 };
-    }
-
-    let currentChildIndex = this.getCurrentChildIndex();
-    let currentChild = this.getCurrentChild();
-
-    // 验证当前孩子是否还在列表中
-    if (currentChild) {
-      const foundIndex = childrenList.findIndex(child => child._id === currentChild._id);
-      if (foundIndex !== -1) {
-        currentChildIndex = foundIndex;
-      } else {
-        // 当前孩子不在列表中，重置为第一个
-        currentChildIndex = 0;
-        currentChild = childrenList[0];
-      }
-    } else {
-      // 没有当前孩子，选择第一个
-      currentChildIndex = 0;
-      currentChild = childrenList[0];
-    }
-
-    // 确保索引有效
-    if (currentChildIndex >= childrenList.length) {
-      currentChildIndex = 0;
-      currentChild = childrenList[0];
-    }
-
-    this.setCurrentChild(currentChild);
-    this.setCurrentChildIndex(currentChildIndex);
-    this.setChildrenList(childrenList);
-
-    return { currentChild, currentChildIndex };
-  }
-
-  /**
    * 清除孩子相关缓存
    */
   clearChildCache() {
     this.delete('currentChild');
     this.delete('currentChildIndex');
     this.delete('childrenList');
-    wx.removeStorageSync('currentChild');
-    wx.removeStorageSync('currentChildIndex');
+    try {
+      wx.removeStorageSync('currentChild');
+      wx.removeStorageSync('currentChildIndex');
+    } catch (error) {
+      console.error('清除本地存储的孩子数据失败:', error);
+    }
   }
 
   /**
@@ -308,9 +265,50 @@ class BusinessDataManager {
   getCacheKeys() {
     return Array.from(this.cache.keys());
   }
+
+  /**
+   * 获取缓存统计信息
+   */
+  getCacheStats() {
+    return {
+      totalKeys: this.cache.size,
+      keys: this.getCacheKeys(),
+      memoryUsage: JSON.stringify([...this.cache.entries()]).length
+    };
+  }
+
+  /**
+   * 清理过期缓存
+   */
+  cleanExpiredCache() {
+    const now = Date.now();
+    const expiredKeys = [];
+    
+    this.cacheExpiry.forEach((expiry, key) => {
+      if (now > expiry) {
+        expiredKeys.push(key);
+      }
+    });
+
+    expiredKeys.forEach(key => {
+      this.cache.delete(key);
+      this.cacheExpiry.delete(key);
+    });
+
+    if (expiredKeys.length > 0) {
+      console.log(`清理了 ${expiredKeys.length} 个过期缓存:`, expiredKeys);
+    }
+
+    return expiredKeys.length;
+  }
 }
 
 // 创建单例实例
 const businessDataManager = new BusinessDataManager();
+
+// 定期清理过期缓存
+setInterval(() => {
+  businessDataManager.cleanExpiredCache();
+}, 60000); // 每分钟清理一次
 
 module.exports = businessDataManager;

@@ -224,11 +224,10 @@ Page(createPageWithChildManager({
 
   checkDataRefresh: function() {
     // 检查数据是否需要刷新
-    const now = Date.now();
-    const rewardListExpiry = businessDataManager.cacheExpiry.get('rewardList') || 0;
+    const hasValidCache = businessDataManager.hasValidCache('rewardList');
     
-    // 如果缓存过期超过1分钟，则刷新数据
-    if (now - rewardListExpiry > 60000) {
+    // 如果缓存过期，则刷新数据
+    if (!hasValidCache) {
       this.setData({ currentPage: 1, hasMore: true });
       this.loadRewardList();
     }

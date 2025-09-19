@@ -1,14 +1,7 @@
 // pages/template-management/template-management.js
 // 模板管理页面逻辑
 const { templatesApi, childrenApi } = require('../../utils/api-services.js')
-let businessDataManager
-try {
-  const { businessDataManager: bdm } = require('../../utils/businessDataManager.js')
-  businessDataManager = bdm
-} catch (error) {
-  console.warn('无法加载业务数据管理器:', error)
-  businessDataManager = null
-}
+const businessDataManager = require('../../utils/businessDataManager.js')
 
 Page({
   data: {

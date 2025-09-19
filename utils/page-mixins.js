@@ -1,5 +1,6 @@
-// 页面混入工具集合
+// 页面混入工具集合 - 专注于页面级功能混入
 const { withGlobalChildManager } = require('./global-child-manager.js');
+const businessDataManager = require('./businessDataManager.js');
 
 /**
  * 创建带有全局孩子状态管理的页面
@@ -53,6 +54,13 @@ const TaskPageMixin = {
       return;
     }
 
+    // 先尝试从缓存获取
+    const cachedTasks = businessDataManager.getTaskList();
+    if (cachedTasks) {
+      this.setData({ taskList: cachedTasks });
+      return;
+    }
+
     this.setData({ loading: true });
     
     try {
@@ -60,7 +68,10 @@ const TaskPageMixin = {
       const result = await tasksApi.getList({ childId: currentChild._id });
       
       if (result.code === 0) {
-        this.setData({ taskList: result.data || [] });
+        const taskList = result.data || [];
+        this.setData({ taskList });
+        // 缓存任务列表
+        businessDataManager.setTaskList(taskList);
       } else {
         wx.showToast({ title: result.msg || '加载任务失败', icon: 'none' });
       }
@@ -93,6 +104,19 @@ const RewardPageMixin = {
   loadRewardList: async function() {
     const currentChild = this.getCurrentChild();
     
+    // 先尝试从缓存获取
+    const cachedRewards = businessDataManager.getRewardList();
+    if (cachedRewards) {
+      const currentPoints = currentChild ? (currentChild.totalPoints || 0) : 0;
+      const availableRewards = cachedRewards.filter(reward => reward.points <= currentPoints);
+      
+      this.setData({ 
+        rewardList: cachedRewards,
+        availableRewards: availableRewards
+      });
+      return;
+    }
+
     this.setData({ loading: true });
     
     try {
@@ -108,6 +132,9 @@ const RewardPageMixin = {
           rewardList: allRewards,
           availableRewards: availableRewards
         });
+
+        // 缓存奖励列表
+        businessDataManager.setRewardList(allRewards);
       } else {
         wx.showToast({ title: result.msg || '加载奖励失败', icon: 'none' });
       }

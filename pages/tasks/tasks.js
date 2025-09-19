@@ -1,6 +1,7 @@
 // 任务管理页面逻辑 - 使用API服务层获取真实数据
 const { tasksApi, childrenApi, dictionaryApi } = require('../../utils/api-services.js');
 const { createPageWithChildManager } = require('../../utils/page-mixins.js');
+const businessDataManager = require('../../utils/businessDataManager.js');
 
 Page(createPageWithChildManager({
   data: {
@@ -225,11 +226,10 @@ Page(createPageWithChildManager({
 
   checkDataRefresh: function() {
     // 检查数据是否需要刷新
-    const now = Date.now();
-    const taskListExpiry = businessDataManager.cacheExpiry.get('taskList') || 0;
+    const hasValidCache = businessDataManager.hasValidCache('taskList');
     
-    // 如果缓存过期超过1分钟，则刷新数据
-    if (now - taskListExpiry > 60000) {
+    // 如果缓存过期，则刷新数据
+    if (!hasValidCache) {
       this.setData({ currentPage: 1, hasMore: true });
       this.loadTaskList();
     }

@@ -1,0 +1,62 @@
+<!-- 孩子选择器组件 -->
+<view class="child-selector-container">
+  <!-- 当前选中的孩子显示区域 -->
+  <view class="current-child-display" bindtap="toggleSelector">
+    <image 
+      class="child-avatar" 
+      src="{{currentChild.avatar || '/images/default-avatar.png'}}" 
+      mode="aspectFill"
+    ></image>
+    <view class="child-info">
+      <text class="child-name">{{currentChild.name || '请选择孩子'}}</text>
+      <text class="child-details" wx:if="{{currentChild.name}}">
+        {{currentChild.gender === 'male' ? '👦' : '👧'}} {{currentChild.age}}岁
+      </text>
+    </view>
+    <text class="selector-arrow {{showList ? 'rotate' : ''}}">▼</text>
+  </view>
+
+  <!-- 展开的孩子列表 -->
+  <view class="child-list {{showList ? 'show' : ''}}" wx:if="{{childrenList.length > 1}}">
+    <view 
+      class="child-item {{index === selectedIndex ? 'selected' : ''}}"
+      wx:for="{{childrenList}}"
+      wx:key="_id"
+      wx:for-index="index"
+      bindtap="onSelectChild"
+      data-index="{{index}}"
+    >
+      <!-- 选中状态指示器 -->
+      <view class="check-indicator {{index === selectedIndex ? 'checked' : ''}}">
+        <text class="check-mark">✓</text>
+      </view>
+      
+      <!-- 孩子头像 -->
+      <image 
+        class="child-avatar-small" 
+        src="{{item.avatar || '/images/default-avatar.png'}}" 
+        mode="aspectFill"
+      ></image>
+      
+      <!-- 孩子信息 -->
+      <view class="child-info-small">
+        <text class="child-name-small">{{item.name}}</text>
+        <text class="child-details-small">
+          {{item.gender === 'male' ? '👦' : '👧'}} {{item.age}}岁
+        </text>
+      </view>
+      
+      <!-- 积分显示 -->
+      <view class="child-points" wx:if="{{showPoints}}">
+        <text class="points-text">{{item.totalPoints || 0}}分</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 遮罩层 - 点击收起列表 -->
+  <view 
+    class="selector-mask {{showList ? 'show' : ''}}" 
+    bindtap="hideSelector"
+    wx:if="{{showList}}"
+  ></view>
+</view>

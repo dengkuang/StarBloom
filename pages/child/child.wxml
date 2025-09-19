@@ -1,5 +1,5 @@
 <!-- 孩子视图页面 - 滚动屏设计 -->
-<scroll-view class="container" scroll-y="true" enhanced="true" show-scrollbar="false">
+<scroll-view class="container" scroll-y="true" enhanced="true" show-scrollbar="false" bindtap="onPageTap">
   
   <!-- 没有孩子数据时的提示 -->
   <view class="empty-state" wx:if="{{childrenList.length === 0 && !loading}}">
@@ -15,23 +15,21 @@
   </view>
   
   <!-- 头部区域 - 孩子信息和积分 -->
-  <view class="header-section" wx:if="{{childrenList.length > 0}}">
+  <view class="header-section" wx:if="{{childrenList.length > 0}}" style="width: 750rpx; height: 646rpx; display: block; box-sizing: border-box">
     <!-- 孩子选择器 -->
-    <view class="child-selector">
-      <picker bindchange="onChildChange" value="{{currentChildIndex}}" range="{{childrenList}}" range-key="name">
-        <view class="picker-content">
-          <image class="child-avatar" src="{{currentChild.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
-          <view class="child-info">
-            <text class="child-name">{{currentChild.name}}</text>
-            <text class="child-details">{{currentChild.gender === 'male' ? '👦' : '👧'}} {{currentChild.age}}岁</text>
-          </view>
-          <text class="picker-arrow">▼</text>
-        </view>
-      </picker>
+    <view class="child-selector-wrapper">
+      <child-selector
+        childrenList="{{childrenList}}"
+        currentChild="{{currentChild}}"
+        selectedIndex="{{currentChildIndex}}"
+        showPoints="{{true}}"
+        bind:change="onChildSelectorChange"
+        bind:toggle="onChildSelectorToggle"
+      ></child-selector>
     </view>
 
     <!-- 积分卡片 -->
-    <view class="points-card" wx:if="{{currentChild}}">
+    <view class="points-card" wx:if="{{currentChild}}" style="height: 407rpx; box-sizing: border-box; width: 688rpx; display: block">
       <view class="points-header">
         <text class="points-title">我的积分</text>
         <text class="points-subtitle">努力获得更多积分吧！</text>

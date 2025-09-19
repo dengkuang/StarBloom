@@ -1,6 +1,7 @@
 // 添加孩子页面逻辑
 const { childrenApi } = require('../../utils/api-services.js');
 const businessDataManager = require('../../utils/businessDataManager.js');
+const { globalChildManager } = require('../../utils/global-child-manager.js');
 
 Page({
   data: {
@@ -305,18 +306,15 @@ Page({
         const updatedChildrenList = result.data || [];
         
         // 更新全局孩子列表缓存
-        businessDataManager.setGlobalChildrenList(updatedChildrenList);
+        businessDataManager.setChildrenList(updatedChildrenList);
         
         // 如果这是第一个孩子，或者当前没有选中的孩子，则设置为当前孩子
         const currentChild = businessDataManager.getCurrentChild();
         if (!currentChild || updatedChildrenList.length === 1) {
           const newChildIndex = updatedChildrenList.findIndex(child => child._id === newChild._id);
           if (newChildIndex !== -1) {
-            businessDataManager.setCurrentChild(updatedChildrenList[newChildIndex]);
-            businessDataManager.setCurrentChildIndex(newChildIndex);
-            
-            // 通知其他页面孩子状态已更新
-            businessDataManager.notifyChildChanged(updatedChildrenList[newChildIndex], newChildIndex);
+            // 使用全局状态管理器切换到新添加的孩子
+            globalChildManager.switchChild(updatedChildrenList, newChildIndex);
           }
         }
         

@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SVG转PNG转换器</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .converter { margin: 20px 0; }
+        .svg-item { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        canvas { border: 1px solid #ddd; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background: #45a049; }
+    </style>
+</head>
+<body>
+    <h1>🎨 SVG转PNG转换器</h1>
+    <div class="converter">
+
+        <div class="svg-item">
+            <h3>analysis-active.svg</h3>
+            <div id="svg-0" style="display: none;"><!-- SVG图标：数据分析激活 -->
+<svg width="81" height="81" viewBox="0 0 81 81" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="40.5" cy="40.5" r="40.5" fill="#7B1FA2"/>
+  <rect x="20" y="25" width="8" height="30" fill="white"/>
+  <rect x="32" y="35" width="8" height="20" fill="white"/>
+  <rect x="44" y="20" width="8" height="35" fill="white"/>
+  <rect x="56" y="30" width="8" height="25" fill="white"/>
+  <circle cx="24" cy="20" r="2" fill="white"/>
+  <circle cx="36" cy="30" r="2" fill="white"/>
+  <circle cx="48" cy="15" r="2" fill="white"/>
+  <circle cx="60" cy="25" r="2" fill="white"/>
+  <path d="M24 20 L36 30 L48 15 L60 25" stroke="white" stroke-width="2" fill="none"/>
+  <circle cx="40.5" cy="40.5" r="38" fill="none" stroke="white" stroke-width="2"/>
+</svg></div>
+            <canvas id="canvas-0" width="81" height="81"></canvas>
+            <button onclick="convertToPNG(0, 'analysis-active.png')">转换为PNG</button>
+            <button onclick="downloadPNG(0, 'analysis-active.png')">下载PNG</button>
+        </div>
+
+        <div class="svg-item">
+            <h3>analysis.svg</h3>
+            <div id="svg-1" style="display: none;"><!-- SVG图标：数据分析 -->
+<svg width="81" height="81" viewBox="0 0 81 81" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="40.5" cy="40.5" r="40.5" fill="#9C27B0"/>
+  <rect x="20" y="25" width="8" height="30" fill="white"/>
+  <rect x="32" y="35" width="8" height="20" fill="white"/>
+  <rect x="44" y="20" width="8" height="35" fill="white"/>
+  <rect x="56" y="30" width="8" height="25" fill="white"/>
+  <circle cx="24" cy="20" r="2" fill="white"/>
+  <circle cx="36" cy="30" r="2" fill="white"/>
+  <circle cx="48" cy="15" r="2" fill="white"/>
+  <circle cx="60" cy="25" r="2" fill="white"/>
+  <path d="M24 20 L36 30 L48 15 L60 25" stroke="white" stroke-width="2" fill="none"/>
+</svg></div>
+            <canvas id="canvas-1" width="81" height="81"></canvas>
+            <button onclick="convertToPNG(1, 'analysis.png')">转换为PNG</button>
+            <button onclick="downloadPNG(1, 'analysis.png')">下载PNG</button>
+        </div>
+
+        <div class="svg-item">
+            <h3>child-active.svg</h3>
+            <div id="svg-2" style="display: none;"><!-- SVG图标：儿童端激活 -->
+<svg width="81" height="81" viewBox="0 0 81 81" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="40.5" cy="40.5" r="40.5" fill="#7B1FA2"/>
+  <circle cx="40.5" cy="30" r="12" fill="white"/>
+  <path d="M40.5 45 C30 45 22 52 22 60 L22 65 L59 65 L59 60 C59 52 51 45 40.5 45 Z" fill="white"/>
+  <circle cx="35" cy="27" r="2" fill="#7B1FA2"/>
+  <circle cx="46" cy="27" r="2" fill="#7B1FA2"/>
+  <path d="M35 32 Q40.5 35 46 32" stroke="#7B1FA2" stroke-width="2" fill="none"/>
+  <circle cx="40.5" cy="40.5" r="38" fill="none" stroke="white" stroke-width="2"/>
+</svg></div>
+            <canvas id="canvas-2" width="81" height="81"></canvas>
+            <button onclick="convertToPNG(2, 'child-active.png')">转换为PNG</button>
+            <button onclick="downloadPNG(2, 'child-active.png')">下载PNG</button>
+        </div>
+
+        <div class="svg-item">
+            <h3>child.svg</h3>
+            <div id="svg-3" style="display: none;"><!-- SVG图标：儿童端 -->
+<svg width="81" height="81" viewBox="0 0 81 81" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="40.5" cy="40.5" r="40.5" fill="#9C27B0"/>
+  <circle cx="40.5" cy="30" r="12" fill="white"/>
+  <path d="M40.5 45 C30 45 22 52 22 60 L22 65 L59 65 L59 60 C59 52 51 45 40.5 45 Z" fill="white"/>
+  <circle cx="35" cy="27" r="2" fill="#9C27B0"/>
+  <circle cx="46" cy="27" r="2" fill="#9C27B0"/>
+  <path d="M35 32 Q40.5 35 46 32" stroke="#9C27B0" stroke-width="2" fill="none"/>
+</svg></div>
+            <canvas id="canvas-3" width="81" height="81"></canvas>
+            <button onclick="convertToPNG(3, 'child.png')">转换为PNG</button>
+            <button onclick="downloadPNG(3, 'child.png')">下载PNG</button>
+        </div>
+
+        <div class="svg-item">
+            <h3>default-avatar.svg</h3>
+            <div id="svg-4" style="display: none;"><!-- 默认头像 SVG -->
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="100" cy="100" r="100" fill="#f0f0f0"/>
+  <circle cx="100" cy="70" r="30" fill="#ccc"/>
+  <path d="M100 110 C60 110 30 140 30 180 L170 180 C170 140 140 110 100 110 Z" fill="#ccc"/>
+  <circle cx="85" cy="65" r="3" fill="#999"/>
+  <circle cx="115" cy="65" r="3" fill="#999"/>
+  <path d="M85 80 Q100 90 115 80" stroke="#999" stroke-width="2" fill="none"/>
+</svg></div>
+            <canvas id="canvas-4" width="81" height="81"></canvas>
+            <button onclick="convertToPNG(4, 'default-avatar.png')">转换为PNG</button>
+            <button onclick="downloadPNG(4, 'default-avatar.png')">下载PNG</button>
+        </div>
+
+        <div class="svg-item">
+            <h3>empty-points.svg</h3>
+            <div id="svg-5" style="display: none;"><!-- 空状态图标 SVG -->
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="60" cy="60" r="50" fill="#f0f0f0"/>
+  <path d="M60 30 L70 50 L90 50 L75 65 L80 85 L60 70 L40 85 L45 65 L30 50 L50 50 Z" fill="#ddd"/>
+  <text x="60" y="100" text-anchor="middle" font-size="12" fill="#999">暂无数据</text>
+</svg></div>
+            <canvas id="canvas-5" width="81" height="81"></canvas>
+            <button onclick="convertToPNG(5, 'empty-points.png')">转换为PNG</button>
+            <button onclick="downloadPNG(5, 'empty-points.png')">下载PNG</button>
+        </div>
+
+        <div class="svg-item">
+            <h3>home-active.svg</h3>
+            <div id="svg-6" style="display: none;"><!-- SVG图标：首页激活 -->
+<svg width="81" height="81" viewBox="0 0 81 81" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="40.5" cy="40.5" r="40.5" fill="#7B1FA2"/>
+  <path d="M40.5 15 L25 30 L35 30 L35 50 L45 50 L45 30 L55 30 Z" fill="white"/>
+  <rect x="20" y="55" width="40" height="5" fill="white"/>
+  <circle cx="40.5" cy="40.5" r="38" fill="none" stroke="white" stroke-width="2"/>
+</svg></div>
+            <canvas id="canvas-6" width="81" height="81"></canvas>
+            <button onclick="convertToPNG(6, 'home-active.png')">转换为PNG</button>
+            <button onclick="downloadPNG(6, 'home-active.png')">下载PNG</button>
+        </div>
+
+        <div class="svg-item">
+            <h3>home.svg</h3>
+            <div id="svg-7" style="display: none;"><!-- SVG图标：首页 -->
+<svg width="81" height="81" viewBox="0 0 81 81" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="40.5" cy="40.5" r="40.5" fill="#9C27B0"/>
+  <path d="M40.5 15 L25 30 L35 30 L35 50 L45 50 L45 30 L55 30 Z" fill="white"/>
+  <rect x="20" y="55" width="40" height="5" fill="white"/>
+</svg></div>
+            <canvas id="canvas-7" width="81" height="81"></canvas>
+            <button onclick="convertToPNG(7, 'home.png')">转换为PNG</button>
+            <button onclick="downloadPNG(7, 'home.png')">下载PNG</button>
+        </div>
+
+        <div class="svg-item">
+            <h3>parent-active.svg</h3>
+            <div id="svg-8" style="display: none;"><!-- SVG图标：家长端激活 -->
+<svg width="81" height="81" viewBox="0 0 81 81" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="40.5" cy="40.5" r="40.5" fill="#7B1FA2"/>
+  <path d="M40.5 20 C30 20 22 28 22 38.5 C22 45 25 50.5 30 53.5 L30 65 L35 65 L35 55 L37 55 L37 65 L42 65 L42 55 L44 55 L44 65 L49 65 L49 53.5 C54 50.5 57 45 57 38.5 C57 28 49 20 40.5 20 Z" fill="white"/>
+  <circle cx="40.5" cy="35" r="8" fill="#7B1FA2"/>
+  <circle cx="40.5" cy="40.5" r="38" fill="none" stroke="white" stroke-width="2"/>
+</svg></div>
+            <canvas id="canvas-8" width="81" height="81"></canvas>
+            <button onclick="convertToPNG(8, 'parent-active.png')">转换为PNG</button>
+            <button onclick="downloadPNG(8, 'parent-active.png')">下载PNG</button>
+        </div>
+
+        <div class="svg-item">
+            <h3>parent.svg</h3>
+            <div id="svg-9" style="display: none;"><!-- SVG图标：家长端 -->
+<svg width="81" height="81" viewBox="0 0 81 81" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="40.5" cy="40.5" r="40.5" fill="#9C27B0"/>
+  <path d="M40.5 20 C30 20 22 28 22 38.5 C22 45 25 50.5 30 53.5 L30 65 L35 65 L35 55 L37 55 L37 65 L42 65 L42 55 L44 55 L44 65 L49 65 L49 53.5 C54 50.5 57 45 57 38.5 C57 28 49 20 40.5 20 Z" fill="white"/>
+  <circle cx="40.5" cy="35" r="8" fill="#9C27B0"/>
+</svg></div>
+            <canvas id="canvas-9" width="81" height="81"></canvas>
+            <button onclick="convertToPNG(9, 'parent.png')">转换为PNG</button>
+            <button onclick="downloadPNG(9, 'parent.png')">下载PNG</button>
+        </div>
+
+    </div>
+
+    <script>
+        function convertToPNG(index, filename) {
+            const svgElement = document.getElementById(`svg-${index}`);
+            const canvas = document.getElementById(`canvas-${index}`);
+            const ctx = canvas.getContext('2d');
+            
+            const svgData = new XMLSerializer().serializeToString(svgElement.firstChild);
+            const img = new Image();
+            
+            img.onload = function() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            };
+            
+            img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+        }
+        
+        function downloadPNG(index, filename) {
+            const canvas = document.getElementById(`canvas-${index}`);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+</html>

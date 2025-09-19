@@ -30,7 +30,7 @@
   </view>
 
   <!-- 包组模式内容 -->
-  <view class="content-area package-mode" wx:if="{{showPackageGroups && !loading}}">
+  <view class="content-area package-mode" wx:if="{{showPackageGroups && !loading}}" style="width: 679rpx; display: block; box-sizing: border-box">
     <!-- 调试信息 -->
     <view style="background: #fff3cd; padding: 10rpx; margin: 10rpx; border-radius: 10rpx; font-size: 24rpx; color: #856404;" wx:if="{{packageGroups.length === 0}}">
       调试：包组数据为空，请检查控制台日志

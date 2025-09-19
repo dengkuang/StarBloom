@@ -1,6 +1,7 @@
 // 孩子视图页面逻辑
 const { childrenApi, tasksApi, rewardsApi, pointsApi } = require('../../utils/api-services.js');
 const { createPageWithChildManager } = require('../../utils/page-mixins.js');
+const { globalChildManager } = require('../../utils/global-child-manager.js');
 
 Page(createPageWithChildManager({
   data: {
@@ -61,7 +62,7 @@ Page(createPageWithChildManager({
     const syncResult = this.syncGlobalChildState();
     
     // 如果没有全局状态或同步失败，重新加载页面数据
-    if (!syncResult.globalCurrentChild) {
+    if (!syncResult.currentChild) {
       console.log('没有全局状态，重新加载页面数据');
       this.loadPageData();
     } else {
@@ -245,19 +246,8 @@ Page(createPageWithChildManager({
           return;
         }
         
-        // 设置全局孩子列表
-        this.setGlobalChildrenList(childrenList);
-        
-        // 获取当前孩子状态
-        let currentChild = this.getCurrentChild();
-        let currentChildIndex = this.getCurrentChildIndex();
-        
-        // 如果没有当前孩子或当前孩子不在列表中，使用第一个孩子
-        if (!currentChild || !childrenList.find(child => child._id === currentChild._id)) {
-          currentChild = childrenList[0];
-          currentChildIndex = 0;
-          this.switchChild(0);
-        }
+        // 初始化全局孩子状态
+        let { currentChild, currentChildIndex } = globalChildManager.initChildState(childrenList);
         
         // 如果有指定的孩子ID，优先使用指定的孩子
         if (this.data.selectedChildId) {
@@ -266,9 +256,12 @@ Page(createPageWithChildManager({
             currentChild = childrenList[foundIndex];
             currentChildIndex = foundIndex;
             // 更新全局状态
-            this.switchChild(foundIndex);
+            globalChildManager.switchChild(childrenList, foundIndex);
           }
         }
+        
+        // 更新页面混入的全局状态
+        this.setGlobalChildrenList(childrenList);
         
         this.setData({ 
           childrenList,
@@ -443,47 +436,72 @@ Page(createPageWithChildManager({
     }
   },
 
-  // 切换孩子
-  onChildChange: function(e) {
-    const index = e.detail.value;
-    const childrenList = this.data.childrenList;
+  // 孩子选择器变化事件
+  onChildSelectorChange: function(e) {
+    const { index, child, childrenList } = e.detail;
     
-    if (index >= 0 && index < childrenList.length) {
-      const currentChild = childrenList[index];
-      
-      // 检查是否是相同的孩子
-      if (this.data.currentChild && this.data.currentChild._id === currentChild._id) {
-        console.log('切换到相同孩子，跳过操作');
-        return;
-      }
-      
-      console.log('切换孩子:', currentChild.name);
-      
-      // 使用全局状态管理切换孩子
-      const success = this.switchChild(index);
-      
-      if (success) {
-        this.setData({
-          currentChildIndex: index,
-          currentChild
-        });
+    console.log('孩子选择器变化:', child.name, index);
+    
+    // 使用全局状态管理切换孩子
+    const success = globalChildManager.switchChild(childrenList, index);
+    
+    if (success) {
+      this.setData({
+        currentChildIndex: index,
+        currentChild: child
+      });
 
-        // 显示切换提示
-        wx.showToast({
-          title: `已切换到 ${currentChild.name}`,
-          icon: 'success',
-          duration: 1000
-        });
-        
-        // 防止重复加载，因为switchChild会触发onGlobalChildStateChanged
-        // 这里不需要再调用loadChildData，让全局状态变化回调处理
-      } else {
-        wx.showToast({
-          title: '切换失败',
-          icon: 'none'
-        });
-      }
+      // 防止重复加载，因为switchChild会触发onGlobalChildStateChanged
+      // 这里不需要再调用loadChildData，让全局状态变化回调处理
+    } else {
+      wx.showToast({
+        title: '切换失败',
+        icon: 'none'
+      });
     }
+  },
+
+  // 孩子选择器展开/收起事件
+  onChildSelectorToggle: function(e) {
+    const { show } = e.detail;
+    console.log('孩子选择器', show ? '展开' : '收起');
+    
+    // 可以在这里添加一些UI反馈，比如调整页面布局等
+    // 暂时不需要特殊处理
+  },
+
+  // 孩子选择器变化事件
+  onChildSelectorChange: function(e) {
+    const { index, child, childrenList } = e.detail;
+    
+    console.log('孩子选择器变化:', child.name, index);
+    
+    // 使用全局状态管理切换孩子
+    const success = globalChildManager.switchChild(childrenList, index);
+    
+    if (success) {
+      this.setData({
+        currentChildIndex: index,
+        currentChild: child
+      });
+
+      // 防止重复加载，因为switchChild会触发onGlobalChildStateChanged
+      // 这里不需要再调用loadChildData，让全局状态变化回调处理
+    } else {
+      wx.showToast({
+        title: '切换失败',
+        icon: 'none'
+      });
+    }
+  },
+
+  // 孩子选择器展开/收起事件
+  onChildSelectorToggle: function(e) {
+    const { show } = e.detail;
+    console.log('孩子选择器', show ? '展开' : '收起');
+    
+    // 可以在这里添加一些UI反馈，比如调整页面布局等
+    // 暂时不需要特殊处理
   },
 
   // 完成任务

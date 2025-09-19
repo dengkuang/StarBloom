@@ -17,13 +17,13 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#4CAF50",
+    "navigationBarBackgroundColor": "#9C27B0",
     "navigationBarTitleText": "StarBloom",
     "navigationBarTextStyle": "white"
   },
   "tabBar": {
     "color": "#666666",
-    "selectedColor": "#4CAF50",
+    "selectedColor": "#9C27B0",
     "backgroundColor": "#ffffff",
     "borderStyle": "black",
     "list": [
