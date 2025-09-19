@@ -28,7 +28,7 @@ All cloud functions follow a standardized pattern in `/cloudfunctions/`:
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const { action, data } = event
-  
+
   try {
     switch (action) {
       case 'list': return await listItems(data)

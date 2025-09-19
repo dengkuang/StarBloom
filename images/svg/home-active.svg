@@ -1,6 +1,6 @@
 <!-- SVG图标：首页激活 -->
 <svg width="81" height="81" viewBox="0 0 81 81" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="40.5" cy="40.5" r="40.5" fill="#7B1FA2"/>
+  <circle cx="40.5" cy="40.5" r="40.5" fill="#5558cc"/>
   <path d="M40.5 15 L25 30 L35 30 L35 50 L45 50 L45 30 L55 30 Z" fill="white"/>
   <rect x="20" y="55" width="40" height="5" fill="white"/>
   <circle cx="40.5" cy="40.5" r="38" fill="none" stroke="white" stroke-width="2"/>

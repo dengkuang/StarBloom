@@ -12,11 +12,11 @@
 
 /* 紫色主题色 */
 .primary-color {
-  color: #8d52da;
+  color: #764ba2;
 }
 
 .background-green {
-  background-color: #700ae4;
+  background-color: #764ba2;
 }
 
 .border-green {

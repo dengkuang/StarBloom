@@ -9,6 +9,11 @@
       "Bash(python:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "env": {
+    "ANTHROPIC_BASE_URL": "https://open.bigmodel.cn/api/anthropic",
+    "ANTHROPIC_AUTH_TOKEN": "11bcfd52d9ed4b3e87aadb015d431cfb.9DgGTvIN4vERJHS8"
+    }
+
   }
 }
