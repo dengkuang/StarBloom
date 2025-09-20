@@ -60,21 +60,21 @@
   </view>
   
   <!-- 挑战信息区域 -->
-  <view wx:if="{{task.challengeTarget}}" class="challenge-section">
+  <!-- <view wx:if="{{task.challengeTarget}}" class="challenge-section">
     <view class="challenge-header">
       <text class="challenge-title">🎯 挑战目标</text>
       <text wx:if="{{task.challengeReward}}" class="challenge-reward">+{{task.challengeReward.points}}积分</text>
     </view>
-    <text class="challenge-description">{{task.challengeTarget.description}}</text>
+    <text class="challenge-description">{{task.challengeTarget.description}}</text> -->
     
     <!-- 挑战进度条 -->
-    <view wx:if="{{challengeProgress}}" class="challenge-progress">
+    <!-- <view wx:if="{{challengeProgress}}" class="challenge-progress">
       <view class="progress-bar">
         <view class="progress-fill" style="width: {{challengeProgress.percentage}}%"></view>
       </view>
       <text class="progress-text">{{challengeProgress.current}}/{{challengeProgress.target}}天</text>
     </view>
-  </view>
+  </view> -->
   
   <!-- 完成状态和时间 -->
   <view wx:if="{{task.completionRecord}}" class="completion-info">

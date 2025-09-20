@@ -17,20 +17,13 @@ Page({
     childrenList: [],
     currentChild: null,
     currentChildIndex: 0,
-    
-    // 今日任务
-    todayTasks: [],
-    todayCompletedTasks: 0,
-    todayTotalTasks: 0,
-    todayTaskProgress: 0,
-    todayEarnedPoints: 0,
-    
-    // 挑战任务
-    challengeTasks: [],
+   
+    //任务相关
+    Tasks: [],
     
     // 奖励相关
-    availableRewards: [],
-    popularRewards: [],
+    Rewards: [],
+    
     
     // 工具方法
     Math: Math
@@ -106,8 +99,7 @@ Page({
       
       if (this.data.currentChild) {
         await Promise.all([
-          this.loadTodayTasks(),
-          this.loadChallengeTasks(),
+          this.loadTasks(),
           this.loadRewards()
         ]);
       }
@@ -187,79 +179,49 @@ Page({
     }
   },
 
-  // 加载今日任务
-  loadTodayTasks: async function() {
+  
+  // 加载任务
+  loadTasks: async function() {
     if (!this.data.currentChild) return;
     
     try {
       const result = await tasksApi.getMyTasks(this.data.currentChild._id);
-      
+      console.log('getMyTasks result:', result);
       if (result.code === 0) {
-        const allTasks = result.data || [];
-        
-        // 筛选出今日相关的任务（daily类型的任务）
-        const todayTasks = allTasks.filter(task => task.taskType === 'daily');
-        const completedTasks = todayTasks.filter(task => task.isCompleted);
-        const totalTasks = todayTasks.length;
-        const completedCount = completedTasks.length;
-        const progress = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
-        
-        // 计算今日获得积分
-        const earnedPoints = completedTasks.reduce((sum, task) => sum + (task.points || 0), 0);
-        
-        this.setData({
-          todayTasks,
-          todayCompletedTasks: completedCount,
-          todayTotalTasks: totalTasks,
-          todayTaskProgress: progress,
-          todayEarnedPoints: earnedPoints
-        });
+        const Tasks = result.data || [];
+        this.setData({ Tasks });
       }
     } catch (error) {
-      console.error('获取今日任务失败:', error);
-      // 设置默认值
-      this.setData({
-        todayTasks: [],
-        todayCompletedTasks: 0,
-        todayTotalTasks: 0,
-        todayTaskProgress: 0,
-        todayEarnedPoints: 0
-      });
+      console.error('加载任务失败:', error);
+      this.setData({ tasks: [] });
     }
   },
 
-  // 加载任务
-  loadChallengeTasks: async function() {
-    if (!this.data.currentChild) return;
-    
+  // 删除任务
+  onDeleteTask: async function(e) {
+    const taskId = e.detail.taskId;
     try {
-      const result = await tasksApi.getMyTasks(this.data.currentChild._id);
-      
+      wx.showLoading({ title: '删除中...' });
+      const result = await tasksApi.delete(taskId);
       if (result.code === 0) {
-        const allTasks = result.data || [];
-        
-        // 筛选出挑战类型的任务（weekly类型的任务）
-        const challengeTasks = allTasks.filter(task => task.taskType === 'weekly');
-        
-        // 为每个挑战任务计算进度
-        challengeTasks.forEach(task => {
-          // 根据完成状态设置进度
-          task.progress = task.isCompleted ? 100 : 0;
-          task.progress = Math.floor(Math.random() * 100);
-          
-          // 格式化截止日期
-          if (task.deadline) {
-            const deadline = new Date(task.deadline);
-            task.deadline = `${deadline.getMonth() + 1}/${deadline.getDate()}`;
-          }
-        });
-        
-        this.setData({ challengeTasks });
+        wx.showToast({ title: '删除成功', icon: 'success' });
+        this.loadTasks();
+      } else {
+        throw new Error(result.msg);
       }
     } catch (error) {
-      console.error('获取挑战任务失败:', error);
-      this.setData({ challengeTasks: [] });
+      wx.showToast({ title: error.message || '删除失败', icon: 'none' });
+    } finally {
+      wx.hideLoading();
     }
+  },
+
+  // 编辑任务
+  onEditTask: function(e) {
+    const taskId = e.detail.taskId;
+    wx.navigateTo({
+      url: `/pages/tasks/edit?id=${taskId}`
+    });
   },
 
   // 加载奖励数据
@@ -267,31 +229,17 @@ Page({
     if (!this.data.currentChild) return;
     
     try {
-      const result = await rewardsApi.getList();
+      const result = await rewardsApi.getMyRewards(this.data.currentChild._id);
       if (result.code === 0) {
-        const allRewards = result.data || [];
-        const currentPoints = this.data.currentChild.totalPoints || 0;
-        
-        // 筛选可兑换奖励
-        const availableRewards = allRewards.filter(reward => 
-          reward.points <= currentPoints && reward.status === 'active'
-        );
-        
-        // 获取热门奖励（这里简单按积分排序）
-        const popularRewards = allRewards
-          .filter(reward => reward.status === 'active')
-          .sort((a, b) => a.points - b.points);
-        
-        this.setData({
-          availableRewards,
-          popularRewards
+        const Rewards = result.data || [];
+        this.setData({Rewards
         });
       }
     } catch (error) {
       console.error('获取奖励数据失败:', error);
       this.setData({
-        availableRewards: [],
-        popularRewards: []
+        Rewards: [],
+       
       });
     }
   },
@@ -391,6 +339,33 @@ Page({
     });
   },
 
+  // 删除奖励
+  onDeleteReward: async function(e) {
+    const rewardId = e.detail.rewardId;
+    try {
+      wx.showLoading({ title: '删除中...' });
+      const result = await rewardsApi.delete(rewardId);
+      if (result.code === 0) {
+        wx.showToast({ title: '删除成功', icon: 'success' });
+        this.loadRewards();
+      } else {
+        throw new Error(result.msg);
+      }
+    } catch (error) {
+      wx.showToast({ title: error.message || '删除失败', icon: 'none' });
+    } finally {
+      wx.hideLoading();
+    }
+  },
+
+  // 编辑奖励
+  onEditReward: function(e) {
+    const rewardId = e.detail.rewardId;
+    wx.navigateTo({
+      url: `/pages/rewards/edit?id=${rewardId}`
+    });
+  },
+
   // 通知点击
   onNotificationTap: function() {
     wx.navigateTo({
@@ -466,8 +441,7 @@ Page({
     
     try {
       await Promise.all([
-        this.loadTodayTasks(),
-        this.loadChallengeTasks(),
+        this.loadTasks(),
         this.loadRewards()
       ]);
       

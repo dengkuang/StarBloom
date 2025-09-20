@@ -103,7 +103,7 @@
 }
 
 .exchange-btn {
-  background: linear-gradient(135deg, #28a745, #20c997);
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
   font-weight: bold;
 }
