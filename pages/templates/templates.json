@@ -6,6 +6,5 @@
   "navigationBarTextStyle": "white",
   "backgroundTextStyle": "light",
   "usingComponents": {
-    "template-card": "/components/template-card/template-card"
   }
 }

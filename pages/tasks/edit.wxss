@@ -101,8 +101,18 @@
   color: #333;
   margin-bottom: 16rpx;
 }
-
-.form-input, .form-textarea {
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  background: #f8f9fa;
+  border: 2rpx solid #e9ecef;
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  color: #333;
+  box-sizing: border-box;
+}
+ .form-textarea {
   width: 100%;
   padding: 24rpx;
   border: 2rpx solid #e9ecef;

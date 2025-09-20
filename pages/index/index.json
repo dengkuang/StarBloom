@@ -3,10 +3,8 @@
   "enablePullDownRefresh": true,
   "backgroundColor": "#667eea",
   "usingComponents": {
-    "child-card": "/components/child-card/child-card",
     "task-item": "/components/task-item/task-item",
     "reward-item": "/components/reward-item/reward-item",
-    "stat-card": "/components/stat-card/stat-card",
     "child-selector": "/components/child-selector/child-selector"
   }
 }
