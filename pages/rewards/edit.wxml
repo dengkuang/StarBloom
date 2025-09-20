@@ -1,0 +1,108 @@
+<!-- pages/rewards/edit.wxml -->
+<!-- 编辑奖励页面 -->
+<scroll-view class="container" scroll-y="true" enhanced="true" show-scrollbar="false">
+  
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-content">
+      <view class="back-btn" bindtap="onBack">
+        <text class="back-icon">←</text>
+      </view>
+      <view class="header-info">
+        <text class="page-title">编辑奖励</text>
+        <text class="page-desc">修改奖励信息</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 表单内容 -->
+  <view class="form-container">
+    
+    <!-- 基本信息 -->
+    <view class="form-section">
+      <text class="section-title">🎁 基本信息</text>
+      
+      <!-- 奖励名称 -->
+      <view class="form-item">
+        <text class="form-label">奖励名称 *</text>
+        <input 
+          class="form-input {{errors.name ? 'error' : ''}}"
+          placeholder="请输入奖励名称"
+          value="{{formData.name}}"
+          maxlength="20"
+          data-field="name"
+          bindinput="onInputChange"
+        />
+        <text class="error-text" wx:if="{{errors.name}}">{{errors.name}}</text>
+      </view>
+      
+      <!-- 奖励描述 -->
+      <view class="form-item">
+        <text class="form-label">奖励描述</text>
+        <textarea 
+          class="form-textarea {{errors.description ? 'error' : ''}}"
+          placeholder="描述这个奖励的具体内容和价值"
+          value="{{formData.description}}"
+          maxlength="100"
+          data-field="description"
+          bindinput="onInputChange"
+        ></textarea>
+        <text class="error-text" wx:if="{{errors.description}}">{{errors.description}}</text>
+      </view>
+      
+      <!-- 所需积分 -->
+      <view class="form-item">
+        <text class="form-label">所需积分 *</text>
+        <view class="points-selector">
+          <button class="points-btn decrease" data-type="decrease" bindtap="onPointsChange">-</button>
+          <text class="points-value">{{formData.pointsRequired}} 积分</text>
+          <button class="points-btn increase" data-type="increase" bindtap="onPointsChange">+</button>
+        </view>
+        <text class="form-hint">建议：小奖励10-50积分，中等奖励50-150积分，大奖励150-300积分</text>
+      </view>
+    </view>
+
+    <!-- 奖励属性 -->
+    <view class="form-section">
+      <text class="section-title">⚙️ 奖励属性</text>
+      
+      <!-- 奖励类别 -->
+      <view class="form-item">
+        <text class="form-label">奖励类别</text>
+        <picker 
+          class="form-picker"
+          mode="selector"
+          range="{{options.categories}}"
+          range-key="label"
+          data-field="category"
+          bindchange="onPickerChange"
+        >
+          <view class="picker-display">
+            <text class="picker-text">
+              {{formData.emoji}} 
+              <block wx:for="{{options.categories}}" wx:key="value">
+                <block wx:if="{{item.value === formData.category}}">{{item.label}}</block>
+              </block>
+            </text>
+            <text class="picker-arrow">></text>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-actions">
+    <button class="action-btn cancel-btn" bindtap="onBack" disabled="{{loading}}">
+      取消
+    </button>
+    <button class="action-btn save-btn" bindtap="onSave" disabled="{{loading}}">
+      <text wx:if="{{loading}}">保存中...</text>
+      <text wx:else>保存修改</text>
+    </button>
+  </view>
+
+  <!-- 安全区域 -->
+  <view class="safe-area-bottom"></view>
+</scroll-view>

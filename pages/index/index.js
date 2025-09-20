@@ -24,6 +24,8 @@ Page({
     // 奖励相关
     Rewards: [],
     
+    // 管理模式
+    isManageMode: false,
     
     // 工具方法
     Math: Math
@@ -34,20 +36,28 @@ Page({
   },
 
   onShow: function () {
-    // 页面显示时检查数据是否需要刷新
-    this.checkDataRefresh();
-    
-    // 同步全局孩子状态
-    this.syncGlobalChildState();
+    // 避免频繁刷新，添加防抖
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer);
+    }
+    this.refreshTimer = setTimeout(() => {
+      // 页面显示时检查数据是否需要刷新
+      this.checkDataRefresh();
+      
+      // 同步全局孩子状态
+      this.syncGlobalChildState();
+    }, 100);
   },
 
-  // 同步全局孩子状态
+  // 同步全局孩子状态 - 重构版（避免重复调用）
   syncGlobalChildState: function() {
     const state = globalChildManager.getCurrentState();
     
     // 如果全局状态与当前页面状态不一致，则同步
     if (state.currentChild && 
         (!this.data.currentChild || this.data.currentChild._id !== state.currentChild._id)) {
+      
+      console.log('检测到孩子状态变化，从', this.data.currentChild?.name, '切换到', state.currentChild.name);
       
       // 查找对应的孩子在当前列表中的索引
       const foundIndex = this.data.childrenList.findIndex(child => child._id === state.currentChild._id);
@@ -58,9 +68,11 @@ Page({
           currentChildIndex: foundIndex
         });
         
-        // 重新加载数据
-        this.loadCurrentChildData();
+        // 重新加载数据（强制刷新）
+        this.loadCurrentChildData(true);
       }
+    } else {
+      console.log('孩子状态无变化，跳过同步');
     }
   },
 
@@ -88,21 +100,50 @@ Page({
     });
   },
 
-  // 加载页面数据
+  // 加载页面数据 - 重构版（只负责初始化基础数据）
   loadPageData: async function() {
+    // 避免并发重复加载
+    if (this._pageLoading) {
+      console.log('页面基础数据正在加载，跳过重复调用');
+      return;
+    }
+    this._pageLoading = true;
+
     this.setData({ loading: true, error: null });
     
     try {
-      await this.loadUserInfo();
-      await this.loadChildrenList();
+      console.log('开始加载页面基础数据...');
+      
+      // 设置当前日期（不需要异步）
       this.setCurrentDate();
       
-      if (this.data.currentChild) {
-        await Promise.all([
-          this.loadTasks(),
-          this.loadRewards()
-        ]);
+      // 并行加载用户信息和孩子列表
+      const [userInfoResult, childrenResult] = await Promise.allSettled([
+        this.loadUserInfo(),
+        this.loadChildrenList()
+      ]);
+      
+      // 处理用户信息加载结果
+      if (userInfoResult.status === 'rejected') {
+        console.error('用户信息加载失败:', userInfoResult.reason);
+        // 用户信息失败不影响主要功能，设置默认值
+        this.setData({ userInfo: { nickName: '家长' } });
       }
+      
+      // 处理孩子列表加载结果
+      if (childrenResult.status === 'rejected') {
+        console.error('孩子列表加载失败:', childrenResult.reason);
+        throw childrenResult.reason;
+      }
+      
+      // 注意：这里不再加载任务和奖励数据，交给 loadCurrentChildData 处理
+      console.log('页面基础数据加载完成，当前孩子:', this.data.currentChild?.name);
+      
+      // 如果有当前孩子，加载孩子相关数据
+      if (this.data.currentChild) {
+        await this.loadCurrentChildData();
+      }
+      
     } catch (error) {
       console.error('加载页面数据失败:', error);
       this.setData({ 
@@ -110,6 +151,7 @@ Page({
       });
     } finally {
       this.setData({ loading: false });
+      this._pageLoading = false;
     }
   },
 
@@ -139,7 +181,7 @@ Page({
     }
   },
 
-  // 加载孩子列表
+  // 加载孩子列表 - 优化版
   loadChildrenList: async function() {
     try {
       const result = await childrenApi.getList();
@@ -193,7 +235,8 @@ Page({
       }
     } catch (error) {
       console.error('加载任务失败:', error);
-      this.setData({ tasks: [] });
+      // 保持字段名一致，避免与 show/hide loading 判断不对称
+      this.setData({ Tasks: [] });
     }
   },
 
@@ -258,15 +301,26 @@ Page({
     });
   },
 
-  // 检查数据刷新
+  // 检查数据刷新 - 重构版（避免频繁全量刷新）
   checkDataRefresh: function() {
     const now = Date.now();
     const lastRefresh = wx.getStorageSync('lastRefreshTime') || 0;
     
     // 如果超过5分钟，则刷新数据
     if (now - lastRefresh > 300000) {
-      this.loadPageData();
+      console.log('数据超时，执行刷新');
+      
+      // 只刷新当前孩子的数据，不重新加载整个页面
+      if (this.data.currentChild) {
+        this.loadCurrentChildData(true);
+      } else {
+        // 如果没有当前孩子，才执行全量刷新
+        this.loadPageData();
+      }
+      
       wx.setStorageSync('lastRefreshTime', now);
+    } else {
+      console.log('数据未超时，跳过刷新');
     }
   },
 
@@ -304,10 +358,10 @@ Page({
           icon: 'success' 
         });
         
-        // 刷新相关数据
+        // 刷新相关数据（避免调用不存在的方法，且减少不必要的全量刷新）
         await Promise.all([
-          this.loadTodayTasks(),
-          this.loadChildrenList()
+          this.loadTasks(),
+          this.updateCurrentChildStats()
         ]);
       } else {
         wx.showToast({ 
@@ -375,20 +429,51 @@ Page({
 
   // 添加任务
   onAddTask: function() {
+    console.log('点击添加任务按钮');
+    console.log('当前孩子:', this.data.currentChild);
+    
     if (!this.data.currentChild) {
       wx.showToast({ title: '请先添加孩子', icon: 'none' });
       return;
     }
     
     wx.navigateTo({
-      url: `/pages/tasks/add?childId=${this.data.currentChild._id}`
+      url: `/pages/tasks/add?childId=${this.data.currentChild._id}`,
+      success: () => {
+        console.log('成功跳转到添加任务页面');
+      },
+      fail: (error) => {
+        console.error('跳转到添加任务页面失败:', error);
+        wx.showToast({
+          title: '页面跳转失败，请重试',
+          icon: 'none'
+        });
+      }
     });
   },
 
   // 添加奖励
   onAddReward: function() {
+    console.log('点击添加奖励按钮');
+    console.log('当前孩子:', this.data.currentChild);
+    
+    if (!this.data.currentChild) {
+      wx.showToast({ title: '请先添加孩子', icon: 'none' });
+      return;
+    }
+    
     wx.navigateTo({
-      url: '/pages/rewards/add'
+      url: `/pages/rewards/add?childId=${this.data.currentChild._id}`,
+      success: () => {
+        console.log('成功跳转到添加奖励页面');
+      },
+      fail: (error) => {
+        console.error('跳转到添加奖励页面失败:', error);
+        wx.showToast({
+          title: '页面跳转失败，请重试',
+          icon: 'none'
+        });
+      }
     });
   },
 
@@ -433,26 +518,67 @@ Page({
     }
   },
 
-  // 加载当前孩子的数据
-  loadCurrentChildData: async function() {
-    if (!this.data.currentChild) return;
+  // 加载当前孩子的数据 - 重构版（防重复调用）
+  loadCurrentChildData: async function(force = false) {
+    if (!this.data.currentChild) {
+      console.log('没有当前孩子，跳过加载孩子数据');
+      return;
+    }
 
-    wx.showLoading({ title: '加载中...' });
+    // 防重复调用机制
+    const loadingKey = `loading_child_${this.data.currentChild._id}`;
+    if (this[loadingKey] && !force) {
+      console.log('孩子数据正在加载中，跳过重复调用');
+      return;
+    }
+
+    this[loadingKey] = true;
+    console.log('开始加载孩子数据:', this.data.currentChild.name);
+
+    // 只在首次加载或强制刷新时显示loading（使用局部变量保持对称）
+    const shouldShowLoading = force || !this.data.Tasks || this.data.Tasks.length === 0;
+    if (shouldShowLoading) {
+      wx.showLoading({ title: '加载中...' });
+    }
     
     try {
-      await Promise.all([
+      // 并行加载任务、奖励和统计信息
+      const [tasksResult, rewardsResult, statsResult] = await Promise.allSettled([
         this.loadTasks(),
-        this.loadRewards()
+        this.loadRewards(),
+        this.updateCurrentChildStats()
       ]);
       
-      // 更新当前孩子的统计信息
-      await this.updateCurrentChildStats();
+      // 记录加载失败的情况
+      if (tasksResult.status === 'rejected') {
+        console.error('任务加载失败:', tasksResult.reason);
+      }
+      if (rewardsResult.status === 'rejected') {
+        console.error('奖励加载失败:', rewardsResult.reason);
+      }
+      if (statsResult.status === 'rejected') {
+        console.error('统计信息更新失败:', statsResult.reason);
+      }
+      
+      // 只要有一个成功就不显示错误
+      const hasSuccess = [tasksResult, rewardsResult, statsResult].some(
+        result => result.status === 'fulfilled'
+      );
+      
+      if (!hasSuccess) {
+        wx.showToast({ title: '数据加载失败', icon: 'none' });
+      } else {
+        console.log('孩子数据加载完成');
+      }
       
     } catch (error) {
       console.error('加载孩子数据失败:', error);
       wx.showToast({ title: '数据加载失败', icon: 'none' });
     } finally {
-      wx.hideLoading();
+      if (shouldShowLoading) {
+        wx.hideLoading();
+      }
+      this[loadingKey] = false;
     }
   },
 
@@ -511,6 +637,49 @@ Page({
   onRetry: function() {
     this.setData({ error: null });
     this.loadPageData();
+  },
+
+  // 切换管理模式
+  onToggleManageMode: function() {
+    this.setData({
+      isManageMode: !this.data.isManageMode
+    });
+    
+    wx.showToast({
+      title: this.data.isManageMode ? '已进入管理模式' : '已退出管理模式',
+      icon: 'success',
+      duration: 1500
+    });
+  },
+
+  // 兑换奖励
+  onExchangeReward: function(e) {
+    const reward = e.detail.reward;
+    const currentPoints = this.data.currentChild.totalPoints || 0;
+    
+    if (currentPoints < reward.pointsRequired) {
+      wx.showToast({ title: '积分不足', icon: 'none' });
+      return;
+    }
+    
+    wx.showModal({
+      title: '确认兑换',
+      content: `确定要兑换"${reward.name}"吗？将消耗${reward.pointsRequired}积分`,
+      confirmText: '兑换',
+      confirmColor: '#667eea',
+      success: (res) => {
+        if (res.confirm) {
+          // 这里应该调用兑换接口
+          wx.showToast({ 
+            title: '兑换成功！', 
+            icon: 'success' 
+          });
+          
+          // 刷新数据
+          this.loadCurrentChildData();
+        }
+      }
+    });
   },
 
   // 分享

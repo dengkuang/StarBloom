@@ -1,0 +1,388 @@
+/* pages/tasks/edit.wxss */
+/* 编辑任务页面样式 */
+
+.container {
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 页面头部 */
+.page-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40rpx 32rpx 32rpx;
+  color: white;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.back-btn, .delete-btn {
+  width: 60rpx;
+  height: 60rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10rpx);
+}
+
+.delete-btn {
+  background: rgba(220, 53, 69, 0.2);
+}
+
+.back-icon, .delete-icon {
+  font-size: 32rpx;
+  color: white;
+  font-weight: bold;
+}
+
+.header-info {
+  flex: 1;
+  text-align: center;
+  margin: 0 24rpx;
+}
+
+.page-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+
+.child-name {
+  display: block;
+  font-size: 24rpx;
+  opacity: 0.8;
+}
+
+/* 表单容器 */
+.form-container {
+  background: white;
+  border-radius: 32rpx 32rpx 0 0;
+  margin-top: -16rpx;
+  padding: 40rpx 32rpx;
+  min-height: calc(100vh - 200rpx);
+}
+
+/* 表单区块 */
+.form-section {
+  margin-bottom: 48rpx;
+}
+
+.section-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.section-desc {
+  display: block;
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 24rpx;
+  line-height: 1.5;
+}
+
+/* 表单项 */
+.form-item {
+  margin-bottom: 32rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.form-input, .form-textarea {
+  width: 100%;
+  padding: 24rpx;
+  border: 2rpx solid #e9ecef;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #333;
+  background: #f8f9fa;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus, .form-textarea:focus {
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 6rpx rgba(102, 126, 234, 0.1);
+}
+
+.form-input.error, .form-textarea.error {
+  border-color: #dc3545;
+  background: rgba(220, 53, 69, 0.05);
+}
+
+.form-textarea {
+  min-height: 120rpx;
+  resize: none;
+}
+
+.error-text {
+  display: block;
+  font-size: 22rpx;
+  color: #dc3545;
+  margin-top: 8rpx;
+}
+
+.form-hint {
+  display: block;
+  font-size: 22rpx;
+  color: #6c757d;
+  margin-top: 8rpx;
+  line-height: 1.4;
+}
+
+/* 积分选择器 */
+.points-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 16rpx;
+  padding: 16rpx;
+  gap: 24rpx;
+}
+
+.points-btn {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  border: none;
+  font-size: 32rpx;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.points-btn.decrease {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.points-btn.increase {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+}
+
+.points-btn:active {
+  transform: scale(0.95);
+}
+
+.points-value {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #667eea;
+  min-width: 120rpx;
+  text-align: center;
+}
+
+/* 选择器 */
+.form-picker {
+  width: 100%;
+}
+
+.picker-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx;
+  background: #f8f9fa;
+  border: 2rpx solid #e9ecef;
+  border-radius: 16rpx;
+  transition: all 0.3s ease;
+}
+
+.picker-display:active {
+  background: white;
+  border-color: #667eea;
+}
+
+.picker-text {
+  font-size: 28rpx;
+  color: #333;
+  flex: 1;
+}
+
+.picker-arrow {
+  font-size: 24rpx;
+  color: #6c757d;
+  transform: rotate(90deg);
+}
+
+/* 习惯标签 */
+.habit-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+}
+
+.habit-tag {
+  padding: 12rpx 20rpx;
+  background: #f8f9fa;
+  border: 2rpx solid #e9ecef;
+  border-radius: 24rpx;
+  font-size: 24rpx;
+  color: #6c757d;
+  transition: all 0.3s ease;
+}
+
+.habit-tag.selected {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-color: #667eea;
+  transform: scale(1.05);
+}
+
+.habit-tag:active {
+  transform: scale(0.98);
+}
+
+.selected-tags {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 16rpx;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 12rpx;
+}
+
+.selected-label {
+  font-size: 24rpx;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.selected-count {
+  font-size: 24rpx;
+  color: #667eea;
+  font-weight: bold;
+}
+
+/* 底部操作栏 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 24rpx 32rpx;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 16rpx;
+  z-index: 100;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.reset-btn {
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 2rpx solid #e9ecef;
+}
+
+.reset-btn:active {
+  background: #e9ecef;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.save-btn:active {
+  opacity: 0.9;
+}
+
+.save-btn:disabled {
+  opacity: 0.6;
+}
+
+/* 安全区域 */
+.safe-area-bottom {
+  height: 120rpx;
+}
+
+/* 加载遮罩 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.loading-content {
+  background: white;
+  border-radius: 16rpx;
+  padding: 40rpx;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 6rpx solid #f3f3f3;
+  border-top: 6rpx solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 24rpx;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 响应式适配 */
+@media (max-width: 750rpx) {
+  .form-container {
+    padding: 32rpx 24rpx;
+  }
+  
+  .bottom-actions {
+    padding: 20rpx 24rpx;
+  }
+  
+  .habit-tags-container {
+    gap: 12rpx;
+  }
+  
+  .habit-tag {
+    padding: 10rpx 16rpx;
+    font-size: 22rpx;
+  }
+}

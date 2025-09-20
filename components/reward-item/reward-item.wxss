@@ -12,12 +12,17 @@
 }
 
 .reward-item.can-exchange {
-  border-left: 6rpx solid #28a745;
+  border-left: 6rpx solid #764ba2;
 }
 
 .reward-item.cannot-exchange {
   border-left: 6rpx solid #dc3545;
   opacity: 0.7;
+}
+
+.reward-item.manage-mode {
+  border-left: 6rpx solid #6c757d;
+  opacity: 1;
 }
 
 .reward-icon-container {
@@ -95,21 +100,69 @@
   align-items: center;
 }
 
+.action-buttons {
+  display: flex;
+  gap: 12rpx;
+}
+
+.manage-actions {
+  display: flex;
+  gap: 12rpx;
+}
+
 .action-btn {
-  padding: 16rpx 24rpx;
-  font-size: 24rpx;
-  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 12rpx 16rpx;
+  font-size: 22rpx;
+  border-radius: 16rpx;
   border: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.action-btn:active {
+  transform: scale(0.98);
 }
 
 .exchange-btn {
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
   font-weight: bold;
+  padding: 16rpx 24rpx;
+  font-size: 24rpx;
+  border-radius: 20rpx;
 }
 
 .exchange-btn:active {
   opacity: 0.8;
+}
+
+.edit-btn {
+  background: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
+}
+
+.edit-btn:active {
+  background: rgba(108, 117, 125, 0.2);
+}
+
+.delete-btn {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.delete-btn:active {
+  background: rgba(220, 53, 69, 0.2);
+}
+
+.btn-icon {
+  font-size: 18rpx;
+}
+
+.btn-text {
+  font-size: 22rpx;
 }
 
 .reward-status {

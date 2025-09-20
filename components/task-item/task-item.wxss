@@ -418,6 +418,15 @@
   color: #6c757d;
 }
 
+.delete-btn {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.delete-btn:active {
+  background: rgba(220, 53, 69, 0.2);
+}
+
 .btn-icon {
   font-size: 18rpx;
 }

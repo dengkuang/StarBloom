@@ -17,6 +17,10 @@ Component({
     showEditActions: {
       type: Boolean,
       value: false
+    },
+    isManageMode: {
+      type: Boolean,
+      value: false
     }
   },
   
@@ -268,7 +272,32 @@ Component({
     // 编辑任务
     onEdit(e) {
       e.stopPropagation();
-      this.triggerEvent('edit', { task: this.data.task });
+      
+      console.log('点击编辑任务按钮:', this.data.task);
+      
+      if (!this.data.task || !this.data.task._id) {
+        wx.showToast({
+          title: '任务信息错误',
+          icon: 'none'
+        });
+        return;
+      }
+      
+      wx.navigateTo({
+        url: `/pages/tasks/edit?taskId=${this.data.task._id}`,
+        success: () => {
+          console.log('成功跳转到编辑任务页面');
+        },
+        fail: (error) => {
+          console.error('跳转到编辑任务页面失败:', error);
+          wx.showToast({
+            title: '页面跳转失败',
+            icon: 'none'
+          });
+          // 如果跳转失败，回退到事件触发方式
+          this.triggerEvent('edit', { task: this.data.task });
+        }
+      });
     },
     
     // 删除任务
@@ -282,7 +311,10 @@ Component({
         confirmColor: '#dc3545',
         success: (res) => {
           if (res.confirm) {
-            this.triggerEvent('delete', { task: this.data.task });
+            this.triggerEvent('delete', { 
+              taskId: this.data.task._id,
+              task: this.data.task 
+            });
           }
         }
       });

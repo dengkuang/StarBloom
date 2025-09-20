@@ -1,0 +1,259 @@
+/* pages/rewards/edit.wxss */
+/* 编辑奖励页面样式 - 复用添加页面样式 */
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding-bottom: 120rpx;
+}
+
+/* 页面头部 */
+.page-header {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10rpx);
+  padding: 40rpx 30rpx 30rpx;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.back-btn {
+  width: 60rpx;
+  height: 60rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10rpx);
+}
+
+.back-icon {
+  color: white;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.header-info {
+  flex: 1;
+}
+
+.page-title {
+  display: block;
+  color: white;
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+
+.page-desc {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 24rpx;
+}
+
+/* 表单容器 */
+.form-container {
+  padding: 30rpx;
+}
+
+.form-section {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 30rpx;
+  padding-bottom: 15rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+/* 表单项 */
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-item:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  background: #f8f9fa;
+  border: 2rpx solid #e9ecef;
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.form-input.error {
+  border-color: #dc3545;
+  background: #fff5f5;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 120rpx;
+  background: #f8f9fa;
+  border: 2rpx solid #e9ecef;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.form-textarea.error {
+  border-color: #dc3545;
+  background: #fff5f5;
+}
+
+.error-text {
+  display: block;
+  color: #dc3545;
+  font-size: 24rpx;
+  margin-top: 10rpx;
+}
+
+.form-hint {
+  display: block;
+  color: #6c757d;
+  font-size: 24rpx;
+  margin-top: 10rpx;
+  line-height: 1.4;
+}
+
+/* 积分选择器 */
+.points-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30rpx;
+  padding: 20rpx;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+  border: 2rpx solid #e9ecef;
+}
+
+.points-btn {
+  width: 60rpx;
+  height: 60rpx;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 32rpx;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.points-btn.decrease {
+  background: #6c757d;
+}
+
+.points-btn.increase {
+  background: #28a745;
+}
+
+.points-value {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  min-width: 120rpx;
+  text-align: center;
+}
+
+/* 选择器 */
+.form-picker {
+  width: 100%;
+}
+
+.picker-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80rpx;
+  background: #f8f9fa;
+  border: 2rpx solid #e9ecef;
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+}
+
+.picker-text {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.picker-arrow {
+  color: #6c757d;
+  font-size: 24rpx;
+}
+
+/* 底部操作栏 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 30rpx;
+  border-top: 1rpx solid #e9ecef;
+  display: flex;
+  gap: 20rpx;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.action-btn {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cancel-btn {
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 2rpx solid #e9ecef;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.action-btn[disabled] {
+  opacity: 0.6;
+}
+
+/* 安全区域 */
+.safe-area-bottom {
+  height: env(safe-area-inset-bottom);
+}

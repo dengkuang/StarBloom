@@ -1,5 +1,4 @@
 /* 全局样式文件 */
-/* 遵循用户偏好的界面颜色偏好：使用绿色作为界面主题色 */
 .container {
   height: 100%;
   display: flex;
@@ -12,11 +11,11 @@
 
 /* 紫色主题色 */
 .primary-color {
-  color: #764ba2;
+  color: linear-gradient(135deg, #667eea, #764ba2);
 }
 
 .background-green {
-  background-color: #764ba2;
+  background-color: linear-gradient(135deg, #667eea, #764ba2);
 }
 
 .border-green {

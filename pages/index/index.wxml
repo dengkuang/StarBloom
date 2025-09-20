@@ -63,16 +63,25 @@
   <view class="section-container" wx:if="{{childrenList.length > 0}}">
     <view class="section-header">
       <text class="section-title">任务管理</text>
-      <button class="add-btn" bindtap="onAddTask" style="position: relative; left: 182rpx; top: 0rpx">添加任务</button>
+      <view class="header-actions">
+        <button class="manage-mode-btn {{isManageMode ? 'active' : ''}}" bindtap="onToggleManageMode">
+          <text class="btn-icon">{{isManageMode ? '👁️' : '⚙️'}}</text>
+          <text class="btn-text">{{isManageMode ? '查看模式' : '管理模式'}}</text>
+        </button>
+        <button class="add-btn" bindtap="onAddTask" wx:if="{{!isManageMode}}">添加任务</button>
+      </view>
     </view>
     
     <view class="task-list">
-    <task-item 
+      <task-item 
         wx:for="{{Tasks}}" 
         wx:key="_id" 
         task="{{item}}"
-        show-actions="{{true}}"
+        show-actions="{{!isManageMode}}"
+        is-manage-mode="{{isManageMode}}"
         bind:complete="onTaskComplete"
+        bind:edit="onEditTask"
+        bind:delete="onDeleteTask"
       ></task-item>
     </view>
   </view>
@@ -81,13 +90,22 @@
   <view class="section-container" wx:if="{{childrenList.length > 0}}">
     <view class="section-header">
       <text class="section-title">奖励管理</text>
-      <button class="add-btn" bindtap="onAddReward" style="position: relative; left: 182rpx; top: 0rpx">添加奖励</button>
+      <view class="header-actions">
+        <button class="manage-mode-btn {{isManageMode ? 'active' : ''}}" bindtap="onToggleManageMode">
+          <text class="btn-icon">{{isManageMode ? '👁️' : '⚙️'}}</text>
+          <text class="btn-text">{{isManageMode ? '查看模式' : '管理模式'}}</text>
+        </button>
+        <button class="add-btn" bindtap="onAddReward" wx:if="{{!isManageMode}}">添加奖励</button>
+      </view>
     </view>
     
     <view class="reward-list">
       <block wx:for="{{Rewards}}" wx:key="_id">
         <reward-item 
           reward="{{item}}" 
+          show-actions="{{!isManageMode && (currentChild.totalPoints >= item.pointsRequired)}}"
+          is-manage-mode="{{isManageMode}}"
+          current-points="{{currentChild.totalPoints || 0}}"
           bind:exchange="onExchangeReward"
           bind:edit="onEditReward"
           bind:delete="onDeleteReward"

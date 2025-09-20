@@ -13,6 +13,14 @@ Component({
     showActions: {
       type: Boolean,
       value: true
+    },
+    isManageMode: {
+      type: Boolean,
+      value: false
+    },
+    currentPoints: {
+      type: Number,
+      value: 0
     }
   },
   
@@ -26,13 +34,57 @@ Component({
     },
     
     // 编辑奖励
-    onEdit: function() {
-      this.triggerEvent('edit', { reward: this.data.reward });
+    onEdit: function(e) {
+      e.stopPropagation();
+      
+      console.log('点击编辑奖励按钮:', this.data.reward);
+      
+      if (!this.data.reward || !this.data.reward._id) {
+        wx.showToast({
+          title: '奖励信息错误',
+          icon: 'none'
+        });
+        return;
+      }
+      
+      wx.navigateTo({
+        url: `/pages/rewards/edit?rewardId=${this.data.reward._id}`,
+        success: () => {
+          console.log('成功跳转到编辑奖励页面');
+        },
+        fail: (error) => {
+          console.error('跳转到编辑奖励页面失败:', error);
+          wx.showToast({
+            title: '页面跳转失败',
+            icon: 'none'
+          });
+          // 如果跳转失败，回退到事件触发方式
+          this.triggerEvent('edit', { 
+            rewardId: this.data.reward._id,
+            reward: this.data.reward 
+          });
+        }
+      });
     },
     
     // 删除奖励
-    onDelete: function() {
-      this.triggerEvent('delete', { reward: this.data.reward });
+    onDelete: function(e) {
+      e.stopPropagation();
+      
+      wx.showModal({
+        title: '确认删除',
+        content: `确定要删除奖励"${this.data.reward.name}"吗？此操作不可恢复。`,
+        confirmText: '删除',
+        confirmColor: '#dc3545',
+        success: (res) => {
+          if (res.confirm) {
+            this.triggerEvent('delete', { 
+              rewardId: this.data.reward._id,
+              reward: this.data.reward 
+            });
+          }
+        }
+      });
     }
   }
 });

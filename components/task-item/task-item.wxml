@@ -87,33 +87,43 @@
   
   <!-- 操作区域 -->
   <view class="task-actions">
-    <!-- 提示按钮 -->
-    <button wx:if="{{task.tips}}" class="action-btn tips-btn" bindtap="onShowTips" data-tips="{{task.tips}}">
-      <text class="btn-icon">💡</text>
-      <text class="btn-text">提示</text>
-    </button>
+    <!-- 默认模式 - 显示完成任务和提示按钮 -->
+    <block wx:if="{{!isManageMode}}">
+      <!-- 提示按钮 -->
+      <button wx:if="{{task.tips}}" class="action-btn tips-btn" bindtap="onShowTips" data-tips="{{task.tips}}">
+        <text class="btn-icon">💡</text>
+        <text class="btn-text">提示</text>
+      </button>
+      
+      <!-- 完成按钮 -->
+      <button wx:if="{{showActions && !task.isCompleted}}" 
+              class="action-btn complete-btn" 
+              bindtap="onComplete">
+        <text class="btn-icon">✓</text>
+        <text class="btn-text">完成任务</text>
+      </button>
+      
+      <!-- 已完成状态 -->
+      <view wx:if="{{task.isCompleted}}" class="completed-status">
+        <text class="completed-icon">🎉</text>
+        <text class="completed-text">任务完成</text>
+      </view>
+    </block>
     
-    <!-- 完成按钮 -->
-    <button wx:if="{{showActions && !task.isCompleted}}" 
-            class="action-btn complete-btn" 
-            bindtap="onComplete">
-      <text class="btn-icon">✓</text>
-      <text class="btn-text">完成任务</text>
-    </button>
-    
-    <!-- 已完成状态 -->
-    <view wx:if="{{task.isCompleted}}" class="completed-status">
-      <text class="completed-icon">🎉</text>
-      <text class="completed-text">任务完成</text>
-    </view>
-    
-    <!-- 编辑按钮（管理模式） -->
-    <button wx:if="{{showEditActions}}" 
-            class="action-btn edit-btn" 
-            bindtap="onEdit">
-      <text class="btn-icon">✏️</text>
-      <text class="btn-text">编辑</text>
-    </button>
+    <!-- 管理模式 - 显示编辑和删除按钮 -->
+    <block wx:if="{{isManageMode}}">
+      <!-- 编辑按钮 -->
+      <button class="action-btn edit-btn" bindtap="onEdit">
+        <text class="btn-icon">✏️</text>
+        <text class="btn-text">编辑</text>
+      </button>
+      
+      <!-- 删除按钮 -->
+      <button class="action-btn delete-btn" bindtap="onDelete">
+        <text class="btn-icon">🗑️</text>
+        <text class="btn-text">删除</text>
+      </button>
+    </block>
   </view>
   
   <!-- 展开的详细信息 -->

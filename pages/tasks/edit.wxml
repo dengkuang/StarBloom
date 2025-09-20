@@ -1,0 +1,225 @@
+<!-- pages/tasks/edit.wxml -->
+<!-- 编辑任务页面 -->
+<scroll-view class="container" scroll-y="true" enhanced="true" show-scrollbar="false">
+  
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-content">
+      <view class="back-btn" bindtap="onBack">
+        <text class="back-icon">←</text>
+      </view>
+      <view class="header-info">
+        <text class="page-title">编辑任务</text>
+        <text class="child-name" wx:if="{{childInfo}}">{{childInfo.name}} 的任务</text>
+      </view>
+      <view class="delete-btn" bindtap="onDelete">
+        <text class="delete-icon">🗑️</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 表单内容 -->
+  <view class="form-container">
+    
+    <!-- 基本信息 -->
+    <view class="form-section">
+      <text class="section-title">📝 基本信息</text>
+      
+      <!-- 任务名称 -->
+      <view class="form-item">
+        <text class="form-label">任务名称 *</text>
+        <input 
+          class="form-input {{errors.name ? 'error' : ''}}"
+          placeholder="请输入任务名称"
+          value="{{formData.name}}"
+          maxlength="20"
+          data-field="name"
+          bindinput="onInputChange"
+        />
+        <text class="error-text" wx:if="{{errors.name}}">{{errors.name}}</text>
+      </view>
+      
+      <!-- 任务描述 -->
+      <view class="form-item">
+        <text class="form-label">任务描述</text>
+        <textarea 
+          class="form-textarea {{errors.description ? 'error' : ''}}"
+          placeholder="请描述任务的具体要求和目标"
+          value="{{formData.description}}"
+          maxlength="100"
+          data-field="description"
+          bindinput="onInputChange"
+        ></textarea>
+        <text class="error-text" wx:if="{{errors.description}}">{{errors.description}}</text>
+      </view>
+      
+      <!-- 积分设置 -->
+      <view class="form-item">
+        <text class="form-label">奖励积分 *</text>
+        <view class="points-selector">
+          <button class="points-btn decrease" data-type="decrease" bindtap="onPointsChange">-</button>
+          <text class="points-value">{{formData.points}} 积分</text>
+          <button class="points-btn increase" data-type="increase" bindtap="onPointsChange">+</button>
+        </view>
+        <text class="form-hint">建议：简单任务5-15积分，中等任务15-30积分，困难任务30-50积分</text>
+      </view>
+    </view>
+
+    <!-- 任务属性 -->
+    <view class="form-section">
+      <text class="section-title">⚙️ 任务属性</text>
+      
+      <!-- 难度等级 -->
+      <view class="form-item">
+        <text class="form-label">难度等级</text>
+        <picker 
+          class="form-picker"
+          mode="selector"
+          range="{{options.difficulties}}"
+          range-key="label"
+          value="{{formData.difficulty}}"
+          data-field="difficulty"
+          bindchange="onPickerChange"
+        >
+          <view class="picker-display">
+            <text class="picker-text">
+              {{options.difficulties[formData.difficulty === 'easy' ? 0 : (formData.difficulty === 'medium' ? 1 : 2)].stars}} 
+              {{options.difficulties[formData.difficulty === 'easy' ? 0 : (formData.difficulty === 'medium' ? 1 : 2)].label}}
+            </text>
+            <text class="picker-arrow">></text>
+          </view>
+        </picker>
+      </view>
+      
+      <!-- 任务类别 -->
+      <view class="form-item">
+        <text class="form-label">任务类别</text>
+        <picker 
+          class="form-picker"
+          mode="selector"
+          range="{{options.categories}}"
+          range-key="label"
+          data-field="category"
+          bindchange="onPickerChange"
+        >
+          <view class="picker-display">
+            <text class="picker-text">
+              {{formData.emoji}} 
+              <block wx:for="{{options.categories}}" wx:key="value">
+                <block wx:if="{{item.value === formData.category}}">{{item.label}}</block>
+              </block>
+            </text>
+            <text class="picker-arrow">></text>
+          </view>
+        </picker>
+      </view>
+      
+      <!-- 任务类型 -->
+      <view class="form-item">
+        <text class="form-label">任务类型</text>
+        <picker 
+          class="form-picker"
+          mode="selector"
+          range="{{options.taskTypes}}"
+          range-key="label"
+          data-field="taskType"
+          bindchange="onPickerChange"
+        >
+          <view class="picker-display">
+            <text class="picker-text">
+              <block wx:for="{{options.taskTypes}}" wx:key="value">
+                <block wx:if="{{item.value === formData.taskType}}">{{item.label}}</block>
+              </block>
+            </text>
+            <text class="picker-arrow">></text>
+          </view>
+        </picker>
+      </view>
+      
+      <!-- 适合年龄 -->
+      <view class="form-item">
+        <text class="form-label">适合年龄</text>
+        <picker 
+          class="form-picker"
+          mode="selector"
+          range="{{options.ageGroups}}"
+          range-key="label"
+          data-field="ageGroup"
+          bindchange="onPickerChange"
+        >
+          <view class="picker-display">
+            <text class="picker-text">
+              <block wx:for="{{options.ageGroups}}" wx:key="value">
+                <block wx:if="{{item.value === formData.ageGroup}}">{{item.label}}</block>
+              </block>
+            </text>
+            <text class="picker-arrow">></text>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 习惯标签 -->
+    <view class="form-section">
+      <text class="section-title">🏷️ 习惯标签</text>
+      <text class="section-desc">选择这个任务能培养的好习惯（最多5个）</text>
+      
+      <view class="habit-tags-container">
+        <view 
+          wx:for="{{commonHabitTags}}" 
+          wx:key="index"
+          class="habit-tag {{formData.habitTags.indexOf(item) > -1 ? 'selected' : ''}}"
+          data-tag="{{item}}"
+          bindtap="onHabitTagToggle"
+        >
+          {{item}}
+        </view>
+      </view>
+      
+      <view class="selected-tags" wx:if="{{formData.habitTags.length > 0}}">
+        <text class="selected-label">已选择：</text>
+        <text class="selected-count">{{formData.habitTags.length}}/5</text>
+      </view>
+    </view>
+
+    <!-- 操作提示 -->
+    <view class="form-section">
+      <text class="section-title">💡 操作提示</text>
+      
+      <view class="form-item">
+        <text class="form-label">完成建议</text>
+        <textarea 
+          class="form-textarea"
+          placeholder="给孩子一些完成任务的小贴士和建议"
+          value="{{formData.tips}}"
+          maxlength="200"
+          data-field="tips"
+          bindinput="onInputChange"
+        ></textarea>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-actions">
+    <button class="action-btn reset-btn" bindtap="onReset" disabled="{{loading}}">
+      重置
+    </button>
+    <button class="action-btn save-btn" bindtap="onSave" disabled="{{loading}}">
+      <text wx:if="{{loading}}">保存中...</text>
+      <text wx:else>保存修改</text>
+    </button>
+  </view>
+
+  <!-- 安全区域 -->
+  <view class="safe-area-bottom"></view>
+</scroll-view>
+
+<!-- 加载遮罩 -->
+<view class="loading-overlay" wx:if="{{loading}}">
+  <view class="loading-content">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">{{loading ? '保存中...' : '加载中...'}}</text>
+  </view>
+</view>
