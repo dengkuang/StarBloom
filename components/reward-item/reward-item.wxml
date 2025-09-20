@@ -18,7 +18,7 @@
   <!-- 默认模式 - 显示兑换按钮 -->
   <view wx:if="{{!isManageMode}}" class="reward-actions">
     <view wx:if="{{showActions}}" class="action-buttons">
-      <button class="action-btn exchange-btn" bindtap="onExchange">兑换</button>
+      <button class="action-btn exchange-btn" catchtap="onExchange">兑换</button>
     </view>
     
     <view wx:else class="reward-status">
@@ -28,12 +28,12 @@
   
   <!-- 管理模式 - 显示编辑和删除按钮 -->
   <view wx:if="{{isManageMode}}" class="reward-actions manage-actions">
-    <button class="action-btn edit-btn" bindtap="onEdit">
+    <button class="action-btn edit-btn" catchtap="onEdit">
       <text class="btn-icon">✏️</text>
       <text class="btn-text">编辑</text>
     </button>
     
-    <button class="action-btn delete-btn" bindtap="onDelete">
+    <button class="action-btn delete-btn" catchtap="onDelete">
       <text class="btn-icon">🗑️</text>
       <text class="btn-text">删除</text>
     </button>

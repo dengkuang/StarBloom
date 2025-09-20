@@ -1,7 +1,0 @@
-<!-- SVG图标：家长端激活 -->
-<svg width="81" height="81" viewBox="0 0 81 81" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="40.5" cy="40.5" r="40.5" fill="#5558cc"/>
-  <path d="M40.5 20 C30 20 22 28 22 38.5 C22 45 25 50.5 30 53.5 L30 65 L35 65 L35 55 L37 55 L37 65 L42 65 L42 55 L44 55 L44 65 L49 65 L49 53.5 C54 50.5 57 45 57 38.5 C57 28 49 20 40.5 20 Z" fill="white"/>
-  <circle cx="40.5" cy="35" r="8" fill="#5558cc"/>
-  <circle cx="40.5" cy="40.5" r="38" fill="none" stroke="white" stroke-width="2"/>
-</svg>

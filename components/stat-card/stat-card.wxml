@@ -1,9 +1,0 @@
-<!-- components/stat-card/stat-card.wxml -->
-<!-- 统计卡片组件结构 -->
-<view class="stat-card">
-  <image wx:if="{{icon}}" class="stat-icon" src="{{icon}}" mode="aspectFit"></image>
-  <view class="stat-info">
-    <text class="stat-title">{{title}}</text>
-    <text class="stat-value">{{value}} {{unit}}</text>
-  </view>
-</view>

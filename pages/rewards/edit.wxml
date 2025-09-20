@@ -72,16 +72,16 @@
         <picker 
           class="form-picker"
           mode="selector"
-          range="{{options.categories}}"
+          range="{{options.rewardTypes}}"
           range-key="label"
-          data-field="category"
+          data-field="rewardType"
           bindchange="onPickerChange"
         >
           <view class="picker-display">
             <text class="picker-text">
               {{formData.emoji}} 
-              <block wx:for="{{options.categories}}" wx:key="value">
-                <block wx:if="{{item.value === formData.category}}">{{item.label}}</block>
+              <block wx:for="{{options.rewardTypes}}" wx:key="value">
+                <block wx:if="{{item.value === formData.rewardType}}">{{item.label}}</block>
               </block>
             </text>
             <text class="picker-arrow">></text>

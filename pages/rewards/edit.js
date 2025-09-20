@@ -9,28 +9,18 @@ Page({
     
     // 奖励表单数据
     formData: {
-      name: '',
-      description: '',
-      pointsRequired: 50,
-      category: 'toy',
-      emoji: '🎁',
-      icon: ''
     },
     
     // 选项数据
     options: {
-      categories: [
-        { value: 'toy', label: '玩具', emoji: '🧸' },
-        { value: 'food', label: '美食', emoji: '🍎' },
-        { value: 'activity', label: '活动', emoji: '🎮' },
-        { value: 'privilege', label: '特权', emoji: '👑' },
-        { value: 'outing', label: '外出', emoji: '🚗' },
-        { value: 'digital', label: '数码', emoji: '📱' },
-        { value: 'book', label: '书籍', emoji: '📚' },
-        { value: 'clothing', label: '服装', emoji: '👕' },
-        { value: 'experience', label: '体验', emoji: '🎪' },
-        { value: 'other', label: '其他', emoji: '🎁' }
-      ]
+      //奖励类型：physical/privilege/experience/virtual/charity
+     rewardTypes:[
+      {value:'physical',label:'实物'},
+      {value:'privilege',label:'特权'},
+      {value:'experience',label:'体验'},
+      {value:'virtual',label:'虚拟'},
+      {value:'charity',label:'公益'}
+    ],
     },
     
     // 表单验证
@@ -38,60 +28,51 @@ Page({
   },
 
   onLoad: function(options) {
+    console.log('编辑奖励页面加载，参数:', options);
+    
     if (options.rewardId) {
       this.setData({ rewardId: options.rewardId });
-      this.loadRewardData(options.rewardId);
-    } else {
-      wx.showToast({
-        title: '奖励ID缺失',
-        icon: 'none'
-      });
-      setTimeout(() => {
-        wx.navigateBack();
-      }, 1500);
     }
-  },
-
-  // 加载奖励数据
-  loadRewardData: async function(rewardId) {
-    this.setData({ loading: true });
     
-    try {
-      wx.showLoading({ title: '加载中...' });
+    // 检查是否有传递的数据
+    const app = getApp();
+    const fromData = options.fromData === 'true';
+    
+    if (fromData && app.globalData && app.globalData.editRewardData) {
+      // 使用传递的数据，避免API调用
+      console.log('使用传递的奖励数据:', app.globalData.editRewardData);
+      this.setRewardData(app.globalData.editRewardData);
       
-      const result = await rewardsApi.getById(rewardId);
-      
-      if (result.code === 0 && result.data) {
-        const reward = result.data;
-        this.setData({
-          formData: {
-            name: reward.name || '',
-            description: reward.description || '',
-            pointsRequired: reward.pointsRequired || 50,
-            category: reward.category || 'toy',
-            emoji: reward.emoji || '🎁',
-            icon: reward.icon || ''
-          }
-        });
-      } else {
-        throw new Error(result.msg || '获取奖励信息失败');
-      }
-      
-    } catch (error) {
-      console.error('加载奖励数据失败:', error);
+      // 清除全局数据
+      delete app.globalData.editRewardData;
+    } else if (options.rewardId) {
+      // 回退到API调用方式
+      console.log('使用API加载奖励数据');
+      //this.loadRewardData(options.rewardId);
+    } else {
+      console.error('缺少奖励ID参数');
       wx.showToast({
-        title: error.message || '加载失败',
+        title: '参数错误',
         icon: 'none'
       });
       setTimeout(() => {
         wx.navigateBack();
       }, 1500);
-    } finally {
-      wx.hideLoading();
-      this.setData({ loading: false });
     }
   },
 
+  // 设置奖励数据的通用方法
+  setRewardData: function(rewardData) {
+    console.log('设置奖励数据:', rewardData);
+    
+    this.setData({
+      
+      formData: rewardData
+       
+    });
+  },
+
+ 
   // 表单输入处理
   onInputChange: function(e) {
     const { field } = e.currentTarget.dataset;
@@ -107,14 +88,14 @@ Page({
   onPickerChange: function(e) {
     const { field } = e.currentTarget.dataset;
     const value = e.detail.value;
-    const options = this.data.options[field + 's'] || this.data.options[field];
-    
+    const options = this.data.options.rewardTypes;  
+    //console.log('选择器变化1，选项:', options[value]);
     if (options && options[value]) {
       const selectedOption = options[value];
       this.setData({
-        [`formData.${field}`]: selectedOption.value,
-        'formData.emoji': selectedOption.emoji
+        'formData.rewardType': selectedOption.value
       });
+     // console.log('选择器变化，选项:', this.data.formData.rewardType);
     }
   },
 

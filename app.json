@@ -60,5 +60,6 @@
   },
   "sitemapLocation": "sitemap.json",
   "cloud": true,
-  "requiredPrivateInfos": []
+  "requiredPrivateInfos": [],
+  "lazyCodeLoading": "requiredComponents"
 }

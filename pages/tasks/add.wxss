@@ -54,6 +54,13 @@
 }
 
 /* 表单容器 */
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15rpx;
+}
 .form-container {
   background: white;
   border-radius: 32rpx 32rpx 0 0;
@@ -88,13 +95,6 @@
   margin-bottom: 32rpx;
 }
 
-.form-label {
-  display: block;
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 16rpx;
-}
 
 .form-input, .form-textarea {
   width: 100%;

@@ -10,9 +10,11 @@ Page({
     
     // 任务表单数据
     formData: {
+      status: "string",           // 状态：active/inactive
+      childIds: "array",          // 分配的儿童ID列表
       name: '',
       description: '',
-      points: 10,
+      points: 0,
       difficulty: 'easy',
       category: 'study',
       taskType: 'daily',

@@ -59,23 +59,6 @@
     </view>
   </view>
   
-  <!-- 挑战信息区域 -->
-  <!-- <view wx:if="{{task.challengeTarget}}" class="challenge-section">
-    <view class="challenge-header">
-      <text class="challenge-title">🎯 挑战目标</text>
-      <text wx:if="{{task.challengeReward}}" class="challenge-reward">+{{task.challengeReward.points}}积分</text>
-    </view>
-    <text class="challenge-description">{{task.challengeTarget.description}}</text> -->
-    
-    <!-- 挑战进度条 -->
-    <!-- <view wx:if="{{challengeProgress}}" class="challenge-progress">
-      <view class="progress-bar">
-        <view class="progress-fill" style="width: {{challengeProgress.percentage}}%"></view>
-      </view>
-      <text class="progress-text">{{challengeProgress.current}}/{{challengeProgress.target}}天</text>
-    </view>
-  </view> -->
-  
   <!-- 完成状态和时间 -->
   <view wx:if="{{task.completionRecord}}" class="completion-info">
     <view class="completion-status">
@@ -90,7 +73,7 @@
     <!-- 默认模式 - 显示完成任务和提示按钮 -->
     <block wx:if="{{!isManageMode}}">
       <!-- 提示按钮 -->
-      <button wx:if="{{task.tips}}" class="action-btn tips-btn" bindtap="onShowTips" data-tips="{{task.tips}}">
+      <button wx:if="{{task.tips}}" class="action-btn tips-btn" catchtap="onShowTips" data-tips="{{task.tips}}">
         <text class="btn-icon">💡</text>
         <text class="btn-text">提示</text>
       </button>
@@ -98,7 +81,7 @@
       <!-- 完成按钮 -->
       <button wx:if="{{showActions && !task.isCompleted}}" 
               class="action-btn complete-btn" 
-              bindtap="onComplete">
+              catchtap="onComplete">
         <text class="btn-icon">✓</text>
         <text class="btn-text">完成任务</text>
       </button>
@@ -113,13 +96,13 @@
     <!-- 管理模式 - 显示编辑和删除按钮 -->
     <block wx:if="{{isManageMode}}">
       <!-- 编辑按钮 -->
-      <button class="action-btn edit-btn" bindtap="onEdit">
+      <button class="action-btn edit-btn" catchtap="onEdit">
         <text class="btn-icon">✏️</text>
         <text class="btn-text">编辑</text>
       </button>
       
       <!-- 删除按钮 -->
-      <button class="action-btn delete-btn" bindtap="onDelete">
+      <button class="action-btn delete-btn" catchtap="onDelete">
         <text class="btn-icon">🗑️</text>
         <text class="btn-text">删除</text>
       </button>

@@ -76,14 +76,16 @@ Database initialization is handled by `initDatabase` cloud function. The system 
 - `index/` - Home page with parent dashboard
 - `parent/` - Parent management interface
 - `child/` - Children's game view interface
-- `tasks/` - Task management
-- `rewards/` - Reward store/exchange
+- `tasks/` - Task management (add/edit pages included)
+- `rewards/` - Reward store/exchange (add/edit pages included)
 - `points/` - Points center and history
 - `analysis/` - Data analysis and reports
 - `settings/` - System settings
 - `dictionary/` - Dictionary configuration management
 - `templates/` - Preset template management
 - `template-management/` - Template admin interface
+- `template-editor/` - Template editing interface
+- `template-debug/` - Template debugging interface
 
 ### Cloud Functions
 
@@ -206,9 +208,9 @@ The system uses optimized indexes for performance:
 ## Design System
 
 ### Visual Design
-- **Primary Color**: Green (#4CAF50) representing growth
-- **Secondary Colors**: Light green (#81C784), dark green (#388E3C)
-- **Accent Colors**: Orange (#FF9800), red (#F44336)
+- **Primary Color**: `#6667eea` (indigo) representing growth
+- **Secondary Colors**: Light indigo variants for different states
+- **Accent Colors**: Orange (#FF9800), red (#F44336) for alerts
 - **Typography**: PingFang font family
 - **UI Pattern**: Card-based layouts with rounded corners
 
@@ -293,3 +295,16 @@ The system uses optimized indexes for performance:
 2. Deploy during low-traffic periods
 3. Monitor system performance post-release
 4. Prepare rollback procedures if needed
+
+## Image Management
+
+### SVG Theme Colors
+- **Normal state**: `#6667eea` (indigo)
+- **Active state**: `#5558cc` (darker indigo)
+- Use the provided SVG compression scripts when needed
+
+### PNG Compression
+- Use `simple_png_compressor.py` for PNG image compression
+- Target file size: under 1MB
+- Uses Pillow library for lossless compression
+- Run with: `python simple_png_compressor.py`

@@ -78,82 +78,58 @@ Page({
     hasChanges: false
   },
 
-  onLoad: function (options) {
-    const taskId = options.id;
-    if (taskId) {
-      this.setData({ taskId });
-      this.loadTaskInfo(taskId);
-    } else {
-      wx.showToast({ title: '缺少任务信息', icon: 'none' });
-      setTimeout(() => {
-        wx.navigateBack();
-      }, 1500);
-    }
-  },
-
-  // 加载任务信息
-  loadTaskInfo: async function(taskId) {
-    this.setData({ loading: true });
+  onLoad: function(options) {
+    console.log('编辑任务页面加载，参数:', options);
     
-    try {
-      wx.showLoading({ title: '加载中...' });
+    if (options.id) {
+      this.setData({ taskId: options.id });
+    }
+    
+    // 检查是否有传递的数据
+    const app = getApp();
+    const fromData = options.fromData === 'true';
+    
+    if (fromData && app.globalData && app.globalData.editTaskData) {
+      // 使用传递的数据，避免API调用
+      console.log('使用传递的任务数据:', app.globalData.editTaskData);
+      this.setTaskData(app.globalData.editTaskData);
       
-      const result = await tasksApi.getById(taskId);
-      if (result.code === 0) {
-        const taskInfo = result.data;
-        
-        // 设置表单数据
-        this.setData({
-          taskInfo,
-          formData: {
-            name: taskInfo.name || '',
-            description: taskInfo.description || '',
-            points: taskInfo.points || 10,
-            difficulty: taskInfo.difficulty || 'easy',
-            category: taskInfo.category || 'study',
-            taskType: taskInfo.taskType || 'daily',
-            cycleType: taskInfo.cycleType || 'daily',
-            ageGroup: taskInfo.ageGroup || 'primary',
-            tips: taskInfo.tips || '',
-            habitTags: taskInfo.habitTags || [],
-            emoji: taskInfo.emoji || '📚'
-          }
-        });
-        
-        // 加载孩子信息
-        if (taskInfo.childId) {
-          this.loadChildInfo(taskInfo.childId);
-        }
-        
-      } else {
-        throw new Error(result.msg || '获取任务信息失败');
-      }
-    } catch (error) {
-      console.error('加载任务信息失败:', error);
-      wx.showToast({ 
-        title: error.message || '加载失败', 
-        icon: 'none' 
+      // 清除全局数据
+      delete app.globalData.editTaskData;
+    } else if (options.id) {
+      // 回退到API调用方式
+      console.log('使用API加载任务数据');
+      this.loadTaskInfo(options.id);
+    } else {
+      console.error('缺少任务ID参数');
+      wx.showToast({
+        title: '参数错误',
+        icon: 'none'
       });
       setTimeout(() => {
         wx.navigateBack();
       }, 1500);
-    } finally {
-      wx.hideLoading();
-      this.setData({ loading: false });
     }
   },
 
-  // 加载孩子信息
-  loadChildInfo: async function(childId) {
-    try {
-      const result = await childrenApi.getById(childId);
-      if (result.code === 0) {
-        this.setData({ childInfo: result.data });
-      }
-    } catch (error) {
-      console.error('加载孩子信息失败:', error);
+  // 设置任务数据的通用方法
+  setTaskData: function(taskData) {
+    console.log('设置任务数据:', taskData);
+    
+    this.setData({
+      formData: taskData
+      
+    });
+
+    // 如果有孩子ID，加载孩子信息
+    if (taskData.childId) {
+      this.loadChildInfo(taskData.childId);
     }
   },
+
+ 
+
+ 
 
   // 表单输入处理
   onInputChange: function(e) {

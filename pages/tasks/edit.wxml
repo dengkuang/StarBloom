@@ -150,7 +150,7 @@
           <view class="picker-display">
             <text class="picker-text">
               <block wx:for="{{options.ageGroups}}" wx:key="value">
-                <block wx:if="{{item.value === formData.ageGroup}}">{{item.label}}</block>
+                <block wx:if="{{item.value === formData.ageGroups}}">{{item.label}}</block>
               </block>
             </text>
             <text class="picker-arrow">></text>

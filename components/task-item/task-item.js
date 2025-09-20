@@ -244,9 +244,6 @@ Component({
     
     // 完成任务
     onComplete(e) {
-      // 防止事件冒泡
-      e.stopPropagation();
-      
       // 显示确认对话框
       wx.showModal({
         title: '确认完成',
@@ -270,9 +267,7 @@ Component({
     },
     
     // 编辑任务
-    onEdit(e) {
-      e.stopPropagation();
-      
+    onEdit: function(e) {
       console.log('点击编辑任务按钮:', this.data.task);
       
       if (!this.data.task || !this.data.task._id) {
@@ -282,9 +277,15 @@ Component({
         });
         return;
       }
+
+      // 将完整任务数据存储到全局数据管理器
+      const app = getApp();
+      if (app.globalData) {
+        app.globalData.editTaskData = this.data.task;
+      }
       
       wx.navigateTo({
-        url: `/pages/tasks/edit?taskId=${this.data.task._id}`,
+        url: `/pages/tasks/edit?task=${this.data.task}&fromData=true`,
         success: () => {
           console.log('成功跳转到编辑任务页面');
         },
@@ -302,8 +303,6 @@ Component({
     
     // 删除任务
     onDelete(e) {
-      e.stopPropagation();
-      
       wx.showModal({
         title: '确认删除',
         content: `确定要删除任务"${this.data.task.name}"吗？此操作不可恢复。`,
@@ -322,13 +321,11 @@ Component({
     
     // 查看任务详情
     onViewDetails(e) {
-      e.stopPropagation();
       this.triggerEvent('viewDetails', { task: this.data.task });
     },
     
     // 分享任务
     onShare(e) {
-      e.stopPropagation();
       this.triggerEvent('share', { task: this.data.task });
     }
   }

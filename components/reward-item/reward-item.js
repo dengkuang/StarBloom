@@ -35,8 +35,6 @@ Component({
     
     // 编辑奖励
     onEdit: function(e) {
-      e.stopPropagation();
-      
       console.log('点击编辑奖励按钮:', this.data.reward);
       
       if (!this.data.reward || !this.data.reward._id) {
@@ -46,9 +44,15 @@ Component({
         });
         return;
       }
+
+      // 将完整奖励数据存储到全局数据管理器
+      const app = getApp();
+      if (app.globalData) {
+        app.globalData.editRewardData = this.data.reward;
+      }
       
       wx.navigateTo({
-        url: `/pages/rewards/edit?rewardId=${this.data.reward._id}`,
+        url: `/pages/rewards/edit?rewardId=${this.data.reward}&fromData=true`,
         success: () => {
           console.log('成功跳转到编辑奖励页面');
         },
@@ -69,8 +73,6 @@ Component({
     
     // 删除奖励
     onDelete: function(e) {
-      e.stopPropagation();
-      
       wx.showModal({
         title: '确认删除',
         content: `确定要删除奖励"${this.data.reward.name}"吗？此操作不可恢复。`,
