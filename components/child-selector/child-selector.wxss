@@ -51,6 +51,11 @@
   opacity: 0.8;
 }
 
+.current-points {
+  color: #e67e22;
+  font-weight: 600;
+}
+
 .selector-arrow {
   font-size: 24rpx;
   color: #95a5a6;
@@ -82,9 +87,15 @@
 }
 
 .child-list.show {
-  max-height: 600rpx;
+  max-height: 80vh; /* 使用视口高度，支持更多子元素 */
   opacity: 1;
   transform: translateY(0);
+}
+
+/* 滚动视图容器 */
+.child-scroll-view {
+  max-height: 70vh; /* 限制滚动区域最大高度 */
+  min-height: 120rpx; /* 最小高度确保至少显示一个项目 */
 }
 
 .child-item {
@@ -131,6 +142,7 @@
   justify-content: center;
   margin-right: 20rpx;
   transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 .check-indicator.checked {
@@ -161,6 +173,7 @@
   margin-right: 20rpx;
   border: 2rpx solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
 }
 
 /* 孩子信息 */
@@ -168,6 +181,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0; /* 防止文本溢出 */
 }
 
 .child-name-small {
@@ -175,6 +189,9 @@
   font-weight: 500;
   color: #2c3e50;
   margin-bottom: 6rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .child-details-small {
@@ -186,6 +203,7 @@
 /* 积分显示 */
 .child-points {
   margin-left: 16rpx;
+  flex-shrink: 0;
 }
 
 .points-text {
@@ -195,6 +213,54 @@
   background: rgba(230, 126, 34, 0.1);
   padding: 8rpx 16rpx;
   border-radius: 20rpx;
+}
+
+/* 操作按钮区域 */
+.child-actions {
+  display: flex;
+  align-items: center;
+  margin-left: 16rpx;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 12rpx;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn:active {
+  transform: scale(0.9);
+}
+
+.edit-btn {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  box-shadow: 0 4rpx 12rpx rgba(52, 152, 219, 0.3);
+}
+
+.edit-btn:active {
+  background: linear-gradient(135deg, #2980b9 0%, #1f5f8b 100%);
+}
+
+.delete-btn {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  box-shadow: 0 4rpx 12rpx rgba(231, 76, 60, 0.3);
+}
+
+.delete-btn:active {
+  background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+}
+
+.action-icon {
+  font-size: 28rpx;
+  line-height: 1;
 }
 
 /* 遮罩层 */
@@ -234,6 +300,19 @@
   .child-details {
     font-size: 22rpx;
   }
+
+  .child-item {
+    padding: 20rpx;
+  }
+
+  .action-btn {
+    width: 50rpx;
+    height: 50rpx;
+  }
+
+  .action-icon {
+    font-size: 24rpx;
+  }
 }
 
 /* 动画优化 */
@@ -247,4 +326,8 @@
 
 .check-indicator {
   will-change: transform, background-color;
+}
+
+.action-btn {
+  will-change: transform, background;
 }

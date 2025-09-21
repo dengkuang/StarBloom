@@ -1,203 +1,161 @@
-// 孩子选择器组件
 Component({
-  /**
-   * 组件的属性列表
-   */
   properties: {
-    // 孩子列表
     childrenList: {
       type: Array,
       value: []
     },
-    // 当前选中的孩子
-    currentChild: {
-      type: Object,
-      value: null
+    selectedChildId: {
+      type: String,
+      value: ''
     },
-    // 当前选中的索引
-    selectedIndex: {
-      type: Number,
-      value: 0
-    },
-    // 是否显示积分
     showPoints: {
       type: Boolean,
-      value: true
-    },
-    // 是否禁用
-    disabled: {
-      type: Boolean,
       value: false
-    },
-    // 占位符文本
-    placeholder: {
-      type: String,
-      value: '请选择孩子'
     }
   },
 
-  /**
-   * 组件的初始数据
-   */
   data: {
-    showList: false
+    isExpanded: false,
+    currentChild: null
   },
 
-  /**
-   * 组件的方法列表
-   */
-  methods: {
-    /**
-     * 切换选择器显示状态
-     */
-    toggleSelector() {
-      if (this.data.disabled) return;
-      
-      // 如果只有一个孩子，不显示列表
-      if (this.data.childrenList.length <= 1) {
-        wx.showToast({
-          title: '只有一个孩子',
-          icon: 'none',
-          duration: 1500
-        });
-        return;
-      }
-
-      this.setData({
-        showList: !this.data.showList
-      });
-
-      // 触发展开/收起事件
-      this.triggerEvent('toggle', {
-        show: this.data.showList
-      });
-    },
-
-    /**
-     * 隐藏选择器
-     */
-    hideSelector() {
-      this.setData({
-        showList: false
-      });
-
-      this.triggerEvent('toggle', {
-        show: false
-      });
-    },
-
-    /**
-     * 选择孩子
-     */
-    onSelectChild(e) {
-      const index = parseInt(e.currentTarget.dataset.index);
-      const childrenList = this.data.childrenList;
-      
-      if (index < 0 || index >= childrenList.length) {
-        console.error('Invalid child index:', index);
-        return;
-      }
-
-      const selectedChild = childrenList[index];
-      
-      // 如果选择的是当前孩子，只收起列表
-      if (index === this.data.selectedIndex) {
-        this.hideSelector();
-        return;
-      }
-
-      // 更新选中状态
-      this.setData({
-        selectedIndex: index,
-        showList: false
-      });
-
-      // 触发选择事件
-      this.triggerEvent('change', {
-        index: index,
-        child: selectedChild,
-        childrenList: childrenList
-      });
-
-      // 显示选择提示
-      wx.showToast({
-        title: `已选择 ${selectedChild.name}`,
-        icon: 'success',
-        duration: 1000
-      });
-    },
-
-    /**
-     * 外部调用：设置当前选中的孩子
-     */
-    setCurrentChild(child, index) {
-      this.setData({
-        currentChild: child,
-        selectedIndex: index || 0
-      });
-    },
-
-    /**
-     * 外部调用：更新孩子列表
-     */
-    updateChildrenList(childrenList) {
-      this.setData({
-        childrenList: childrenList
-      });
-    },
-
-    /**
-     * 外部调用：重置选择器
-     */
-    reset() {
-      this.setData({
-        showList: false,
-        selectedIndex: 0,
-        currentChild: null
-      });
+  observers: {
+    'childrenList, selectedChildId': function(childrenList, selectedChildId) {
+      this.updateCurrentChild();
     }
   },
 
-  /**
-   * 组件生命周期
-   */
   lifetimes: {
     attached() {
-      // 组件实例被放入页面节点树后执行
-      console.log('ChildSelector attached');
-    },
-
-    detached() {
-      // 组件实例被从页面节点树移除后执行
-      console.log('ChildSelector detached');
+      this.updateCurrentChild();
     }
   },
 
-  /**
-   * 组件所在页面的生命周期
-   */
-  pageLifetimes: {
-    show() {
-      // 页面被展示时执行
-    },
-
-    hide() {
-      // 页面被隐藏时执行
-      this.hideSelector();
-    }
-  },
-
-  /**
-   * 数据监听器
-   */
-  observers: {
-    'childrenList, selectedIndex': function(childrenList, selectedIndex) {
-      // 当孩子列表或选中索引变化时，更新当前孩子
-      if (childrenList && childrenList.length > 0 && selectedIndex >= 0 && selectedIndex < childrenList.length) {
+  methods: {
+    // 更新当前选中的孩子
+    updateCurrentChild() {
+      const { childrenList, selectedChildId } = this.properties;
+      if (childrenList && childrenList.length > 0) {
+        const currentChild = childrenList.find(child => child._id === selectedChildId) || childrenList[0];
         this.setData({
-          currentChild: childrenList[selectedIndex]
+          currentChild: currentChild
         });
       }
+    },
+
+    // 切换展开/收起状态
+    toggleExpanded() {
+      const { childrenList } = this.properties;
+      // 只有当有多个孩子时才允许展开
+      if (childrenList && childrenList.length > 1) {
+        this.setData({
+          isExpanded: !this.data.isExpanded
+        });
+      }
+    },
+
+    // 选择孩子
+    selectChild(e) {
+      const childId = e.currentTarget.dataset.childId;
+      const { childrenList } = this.properties;
+      const selectedChild = childrenList.find(child => child._id === childId);
+      
+      if (selectedChild) {
+        // 更新当前选中的孩子
+        this.setData({
+          currentChild: selectedChild,
+          isExpanded: false
+        });
+        
+        // 触发选择事件，通知父组件
+        this.triggerEvent('childSelected', {
+          child: selectedChild,
+          childId: childId
+        });
+      }
+    },
+
+    // 编辑孩子信息
+    editChild(e) {
+      // catch:tap 已经自动阻止事件冒泡
+      console.log("编辑孩子", e.currentTarget.dataset.childId);
+      const childId = e.currentTarget.dataset.childId;
+      const { childrenList } = this.properties;
+      const childToEdit = childrenList.find(child => child._id === childId);
+      
+      if (childToEdit) {
+        // 触发编辑事件，通知父组件
+        this.triggerEvent('childEdit', {
+          child: childToEdit,
+          childId: childId
+        });
+      }
+    },
+
+    // 删除孩子
+    deleteChild(e) {
+      // catch:tap 已经自动阻止事件冒泡
+      
+      const childId = e.currentTarget.dataset.childId;
+      const { childrenList } = this.properties;
+      const childToDelete = childrenList.find(child => child._id === childId);
+      
+      if (childToDelete) {
+        wx.showModal({
+          title: '确认删除',
+          content: `确定要删除孩子 "${childToDelete.name}" 吗？`,
+          success: (res) => {
+            if (res.confirm) {
+              // 触发删除事件，通知父组件
+              this.triggerEvent('childDelete', {
+                child: childToDelete,
+                childId: childId
+              });
+              
+              // 如果删除的是当前选中的孩子，需要重新选择
+              if (this.data.currentChild && this.data.currentChild._id === childId) {
+                const remainingChildren = childrenList.filter(child => child._id !== childId);
+                if (remainingChildren.length > 0) {
+                  this.setData({
+                    currentChild: remainingChildren[0]
+                  });
+                  this.triggerEvent('childSelect', {
+                    child: remainingChildren[0]
+                  });
+                } else {
+                  this.setData({
+                    currentChild: null
+                  });
+                }
+              }
+            }
+          }
+        });
+      }
+    },
+
+    // 点击遮罩层关闭
+    closeMask() {
+      this.setData({
+        isExpanded: false
+      });
+    },
+
+    // 滚动视图滚动事件（可用于后续扩展功能）
+    onScrollViewScroll(e) {
+      // 可以在这里添加滚动相关的逻辑
+      // 比如懒加载、滚动位置记录等
+    },
+
+    // 滚动到顶部
+    onScrollToUpper(e) {
+      // 滚动到顶部时的处理
+    },
+
+    // 滚动到底部
+    onScrollToLower(e) {
+      // 滚动到底部时的处理
+      // 可以用于加载更多数据
     }
   }
 });

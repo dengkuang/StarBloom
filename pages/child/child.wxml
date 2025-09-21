@@ -20,11 +20,11 @@
     <view class="child-selector-wrapper">
       <child-selector
         childrenList="{{childrenList}}"
-        currentChild="{{currentChild}}"
-        selectedIndex="{{currentChildIndex}}"
+        selectedChildId="{{currentChild.id}}"
         showPoints="{{true}}"
-        bind:change="onChildSelectorChange"
-        bind:toggle="onChildSelectorToggle"
+        bind:childSelected="onChildSelected"
+        bind:childEdit="onChildEdit"
+        bind:childDelete="onChildDelete"
       ></child-selector>
     </view>
 

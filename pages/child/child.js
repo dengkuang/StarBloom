@@ -1,4 +1,4 @@
-// 孩子视图页面逻辑
+// 孩子视图页面逻辑editChild
 const { childrenApi, tasksApi, rewardsApi, pointsApi } = require('../../utils/api-services.js');
 const { createPageWithChildManager } = require('../../utils/page-mixins.js');
 const { globalChildManager } = require('../../utils/global-child-manager.js');
@@ -436,72 +436,94 @@ Page(createPageWithChildManager({
     }
   },
 
-  // 孩子选择器变化事件
-  onChildSelectorChange: function(e) {
-    const { index, child, childrenList } = e.detail;
+  // 孩子选择事件
+  onChildSelected: function(e) {
+    const { child, childId } = e.detail;
     
-    console.log('孩子选择器变化:', child.name, index);
+    console.log('孩子选择器变化:', child.name, childId);
     
-    // 使用全局状态管理切换孩子
-    const success = globalChildManager.switchChild(childrenList, index);
-    
-    if (success) {
-      this.setData({
-        currentChildIndex: index,
-        currentChild: child
-      });
+    // 更新当前选中的孩子
+    this.setData({
+      currentChild: child
+    });
 
-      // 防止重复加载，因为switchChild会触发onGlobalChildStateChanged
-      // 这里不需要再调用loadChildData，让全局状态变化回调处理
-    } else {
-      wx.showToast({
-        title: '切换失败',
-        icon: 'none'
-      });
+    // 使用全局状态管理切换孩子
+    const childIndex = this.data.childrenList.findIndex(c => c._id === childId);
+    if (childIndex >= 0) {
+      const success = globalChildManager.switchChild(this.data.childrenList, childIndex);
+      
+      if (success) {
+        this.setData({
+          currentChildIndex: childIndex
+        });
+        
+        // 触发联动更新机制，加载新孩子的数据
+        this.clearTimers();
+        this.childStateChangeTimer = setTimeout(() => {
+          console.log('孩子选择变化：开始加载孩子数据');
+          this.loadChildData();
+        }, 150);
+      } else {
+        wx.showToast({
+          title: '切换失败',
+          icon: 'none'
+        });
+      }
     }
   },
 
-  // 孩子选择器展开/收起事件
-  onChildSelectorToggle: function(e) {
-    const { show } = e.detail;
-    console.log('孩子选择器', show ? '展开' : '收起');
+  // 编辑孩子信息
+  onChildEdit: function(e) {
+    const { child, childId } = e.detail;
     
-    // 可以在这里添加一些UI反馈，比如调整页面布局等
-    // 暂时不需要特殊处理
+    console.log('编辑孩子:', child.name);
+    
+    // 跳转到编辑孩子页面
+    wx.navigateTo({
+      url: `/pages/child/addchild?action=edit&childId=${childId}`
+    });
   },
 
-  // 孩子选择器变化事件
-  onChildSelectorChange: function(e) {
-    const { index, child, childrenList } = e.detail;
+  // 删除孩子
+  onChildDelete: function(e) {
+    const { child, childId } = e.detail;
     
-    console.log('孩子选择器变化:', child.name, index);
+    console.log('删除孩子:', child.name);
     
-    // 使用全局状态管理切换孩子
-    const success = globalChildManager.switchChild(childrenList, index);
-    
-    if (success) {
-      this.setData({
-        currentChildIndex: index,
-        currentChild: child
+    // 调用API删除孩子
+    this.deleteChildFromServer(childId, child.name);
+  },
+
+  // 从服务器删除孩子
+  deleteChildFromServer: async function(childId, childName) {
+    try {
+      wx.showLoading({
+        title: '删除中...',
+        mask: true
       });
 
-      // 防止重复加载，因为switchChild会触发onGlobalChildStateChanged
-      // 这里不需要再调用loadChildData，让全局状态变化回调处理
-    } else {
+      // 调用删除API
+      await childrenApi.deleteChild(childId);
+
+      wx.hideLoading();
+      
       wx.showToast({
-        title: '切换失败',
+        title: `${childName} 已删除`,
+        icon: 'success'
+      });
+
+      // 重新加载页面数据
+      this.loadPageData();
+      
+    } catch (error) {
+      wx.hideLoading();
+      console.error('删除孩子失败:', error);
+      
+      wx.showToast({
+        title: '删除失败',
         icon: 'none'
       });
     }
-  },
-
-  // 孩子选择器展开/收起事件
-  onChildSelectorToggle: function(e) {
-    const { show } = e.detail;
-    console.log('孩子选择器', show ? '展开' : '收起');
-    
-    // 可以在这里添加一些UI反馈，比如调整页面布局等
-    // 暂时不需要特殊处理
   },
 
   // 完成任务

@@ -1,6 +1,14 @@
 images/svg_to_png.py
 images-png/svg_converter.html
-
 .claude/settings.local.json
 project.private.config.json
 project.config.json
+./spec-workflow/*.*
+.spec-workflow/templates/design-template.md
+.spec-workflow/templates/product-template.md
+.spec-workflow/templates/requirements-template.md
+.spec-workflow/templates/structure-template.md
+.spec-workflow/templates/tasks-template.md
+.spec-workflow/templates/tech-template.md
+.gitignore
+.spec-workflow/config.example.toml

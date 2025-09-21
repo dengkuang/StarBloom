@@ -5,6 +5,9 @@ const { globalChildManager } = require('../../utils/global-child-manager.js');
 
 Page({
   data: {
+    // 页面模式：add 添加，edit 编辑
+    mode: 'add',
+    child: null, // 编辑时的孩子
     formData: {
       name: '',
       gender: 'male',
@@ -30,10 +33,58 @@ Page({
     ]
   },
 
-
   onLoad: function (options) {
-    this.checkCanSubmit();
+    // 检查是否为编辑模式
+    console.log('onLoad参数:', options);
+    
+    // 支持多种参数格式：childId、action=edit&childId=xxx、child对象
+    const childId = options.childId || (options.action === 'edit' ? options.childId : null);
+    let child = options.child;
+    
+    // 处理可能被字符串化的child对象
+    if (child && typeof child === 'string') {
+      try {
+        // 如果child是字符串，尝试解析为JSON
+        if (child == '[object Object]') {
+          child = JSON.parse(child);
+        } else {
+          // 如果是'[object Object]'字符串，说明对象传递有问题，使用childId方式
+          child = null;
+        }
+      } catch (error) {
+        console.warn('解析child对象失败:', error);
+        child = null;
+      }
+    }
+    
+    if (childId) {
+      // 通过childId加载孩子数据
+      this.loadChildData(childId);
+    } else if (child && typeof child === 'object') {
+      // 直接使用传入的child对象
+      this.setData({
+        mode: 'edit',
+        child: child,
+        formData: {
+          name: child.name || '',
+          gender: child.gender || 'male',
+          age: child.age || '',
+          birthday: child.birthday || '',
+          interests: child.interests || '',
+          avatar: child.avatar || this.data.formData.avatar
+        }
+      });
+      this.checkCanSubmit();
+    } else {
+      // 添加模式
+      this.setData({
+        mode: 'add'
+      });
+      this.checkCanSubmit();
+    }
   },
+
+
 
   // 输入框变化
   onInputChange: function(e) {
@@ -56,6 +107,61 @@ Page({
     
     // 根据性别自动推荐头像
     this.recommendAvatarByGender(gender);
+  },
+
+  // 根据childId加载孩子数据
+  loadChildData: async function(childId) {
+    if (!childId) {
+      console.error('loadChildData: childId为空');
+      return;
+    }
+
+    try {
+      this.setData({ loading: true });
+      
+      // 先尝试从缓存获取孩子列表
+      let childrenList = businessDataManager.getChildrenList();
+      
+      // 如果缓存中没有，则从API获取
+      if (!childrenList || childrenList.length === 0) {
+        const result = await childrenApi.getList();
+        if (result.success) {
+          childrenList = result.data;
+          businessDataManager.setChildrenList(childrenList);
+        } else {
+          throw new Error(result.message || '获取孩子列表失败');
+        }
+      }
+      
+      // 在孩子列表中查找对应的孩子
+      const childData = childrenList.find(child => child._id === childId);
+      
+      if (childData) {
+        console.log('加载到的孩子数据:', childData);
+        this.setData({
+          mode: 'edit',
+          child: childData,
+          formData:childData
+        });
+        this.checkCanSubmit();
+      } else {
+        wx.showToast({
+          title: '未找到孩子信息',
+          icon: 'error'
+        });
+        setTimeout(() => {
+          wx.navigateBack();
+        }, 1500);
+      }
+    } catch (error) {
+      console.error('加载孩子数据失败:', error);
+      wx.showToast({
+        title: '加载失败',
+        icon: 'error'
+      });
+    } finally {
+      this.setData({ loading: false });
+    }
   },
 
   // 根据性别推荐头像
@@ -211,8 +317,10 @@ Page({
 
   // 检查是否可以提交
   checkCanSubmit: function() {
-    const { name, birthday } = this.data.formData;
-    const canSubmit = name.trim().length > 0 && birthday.length > 0;
+    const formData = this.data.formData || {};
+    console.log('检查提交条件:', formData);
+    const { name = '', birthday = '' } = formData;
+    const canSubmit = Boolean((name && name.length > 0) && (birthday && birthday.length > 0));
     
     this.setData({ canSubmit });
   },
@@ -222,9 +330,10 @@ Page({
     if (this.data.loading) return;
     
     const formData = this.data.formData;
+    const isEditMode = this.data.mode === 'edit';
     
     // 验证必填字段
-    if (!formData.name.trim()) {
+    if (!formData.name ) {
       wx.showToast({ title: '请输入孩子姓名', icon: 'none' });
       return;
     }
@@ -247,29 +356,28 @@ Page({
 
     try {
       // 构建提交数据
-      const submitData = {
-        name: formData.name.trim(),
-        gender: formData.gender,
-        age: formData.age,
-        birthday: formData.birthday,
-        interests: formData.interests.trim(),
-        avatar: formData.avatar || '/images/default-avatar.png', // 确保有默认头像
-        isCustomAvatar: this.data.isCustomAvatar, // 标记是否为自定义头像
-        totalPoints: 0,
-        createdAt: new Date().toISOString()
-      };
+      const submitData = formData;
 
-      // 调用API创建孩子
-      const result = await childrenApi.create(submitData);
+      let result;
+      if (isEditMode) {
+        // 编辑模式：更新孩子信息
+        submitData.updatedAt = new Date().toISOString();
+        result = await childrenApi.update(this.data.childId, submitData);
+      } else {
+        // 添加模式：创建新孩子
+        submitData.totalPoints = 0;
+        submitData.createdAt = new Date().toISOString();
+        result = await childrenApi.create(submitData);
+      }
       
       if (result.code === 0) {
-        const newChild = result.data;
+      
         
         // 更新缓存的孩子列表
-        await this.updateChildrenCache(newChild);
+        await this.updateChildrenCache(submitData, isEditMode);
         
         wx.showToast({ 
-          title: '添加成功', 
+          title: isEditMode ? '更新成功' : '添加成功', 
           icon: 'success',
           duration: 1500
         });
@@ -279,12 +387,12 @@ Page({
           wx.navigateBack();
         }, 1500);
       } else {
-        throw new Error(result.msg || '添加失败');
+        throw new Error(result.msg || (isEditMode ? '更新失败' : '添加失败'));
       }
     } catch (error) {
-      console.error('添加孩子失败:', error);
+      console.error(`${isEditMode ? '更新' : '添加'}孩子失败:`, error);
       wx.showToast({ 
-        title: error.message || '添加失败，请重试', 
+        title: error.message || `${isEditMode ? '更新' : '添加'}失败，请重试`, 
         icon: 'none' 
       });
     } finally {
@@ -298,7 +406,8 @@ Page({
   },
 
   // 更新孩子缓存
-  updateChildrenCache: async function(newChild) {
+  updateChildrenCache: async function(childData, isEditMode = false) {
+    console.log('更新孩子缓存:', childData, isEditMode);
     try {
       // 重新获取完整的孩子列表
       const result = await childrenApi.getList();
@@ -308,21 +417,33 @@ Page({
         // 更新全局孩子列表缓存
         businessDataManager.setChildrenList(updatedChildrenList);
         
-        // 如果这是第一个孩子，或者当前没有选中的孩子，则设置为当前孩子
-        const currentChild = businessDataManager.getCurrentChild();
-        if (!currentChild || updatedChildrenList.length === 1) {
-          const newChildIndex = updatedChildrenList.findIndex(child => child._id === newChild._id);
-          if (newChildIndex !== -1) {
-            // 使用全局状态管理器切换到新添加的孩子
-            globalChildManager.switchChild(updatedChildrenList, newChildIndex);
+        if (isEditMode) {
+          // 编辑模式：更新当前选中的孩子信息
+          const currentChild = businessDataManager.getCurrentChild();
+          if (currentChild && currentChild._id === childData._id) {
+            // 如果编辑的是当前选中的孩子，更新当前孩子信息
+            const updatedChildIndex = updatedChildrenList.findIndex(child => child._id === childData._id);
+            if (updatedChildIndex !== -1) {
+              globalChildManager.switchChild(updatedChildrenList, updatedChildIndex);
+            }
           }
+          console.log('孩子缓存已更新，编辑孩子:', childData.name);
+        } else {
+          // 添加模式：如果这是第一个孩子，或者当前没有选中的孩子，则设置为当前孩子
+          const currentChild = businessDataManager.getCurrentChild();
+          if (!currentChild || updatedChildrenList.length === 1) {
+            const newChildIndex = updatedChildrenList.findIndex(child => child._id === childData._id);
+            if (newChildIndex !== -1) {
+              // 使用全局状态管理器切换到新添加的孩子
+              globalChildManager.switchChild(updatedChildrenList, newChildIndex);
+            }
+          }
+          console.log('孩子缓存已更新，新增孩子:', childData.name);
         }
-        
-        console.log('孩子缓存已更新，新增孩子:', newChild.name);
       }
     } catch (error) {
       console.error('更新孩子缓存失败:', error);
-      // 即使缓存更新失败，也不影响添加成功的提示
+      // 即使缓存更新失败，也不影响操作成功的提示
     }
   }
 });

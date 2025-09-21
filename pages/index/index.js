@@ -324,25 +324,7 @@ Page({
     }
   },
 
-  // 孩子选择器变化事件
-  onChildSelectorChange: function(e) {
-    const { index, child, childrenList } = e.detail;
-    
-    console.log('孩子选择器变化:', child.name, index);
-    
-    if (index !== this.data.currentChildIndex) {
-      this.switchToChild(index);
-    }
-  },
 
-  // 孩子选择器展开/收起事件
-  onChildSelectorToggle: function(e) {
-    const { show } = e.detail;
-    console.log('孩子选择器', show ? '展开' : '收起');
-    
-    // 可以在这里添加一些UI反馈，比如调整页面布局等
-    // 暂时不需要特殊处理
-  },
 
   // 任务完成
   onTaskComplete: async function(e) {
@@ -685,9 +667,93 @@ Page({
   // 分享
   onShareAppMessage: function() {
     return {
-      title: 'StarBloom - 智能儿童积分奖励系统',
+      title: '星花朵朵 - 让孩子在快乐中成长',
       path: '/pages/index/index',
-      imageUrl: '/images/share-cover.jpg'
+      imageUrl: '/images/share-image.png'
     };
+  },
+
+  // 孩子选择事件处理
+  onChildSelected: function(e) {
+    const { child, childId } = e.detail;
+    
+    console.log('首页孩子选择器变化:', child.name, childId);
+    
+    // 查找孩子在列表中的索引
+    const childIndex = this.data.childrenList.findIndex(c => c._id === childId);
+    if (childIndex >= 0) {
+      // 使用全局状态管理切换孩子
+      const success = globalChildManager.switchChild(this.data.childrenList, childIndex);
+      
+      if (success) {
+        this.setData({
+          currentChild: child,
+          currentChildIndex: childIndex
+        });
+        
+        // 重新加载当前孩子的数据
+        this.loadCurrentChildData(true);
+      } else {
+        wx.showToast({
+          title: '切换失败',
+          icon: 'none'
+        });
+      }
+    }
+  },
+
+  // 编辑孩子信息
+  onChildEdit: function(e) {
+    console.log('首页编辑孩子1:', e.detail);
+    const { child, childId } = e.detail;
+    
+    console.log('首页编辑孩子:', childId);
+    
+    // 跳转到编辑孩子页面
+    wx.navigateTo({
+      url: `/pages/child/addchild?action=edit&childId=${childId}`
+    });
+  },
+
+  // 删除孩子
+  onChildDelete: function(e) {
+    const { child, childId } = e.detail;
+    
+    console.log('首页删除孩子:', child.name);
+    
+    // 调用API删除孩子
+    this.deleteChildFromServer(childId, child.name);
+  },
+
+  // 从服务器删除孩子
+  deleteChildFromServer: async function(childId, childName) {
+    try {
+      wx.showLoading({
+        title: '删除中...',
+        mask: true
+      });
+
+      // 调用删除API
+      await childrenApi.deleteChild(childId);
+
+      wx.hideLoading();
+      
+      wx.showToast({
+        title: `${childName} 已删除`,
+        icon: 'success'
+      });
+
+      // 重新加载页面数据
+      this.loadPageData();
+      
+    } catch (error) {
+      wx.hideLoading();
+      console.error('删除孩子失败:', error);
+      
+      wx.showToast({
+        title: '删除失败',
+        icon: 'none'
+      });
+    }
   }
 });

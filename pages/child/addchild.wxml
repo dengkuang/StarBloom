@@ -1,8 +1,8 @@
-<!-- 添加孩子页面 -->
+<!-- 添加/编辑孩子页面 -->
 <view class="container">
   <view class="header">
-    <text class="title">添加孩子信息</text>
-    <text class="subtitle">为您的孩子创建专属档案</text>
+    <text class="title">{{mode === 'edit' ? '编辑孩子信息' : '添加孩子信息'}}</text>
+    <text class="subtitle">{{mode === 'edit' ? '修改孩子的专属档案' : '为您的孩子创建专属档案'}}</text>
   </view>
 
   <form bindsubmit="onSubmit" class="form" style="width: 651rpx; display: block; box-sizing: border-box">
@@ -81,7 +81,7 @@
 
     <view class="button-group">
       <button class="cancel-btn" bindtap="onCancel">取消</button>
-      <button class="submit-btn" form-type="submit" disabled="{{!canSubmit}}">保存</button>
+      <button class="submit-btn" form-type="submit" disabled="{{!canSubmit}}">{{mode === 'edit' ? '更新' : '保存'}}</button>
     </view>
   </form>
 </view>

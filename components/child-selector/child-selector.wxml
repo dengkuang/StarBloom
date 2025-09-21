@@ -1,7 +1,7 @@
 <!-- 孩子选择器组件 -->
 <view class="child-selector-container">
   <!-- 当前选中的孩子显示区域 -->
-  <view class="current-child-display" bindtap="toggleSelector">
+  <view class="current-child-display" bind:tap="toggleExpanded">
     <image 
       class="child-avatar" 
       src="{{currentChild.avatar || '/images/default-avatar.png'}}" 
@@ -11,52 +11,82 @@
       <text class="child-name">{{currentChild.name || '请选择孩子'}}</text>
       <text class="child-details" wx:if="{{currentChild.name}}">
         {{currentChild.gender === 'male' ? '👦' : '👧'}} {{currentChild.age}}岁
+        <text wx:if="{{showPoints}}" class="current-points"> • {{currentChild.totalPoints || 0}}分</text>
       </text>
     </view>
-    <text class="selector-arrow {{showList ? 'rotate' : ''}}">▼</text>
+    <text class="selector-arrow {{isExpanded ? 'rotate' : ''}}">▼</text>
   </view>
 
   <!-- 展开的孩子列表 -->
-  <view class="child-list {{showList ? 'show' : ''}}" wx:if="{{childrenList.length > 1}}">
-    <view 
-      class="child-item {{index === selectedIndex ? 'selected' : ''}}"
-      wx:for="{{childrenList}}"
-      wx:key="_id"
-      wx:for-index="index"
-      bindtap="onSelectChild"
-      data-index="{{index}}"
+  <view class="child-list {{isExpanded ? 'show' : ''}}" wx:if="{{childrenList.length > 1}}">
+    <scroll-view 
+      class="child-scroll-view" 
+      scroll-y="{{true}}" 
+      enhanced="{{true}}"
+      show-scrollbar="{{true}}"
+      scroll-with-animation="{{true}}"
+      bindscroll="onScrollViewScroll"
+      bindscrolltoupper="onScrollToUpper"
+      bindscrolltolower="onScrollToLower"
     >
-      <!-- 选中状态指示器 -->
-      <view class="check-indicator {{index === selectedIndex ? 'checked' : ''}}">
-        <text class="check-mark">✓</text>
+      <view 
+        class="child-item {{item._id === currentChild._id ? 'selected' : ''}}"
+        wx:for="{{childrenList}}"
+        wx:key="_id"
+        wx:for-item="item"
+        bind:tap="selectChild"
+        data-child-id="{{item._id}}"
+      >
+        <!-- 选中状态指示器 -->
+        <view class="check-indicator {{item._id === currentChild._id ? 'checked' : ''}}">
+          <text class="check-mark">✓</text>
+        </view>
+        
+        <!-- 孩子头像 -->
+        <image 
+          class="child-avatar-small" 
+          src="{{item.avatar || '/images/default-avatar.png'}}" 
+          mode="aspectFill"
+        ></image>
+        
+        <!-- 孩子信息 -->
+        <view class="child-info-small">
+          <text class="child-name-small">{{item.name}}</text>
+          <text class="child-details-small">
+            {{item.gender === 'male' ? '👦' : '👧'}} {{item.age}}岁
+          </text>
+        </view>
+        
+        <!-- 积分显示 -->
+        <view class="child-points" wx:if="{{showPoints}}">
+          <text class="points-text">{{item.totalPoints || 0}}分</text>
+        </view>
+
+        <!-- 操作按钮区域 -->
+        <view class="child-actions">
+          <view 
+            class="action-btn edit-btn" 
+            catch:tap="editChild"
+            data-child-id="{{item._id}}"
+          >
+            <text class="action-icon">✏️</text>
+          </view>
+          <view 
+            class="action-btn delete-btn" 
+            catch:tap="deleteChild"
+            data-child-id="{{item._id}}"
+          >
+            <text class="action-icon">🗑️</text>
+          </view>
+        </view>
       </view>
-      
-      <!-- 孩子头像 -->
-      <image 
-        class="child-avatar-small" 
-        src="{{item.avatar || '/images/default-avatar.png'}}" 
-        mode="aspectFill"
-      ></image>
-      
-      <!-- 孩子信息 -->
-      <view class="child-info-small">
-        <text class="child-name-small">{{item.name}}</text>
-        <text class="child-details-small">
-          {{item.gender === 'male' ? '👦' : '👧'}} {{item.age}}岁
-        </text>
-      </view>
-      
-      <!-- 积分显示 -->
-      <view class="child-points" wx:if="{{showPoints}}">
-        <text class="points-text">{{item.totalPoints || 0}}分</text>
-      </view>
-    </view>
+    </scroll-view>
   </view>
 
   <!-- 遮罩层 - 点击收起列表 -->
   <view 
-    class="selector-mask {{showList ? 'show' : ''}}" 
-    bindtap="hideSelector"
-    wx:if="{{showList}}"
+    class="selector-mask {{isExpanded ? 'show' : ''}}" 
+    bind:tap="closeMask"
+    wx:if="{{isExpanded}}"
   ></view>
 </view>
