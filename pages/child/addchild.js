@@ -11,7 +11,7 @@ Page({
       age: '',
       birthday: '',
       interests: '',
-      avatar: '/images/3dboy1.png' // 默认头像
+      avatar: 'https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAECWsNoz0ISQJY93IjtKn5YZFCBgLI6HgACPDoAAtUHeVaHEDnW8fXukTYE.png' // 默认头像
     },
     canSubmit: false,
     loading: false,
@@ -19,14 +19,14 @@ Page({
     isCustomAvatar: false, // 是否使用自定义头像
     // 可选头像列表
     avatarList: [
-      { path: '/images/3dboy1.png', name: '3D男孩1', gender: 'male' },
-      { path: '/images/3dboy2.png', name: '3D男孩2', gender: 'male' },
-      { path: '/images/cartoonboy1.png', name: '卡通男孩1', gender: 'male' },
-      { path: '/images/cartoonboy2.png', name: '卡通男孩2', gender: 'male' },
-      { path: '/images/cartoongirl1.png', name: '卡通女孩1', gender: 'female' },
-      { path: '/images/cartoongirl2.png', name: '卡通女孩2', gender: 'female' },
-      { path: '/images/cartoongir.png', name: '卡通女孩3', gender: 'female' },
-      { path: '/images/cartoongir3.png', name: '卡通女孩4', gender: 'female' },
+      { path: 'https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAECWsNoz0ISQJY93IjtKn5YZFCBgLI6HgACPDoAAtUHeVaHEDnW8fXukTYE.png', name: '3D男孩1', gender: 'male' },
+      { path: 'https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAECWtloz0JJkyXSycO7adKCqaYBPxhWWgACUjoAAtUHeVbQ7ngsMrfttTYE.png', name: '3D男孩2', gender: 'male' },
+      { path: 'https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAECWtVoz0JGhK-BlhKQ1bvO9i9fODmRIwACTjoAAtUHeVYiCCa2UZ3SIzYE.png', name: '卡通男孩1', gender: 'male' },
+      { path: 'https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAECWtRoz0JFcVd7ytbmLHHLxZp3JMQwMwACTToAAtUHeVY2OjtHAqWPTTYE.png', name: '卡通男孩2', gender: 'male' },
+      { path: 'https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAECWtZoz0JGGZpzs5OaRCc6mItV1bgibgACTzoAAtUHeVYlPtiBwIGE-DYE.png', name: '卡通女孩1', gender: 'female' },
+      { path: 'https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAECWtNoz0JE6vroWvUUaZvbm8FbzndoNwACTDoAAtUHeVZx8nO1e6EGKzYE.png', name: '卡通女孩2', gender: 'female' },
+      { path: 'https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAECWttoz0JPPeTO9cdA0dt6UY9uC1Q7NAACVDoAAtUHeVZfs1XWknYBLjYE.png', name: '卡通女孩3', gender: 'female' },
+      { path: 'https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAECWtdoz0JJ8A-WdszJ54wJUmKMHth0ygACUDoAAtUHeVZDYOc8Tw8OnjYE.png', name: '卡通女孩4', gender: 'female' },
     ]
   },
 
