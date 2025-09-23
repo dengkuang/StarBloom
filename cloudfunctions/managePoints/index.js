@@ -68,17 +68,46 @@ async function getPointRecords(parentId, filters) {
     }
     
     if (filters && filters.changeType) {
-      query = query.where({
-        changeType: filters.changeType
-      })
+      if (Array.isArray(filters.changeType)) {
+        query = query.where({
+          changeType: _.in(filters.changeType)
+        })
+      } else {
+        query = query.where({
+          changeType: filters.changeType
+        })
+      }
     }
     
     // 按时间倒序排列
     query = query.orderBy('recordTime', 'desc')
     
+    // 分页参数
+    const page = filters.page || 1
+    const pageSize = filters.pageSize || 20
+    const skip = (page - 1) * pageSize
+    
+    // 获取总数
+    const countResult = await query.count()
+    const total = countResult.total
+    
+    // 获取分页数据
+    query = query.skip(skip).limit(pageSize)
     const result = await query.get()
     
-    return { code: 0, msg: 'success', data: result.data }
+    console.log('getPointRecords result:', { filters, total, count: result.data.length })
+    
+    return { 
+      code: 0, 
+      msg: 'success', 
+      data: {
+        records: result.data,
+        total: total,
+        page: page,
+        pageSize: pageSize,
+        hasMore: skip + result.data.length < total
+      }
+    }
   } catch (error) {
     console.error('getPointRecords error:', error)
     return { code: -1, msg: '获取积分记录失败' }
@@ -214,6 +243,9 @@ async function getPointBalance(parentId, data) {
 async function getPointStatistics(parentId, data) {
   try {
     const { childId } = data
+    console.log('🔍 [云函数DEBUG] getPointStatistics 开始执行');
+    console.log('🔍 [云函数DEBUG] parentId:', parentId);
+    console.log('🔍 [云函数DEBUG] childId:', childId);
     
     // 验证儿童是否存在且属于当前家长
     const childResult = await db.collection('children').where({
@@ -221,11 +253,21 @@ async function getPointStatistics(parentId, data) {
       parentId: parentId
     }).get()
     
+    console.log('🔍 [云函数DEBUG] 查询儿童结果:', childResult.data.length);
+    
     if (childResult.data.length === 0) {
+      console.log('❌ [云函数DEBUG] 儿童不存在或权限不足');
       return { code: -1, msg: '儿童不存在或权限不足' }
     }
     
     const child = childResult.data[0]
+    console.log('🔍 [云函数DEBUG] 儿童数据:', {
+      _id: child._id,
+      name: child.name,
+      totalPoints: child.totalPoints,
+      totalEarnedPoints: child.totalEarnedPoints,
+      totalConsumedPoints: child.totalConsumedPoints
+    });
     
     // 获取积分记录统计
     const today = new Date()
@@ -271,18 +313,23 @@ async function getPointStatistics(parentId, data) {
     
     const tasksCompleted = taskCompletionResult.total
     
+    const resultData = {
+      totalPoints: child.totalPoints || 0,
+      totalEarnedPoints: child.totalEarnedPoints || 0,
+      totalConsumedPoints: child.totalConsumedPoints || 0,
+      todayPoints: todayPoints,
+      weekPoints: weekPoints,
+      monthPoints: monthPoints,
+      tasksCompleted: tasksCompleted
+    };
+    
+    console.log('✅ [云函数DEBUG] 积分统计计算完成');
+    console.log('🔍 [云函数DEBUG] 返回数据:', JSON.stringify(resultData, null, 2));
+    
     return { 
       code: 0, 
       msg: 'success', 
-      data: {
-        totalPoints: child.totalPoints || 0,
-        totalEarnedPoints: child.totalEarnedPoints || 0,
-        totalConsumedPoints: child.totalConsumedPoints || 0,
-        todayPoints: todayPoints,
-        weekPoints: weekPoints,
-        monthPoints: monthPoints,
-        tasksCompleted: tasksCompleted
-      }
+      data: resultData
     }
   } catch (error) {
     console.error('getPointStatistics error:', error)

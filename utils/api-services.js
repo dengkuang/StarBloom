@@ -35,6 +35,13 @@ const childrenApi = {
   },
 
   /**
+   * 根据ID获取儿童信息
+   */
+  async getById(childId) {
+    return await apiClient.callFunction('manageChildren', { action: 'getById', data: childId });
+  },
+
+  /**
    * 创建儿童
    */
   async create(data) {
@@ -44,22 +51,28 @@ const childrenApi = {
   /**
    * 更新儿童信息
    */
-  async update(id, data) {
-    return await apiClient.callFunction('manageChildren', { action: 'update', id, data });
+  async update(data) {
+    return await apiClient.callFunction('manageChildren', { action: 'update', data });
   },
 
   /**
    * 删除儿童
    */
-  async delete(id) {
-    return await apiClient.callFunction('manageChildren', { action: 'delete', id });
+  async delete(childId, forceDelete = false) {
+    return await apiClient.callFunction('manageChildren', { 
+      action: 'delete', 
+      data: { 
+        _id: childId,
+        forceDelete: forceDelete
+      }
+    });
   },
 
   /**
    * 获取儿童统计信息
    */
   async getStats(childId) {
-    return await apiClient.callFunction('manageChildren', { action: 'getStats', childId });
+    return await apiClient.callFunction('manageChildren', { action: 'getStats', data: childId });
   }
 };
 
@@ -159,7 +172,14 @@ const pointsApi = {
    * 获取积分历史
    */
   async getHistory(childId, options = {}) {
-    return await apiClient.callFunction('managePoints', { action: 'getHistory', childId, ...options });
+    console.log('getHistory:', childId, options);
+    return await apiClient.callFunction('managePoints', { 
+      action: 'getHistory', 
+      data: { 
+        childId, 
+        ...options 
+      } 
+    });
   },
 
   /**
@@ -236,6 +256,20 @@ const dictionaryApi = {
    */
   async getAll() {
     return await apiClient.callFunction('manageDictionary', { action: 'getAll' });
+  },
+
+  /**
+   * 获取所有分类
+   */
+  async getAllCategories() {
+    return await apiClient.callFunction('manageDictionary', { action: 'getAllCategories' });
+  },
+
+  /**
+   * 批量获取多个分类的字典项
+   */
+  async batchGet(categories) {
+    return await apiClient.callFunction('manageDictionary', { action: 'batchGet', categories });
   },
 
   /**

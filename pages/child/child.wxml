@@ -20,7 +20,7 @@
     <view class="child-selector-wrapper">
       <child-selector
         childrenList="{{childrenList}}"
-        selectedChildId="{{currentChild.id}}"
+        selectedChildId="{{currentChild._id}}"
         showPoints="{{true}}"
         bind:childSelected="onChildSelected"
         bind:childEdit="onChildEdit"

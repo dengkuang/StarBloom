@@ -122,6 +122,31 @@ class GlobalChildManager {
   }
 
   /**
+   * 更新当前孩子信息（保持索引不变）
+   */
+  updateCurrentChild(updatedChild) {
+    const currentState = this.getCurrentState();
+    
+    if (currentState.currentChild && currentState.currentChild._id === updatedChild._id) {
+      // 更新当前孩子数据
+      this.dataManager.setCurrentChild(updatedChild);
+      
+      // 更新孩子列表中的对应项
+      const updatedChildrenList = [...currentState.childrenList];
+      updatedChildrenList[currentState.currentChildIndex] = updatedChild;
+      this.dataManager.setChildrenList(updatedChildrenList);
+      
+      // 通知页面更新
+      this.notifyChildChanged(updatedChild, currentState.currentChildIndex);
+      
+      console.log('✅ [全局状态] 孩子信息已更新:', updatedChild.name, '积分:', updatedChild.totalPoints);
+      return true;
+    }
+    
+    return false;
+  }
+
+  /**
    * 清除孩子状态
    */
   clearChildState() {

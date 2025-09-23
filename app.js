@@ -19,6 +19,12 @@ App({
         env: 'cloud1-2ghnni8r13cb9f60', // 开发环境ID
         traceUser: true,
       });
+      wx.cloud.callFunction({
+        name: 'manageIndexes',
+        data: {
+        action: 'createAllIndexes'
+        }
+      })
       console.log('云环境初始化成功');
     }
   },

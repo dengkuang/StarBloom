@@ -503,17 +503,66 @@ Page(createPageWithChildManager({
       });
 
       // 调用删除API
-      await childrenApi.deleteChild(childId);
-
+      const result = await childrenApi.delete(childId);
+      
       wx.hideLoading();
       
-      wx.showToast({
-        title: `${childName} 已删除`,
-        icon: 'success'
-      });
+      if (result.code === 0) {
+        wx.showToast({
+          title: `${childName} 已删除`,
+          icon: 'success'
+        });
+        
+        // 重新加载页面数据
+        this.loadPageData();
+      } else if (result.code === 1) {
+        // 需要确认删除（有关联数据）
+        wx.showModal({
+          title: '确认删除',
+          content: `${result.msg}
 
-      // 重新加载页面数据
-      this.loadPageData();
+相关数据：
+任务记录: ${result.data.relatedData.taskRecords}条
+积分记录: ${result.data.relatedData.pointRecords}条
+兑换记录: ${result.data.relatedData.exchangeRecords}条`,
+          confirmText: '强制删除',
+          cancelText: '取消',
+          success: async (res) => {
+            if (res.confirm) {
+              // 强制删除
+              try {
+                wx.showLoading({ title: '删除中...', mask: true });
+                const forceResult = await childrenApi.delete(childId, true);
+                wx.hideLoading();
+                
+                if (forceResult.code === 0) {
+                  wx.showToast({
+                    title: `${childName} 已删除`,
+                    icon: 'success'
+                  });
+                  this.loadPageData();
+                } else {
+                  wx.showToast({
+                    title: forceResult.msg || '删除失败',
+                    icon: 'none'
+                  });
+                }
+              } catch (error) {
+                wx.hideLoading();
+                wx.showToast({
+                  title: '删除失败',
+                  icon: 'none'
+                });
+              }
+            }
+          }
+        });
+      } else {
+        wx.showToast({
+          title: result.msg || '删除失败',
+          icon: 'none'
+        });
+      }
       
     } catch (error) {
       wx.hideLoading();

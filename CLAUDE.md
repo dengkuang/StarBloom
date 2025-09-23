@@ -308,3 +308,4 @@ The system uses optimized indexes for performance:
 - Target file size: under 1MB
 - Uses Pillow library for lossless compression
 - Run with: `python simple_png_compressor.py`
+

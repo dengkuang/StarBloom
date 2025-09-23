@@ -131,9 +131,10 @@
     </view>
 
     <!-- 加载更多 -->
-    <view class="load-more" wx:if="{{hasMore && pointRecords.length > 0}}">
-      <text wx:if="{{loading}}">加载中...</text>
-      <text wx:else>上拉加载更多</text>
+    <view class="load-more" wx:if="{{pointRecords.length > 0}}">
+      <text wx:if="{{loadingMore}}">加载中...</text>
+      <text wx:elif="{{hasMore}}">上拉加载更多</text>
+      <text wx:else>没有更多数据了</text>
     </view>
   </view>
 

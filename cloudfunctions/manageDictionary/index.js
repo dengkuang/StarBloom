@@ -1,5 +1,6 @@
 // 字典管理云函数
 const cloud = require('wx-server-sdk')
+
 cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV
 })
@@ -7,110 +8,172 @@ cloud.init({
 const db = cloud.database()
 
 exports.main = async (event, context) => {
-  const wxContext = cloud.getWXContext()
-  const { action, data } = event
-  
+  const { action, category, data } = event
+
   try {
     switch (action) {
-      case 'list':
-        return await getDictionaryList(data)
-      case 'create':
-        return await createDictionary(data)
+      case 'getByCategory':
+        return await getByCategory(category)
+      case 'getAllCategories':
+        return await getAllCategories()
+      case 'batchGet':
+        return await batchGet(event.categories)
+      case 'add':
+        return await addDictionary(data)
       case 'update':
-        return await updateDictionary(data)
+        return await updateDictionary(event.id, data)
       case 'delete':
-        return await deleteDictionary(data)
+        return await deleteDictionary(event.id)
       default:
-        return { code: -1, message: '未知操作' }
+        return { code: -1, message: '不支持的操作' }
     }
   } catch (error) {
-    console.error('manageDictionary error:', error)
-    return { code: -1, message: '系统错误，请稍后重试' }
+    console.error('字典管理操作失败:', error)
+    return { code: -1, message: error.message }
   }
 }
 
-async function getDictionaryList(filters) {
-  try {
-    let query = db.collection('dictionaries').where({
-      is_active: true
+// 根据分类获取字典项
+async function getByCategory(category) {
+  if (!category) {
+    return { code: -1, message: '分类参数不能为空' }
+  }
+
+  const result = await db.collection('dictionaries')
+    .where({ category })
+    .orderBy('code', 'asc')
+    .get()
+
+  return {
+    code: 0,
+    data: result.data,
+    message: '获取成功'
+  }
+}
+
+// 获取所有分类
+async function getAllCategories() {
+  const result = await db.collection('dictionaries')
+    .aggregate()
+    .group({
+      _id: '$category',
+      count: db.command.aggregate.sum(1)
     })
-    
-    // 应用过滤条件
-    if (filters && filters.category) {
-      query = query.where({
-        category: filters.category
-      })
-    }
-    
-    const result = await query.get()
-    
-    return { code: 0, message: 'success', data: result.data }
-  } catch (error) {
-    console.error('getDictionaryList error:', error)
-    return { code: -1, message: '获取字典列表失败' }
+    .end()
+
+  return {
+    code: 0,
+    data: result.list.map(item => ({
+      category: item._id,
+      count: item.count
+    })),
+    message: '获取成功'
   }
 }
 
-async function createDictionary(data) {
-  try {
-    const dictData = {
-      category: data.category,
-      code: data.code,
-      name: data.name,
-      value: data.value,
-      is_active: true,
-      create_time: new Date(),
-      update_time: new Date()
-    }
-    
-    const result = await db.collection('dictionaries').add({
-      data: dictData
+// 批量获取多个分类的字典项
+async function batchGet(categories) {
+  if (!Array.isArray(categories) || categories.length === 0) {
+    return { code: -1, message: '分类列表不能为空' }
+  }
+
+  const result = await db.collection('dictionaries')
+    .where({
+      category: db.command.in(categories)
     })
-    
-    dictData._id = result._id
-    return { code: 0, message: '创建成功', data: dictData }
-  } catch (error) {
-    console.error('createDictionary error:', error)
-    return { code: -1, message: '创建字典失败' }
+    .orderBy('category', 'asc')
+    .orderBy('code', 'asc')
+    .get()
+
+  // 按分类分组
+  const groupedData = {}
+  result.data.forEach(item => {
+    if (!groupedData[item.category]) {
+      groupedData[item.category] = []
+    }
+    groupedData[item.category].push(item)
+  })
+
+  return {
+    code: 0,
+    data: groupedData,
+    message: '获取成功'
   }
 }
 
-async function updateDictionary(data) {
-  try {
-    // 更新字典信息
-    const updateData = {
-      category: data.category,
-      code: data.code,
-      name: data.name,
-      value: data.value,
-      is_active: data.is_active,
-      update_time: new Date()
+// 添加字典项
+async function addDictionary(data) {
+  const { category, code, name, value, sort_order = 0 } = data
+
+  if (!category || !code || !name) {
+    return { code: -1, message: '分类、代码和名称不能为空' }
+  }
+
+  // 检查是否已存在
+  const existResult = await db.collection('dictionaries')
+    .where({ category, code })
+    .get()
+
+  if (existResult.data.length > 0) {
+    return { code: -1, message: '该分类下已存在相同代码的字典项' }
+  }
+
+  const result = await db.collection('dictionaries').add({
+    data: {
+      category,
+      code,
+      name,
+      value: value || code,
+      sort_order,
+      createTime: new Date(),
+      updateTime: new Date()
     }
-    
-    await db.collection('dictionaries').doc(data._id).update({
+  })
+
+  return {
+    code: 0,
+    data: { _id: result._id },
+    message: '添加成功'
+  }
+}
+
+// 更新字典项
+async function updateDictionary(id, data) {
+  if (!id) {
+    return { code: -1, message: 'ID不能为空' }
+  }
+
+  const updateData = {
+    ...data,
+    updateTime: new Date()
+  }
+
+  const result = await db.collection('dictionaries')
+    .doc(id)
+    .update({
       data: updateData
     })
-    
-    return { code: 0, message: '更新成功' }
-  } catch (error) {
-    console.error('updateDictionary error:', error)
-    return { code: -1, message: '更新字典失败' }
+
+  return {
+    code: 0,
+    data: result,
+    message: '更新成功'
   }
 }
 
-async function deleteDictionary(data) {
-  try {
-    // 软删除字典（设置为非激活状态）
-    await db.collection('dictionaries').doc(data._id).update({
-      data: {
-        is_active: false,
-        update_time: new Date()
-      }
-    })
-    
-    return { code: 0, message: '删除成功' }
-  } catch (error) {
-    console.error('deleteDictionary error:', error)
-    return { code: -1, message: '删除字典失败' }
+// 删除字典项
+async function deleteDictionary(id) {
+  if (!id) {
+    return { code: -1, message: 'ID不能为空' }
+  }
+
+  const result = await db.collection('dictionaries')
+    .doc(id)
+    .remove()
+
+  return {
+    code: 0,
+    data: result,
+    message: '删除成功'
   }
 }

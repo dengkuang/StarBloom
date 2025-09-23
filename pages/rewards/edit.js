@@ -1,6 +1,7 @@
 // pages/rewards/edit.js
 // 编辑奖励页面逻辑
 const { rewardsApi } = require('../../utils/api-services.js');
+const dictionaryManager = require('../../utils/dictionary-manager.js');
 
 Page({
   data: {
@@ -13,22 +14,18 @@ Page({
     
     // 选项数据
     options: {
-      //奖励类型：physical/privilege/experience/virtual/charity
-     rewardTypes:[
-      {value:'physical',label:'实物'},
-      {value:'privilege',label:'特权'},
-      {value:'experience',label:'体验'},
-      {value:'virtual',label:'虚拟'},
-      {value:'charity',label:'公益'}
-    ],
+      rewardTypes: []
     },
     
     // 表单验证
     errors: {}
   },
 
-  onLoad: function(options) {
+  onLoad: async function(options) {
     console.log('编辑奖励页面加载，参数:', options);
+    
+    // 加载奖励类型字典
+    await this.loadRewardTypes();
     
     if (options.rewardId) {
       this.setData({ rewardId: options.rewardId });
@@ -58,6 +55,28 @@ Page({
       setTimeout(() => {
         wx.navigateBack();
       }, 1500);
+    }
+  },
+
+  // 加载奖励类型字典
+  loadRewardTypes: async function() {
+    try {
+      const rewardTypes = await dictionaryManager.getRewardTypeOptions();
+      this.setData({
+        'options.rewardTypes': rewardTypes
+      });
+    } catch (error) {
+      console.error('加载奖励类型失败:', error);
+      // 使用默认值
+      this.setData({
+        'options.rewardTypes': [
+          {value: 'physical', label: '实物奖励'},
+          {value: 'privilege', label: '特权奖励'},
+          {value: 'experience', label: '体验奖励'},
+          {value: 'virtual', label: '虚拟奖励'},
+          {value: 'charity', label: '公益奖励'}
+        ]
+      });
     }
   },
 

@@ -44,6 +44,8 @@ exports.main = async (event, context) => {
     switch (action) {
       case 'list':
         return await getChildrenList(wxContext.OPENID)
+      case 'getById':
+        return await getChildById(wxContext.OPENID, data)
       case 'create':
         return await createChild(wxContext.OPENID, data)
       case 'update':
@@ -74,6 +76,28 @@ async function getChildrenList(parentId) {
   } catch (error) {
     console.error('getChildrenList error:', error)
     return { code: -1, msg: '获取儿童列表失败' }
+  }
+}
+
+async function getChildById(parentId, childId) {
+  try {
+    // 验证权限：确保孩子属于当前家长
+    const result = await db.collection('children').where({
+      _id: childId,
+      parentId: parentId
+    }).get()
+    
+    if (result.data.length === 0) {
+      return { code: -1, msg: '儿童不存在或权限不足' }
+    }
+    
+    // 为孩子计算年龄
+    const childWithAge = addCalculatedAge(result.data[0]);
+    
+    return { code: 0, msg: 'success', data: childWithAge }
+  } catch (error) {
+    console.error('getChildById error:', error)
+    return { code: -1, msg: '获取儿童信息失败' }
   }
 }
 
@@ -161,9 +185,11 @@ async function updateChild(parentId, data) {
 
 async function deleteChild(parentId, data) {
   try {
+    const childId = data._id || data.childId || data
+    
     // 验证权限
     const childResult = await db.collection('children').where({
-      _id: data._id,
+      _id: childId,
       parentId: parentId
     }).get()
     
@@ -171,13 +197,91 @@ async function deleteChild(parentId, data) {
       return { code: -1, msg: '权限不足或儿童不存在' }
     }
     
-    // 删除儿童信息
-    await db.collection('children').doc(data._id).remove()
+    const child = childResult.data[0]
     
-    return { code: 0, msg: '删除成功' }
+    // 检查是否有关联数据
+    const [taskRecords, pointRecords, exchangeRecords] = await Promise.all([
+      db.collection('task_completion_records').where({ childId: childId }).count(),
+      db.collection('point_records').where({ childId: childId }).count(),
+      db.collection('exchange_records').where({ childId: childId }).count()
+    ])
+    
+    const hasRelatedData = taskRecords.total > 0 || pointRecords.total > 0 || exchangeRecords.total > 0
+    
+    if (hasRelatedData) {
+      // 如果有关联数据，询问是否强制删除
+      if (!data.forceDelete) {
+        return { 
+          code: 1, 
+          msg: '该儿童有相关记录数据，确定要删除吗？', 
+          data: {
+            childName: child.name,
+            relatedData: {
+              taskRecords: taskRecords.total,
+              pointRecords: pointRecords.total,
+              exchangeRecords: exchangeRecords.total
+            },
+            needConfirm: true
+          }
+        }
+      }
+      
+      // 强制删除时，清理所有相关数据
+      const deletePromises = []
+      
+      if (taskRecords.total > 0) {
+        deletePromises.push(
+          db.collection('task_completion_records').where({ childId: childId }).remove()
+        )
+      }
+      
+      if (pointRecords.total > 0) {
+        deletePromises.push(
+          db.collection('point_records').where({ childId: childId }).remove()
+        )
+      }
+      
+      if (exchangeRecords.total > 0) {
+        deletePromises.push(
+          db.collection('exchange_records').where({ childId: childId }).remove()
+        )
+      }
+      
+      // 同时删除任务中对该孩子的分配
+      deletePromises.push(
+        db.collection('tasks').where({
+          parentId: parentId,
+          childIds: db.command.in([childId])
+        }).update({
+          data: {
+            childIds: db.command.pull(childId),
+            updateTime: new Date()
+          }
+        })
+      )
+      
+      // 执行所有删除操作
+      await Promise.all(deletePromises)
+    }
+    
+    // 删除儿童信息
+    await db.collection('children').doc(childId).remove()
+    
+    return { 
+      code: 0, 
+      msg: '删除成功', 
+      data: {
+        deletedChild: child.name,
+        cleanedRecords: hasRelatedData ? {
+          taskRecords: taskRecords.total,
+          pointRecords: pointRecords.total,
+          exchangeRecords: exchangeRecords.total
+        } : null
+      }
+    }
   } catch (error) {
     console.error('deleteChild error:', error)
-    return { code: -1, msg: '删除儿童信息失败' }
+    return { code: -1, msg: '删除儿童信息失败: ' + error.message }
   }
 }
 

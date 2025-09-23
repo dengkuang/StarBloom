@@ -1,6 +1,7 @@
 // pages/template-editor/template-editor.js
 // 模板编辑器页面逻辑
 const { templatesApi, dictionaryApi } = require('../../utils/api-services.js')
+const dictionaryManager = require('../../utils/dictionary-manager.js')
 
 Page({
   data: {
@@ -132,25 +133,40 @@ Page({
   // 加载字典数据
   async loadDictionaryData() {
     try {
-      const [taskTypesResult, cycleTypesResult, rewardTypesResult] = await Promise.all([
-        dictionaryApi.getByCategory('task_type'),
-        dictionaryApi.getByCategory('cycle_type'),
-        dictionaryApi.getByCategory('reward_type')
+      // 使用字典管理器加载数据
+      const [taskTypes, cycleTypes, rewardTypes] = await Promise.all([
+        dictionaryManager.getTaskTypeOptions(),
+        dictionaryManager.getCycleTypeOptions(),
+        dictionaryManager.getRewardTypeOptions()
       ])
 
-      if (taskTypesResult.code === 0) {
-        this.setData({ taskTypes: taskTypesResult.data || [] })
-      }
-
-      if (cycleTypesResult.code === 0) {
-        this.setData({ cycleTypes: cycleTypesResult.data || [] })
-      }
-
-      if (rewardTypesResult.code === 0) {
-        this.setData({ rewardTypes: rewardTypesResult.data || [] })
-      }
+      this.setData({ 
+        taskTypes: taskTypes || [],
+        cycleTypes: cycleTypes || [],
+        rewardTypes: rewardTypes || []
+      })
     } catch (error) {
       console.error('加载字典数据失败:', error)
+      // 使用默认值作为后备
+      this.setData({
+        taskTypes: [
+          { value: 'daily', label: '每日任务' },
+          { value: 'weekly', label: '每周任务' },
+          { value: 'monthly', label: '每月任务' }
+        ],
+        cycleTypes: [
+          { value: 'daily', label: '每日' },
+          { value: 'weekly', label: '每周' },
+          { value: 'monthly', label: '每月' }
+        ],
+        rewardTypes: [
+          { value: 'physical', label: '实物奖励' },
+          { value: 'privilege', label: '特权奖励' },
+          { value: 'experience', label: '体验奖励' },
+          { value: 'virtual', label: '虚拟奖励' },
+          { value: 'charity', label: '公益奖励' }
+        ]
+      })
     }
   },
 
