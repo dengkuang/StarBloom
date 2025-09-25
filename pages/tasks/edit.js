@@ -71,6 +71,9 @@ Page({
       '分享', '合作', '创新', '思考', '耐心', '勇敢'
     ],
     
+    // 习惯标签显示数据（包含选中状态）
+    habitTagsDisplay: [],
+    
     // 表单验证
     errors: {},
     
@@ -121,6 +124,9 @@ Page({
       
     });
 
+    // 更新习惯标签显示状态
+    this.updateHabitTagsDisplay();
+
     // 如果有孩子ID，加载孩子信息
     if (taskData.childId) {
       this.loadChildInfo(taskData.childId);
@@ -141,6 +147,18 @@ Page({
       [`errors.${field}`]: '', // 清除错误信息
       hasChanges: true
     });
+  },
+
+  // Textarea 焦点事件处理（官方推荐）
+  onTextareaFocus: function(e) {
+    console.log('Textarea focused:', e.detail);
+    // 可以在这里处理焦点获得时的逻辑
+  },
+
+  // Textarea 失焦事件处理（官方推荐）
+  onTextareaBlur: function(e) {
+    console.log('Textarea blurred:', e.detail);
+    // 可以在这里处理失焦时的逻辑，比如保存草稿
   },
 
   // 选择器变化处理
@@ -182,6 +200,19 @@ Page({
     });
   },
 
+  // 更新习惯标签显示数据
+  updateHabitTagsDisplay: function() {
+    const selectedTags = this.data.formData.habitTags || [];
+    const habitTagsDisplay = this.data.commonHabitTags.map(tag => ({
+      name: tag,
+      selected: selectedTags.includes(tag)
+    }));
+    
+    this.setData({
+      habitTagsDisplay: habitTagsDisplay
+    });
+  },
+
   // 习惯标签切换
   onHabitTagToggle: function(e) {
     const { tag } = e.currentTarget.dataset;
@@ -203,6 +234,9 @@ Page({
       'formData.habitTags': habitTags,
       hasChanges: true
     });
+    
+    // 更新显示状态
+    this.updateHabitTagsDisplay();
   },
 
   // 表单验证

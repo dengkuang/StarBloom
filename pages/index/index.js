@@ -243,11 +243,18 @@ Page({
   // 删除任务
   onDeleteTask: async function(e) {
     const taskId = e.detail.taskId;
+    const currentChild = this.data.currentChild;
+    
+    if (!currentChild || !currentChild._id) {
+      wx.showToast({ title: '请先选择孩子', icon: 'none' });
+      return;
+    }
+    
     try {
       wx.showLoading({ title: '删除中...' });
-      const result = await tasksApi.delete(taskId);
+      const result = await tasksApi.delete(taskId, currentChild._id);
       if (result.code === 0) {
-        wx.showToast({ title: '删除成功', icon: 'success' });
+        wx.showToast({ title: result.msg || '删除成功', icon: 'success' });
         this.loadTasks();
       } else {
         throw new Error(result.msg);

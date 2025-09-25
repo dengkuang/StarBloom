@@ -18,6 +18,52 @@
   <!-- 表单内容 -->
   <view class="form-container">
     
+    <!-- 孩子选择 -->
+    <view class="form-section">
+      <text class="section-title">👶 选择孩子</text>
+      <text class="section-desc">选择要分配此任务的孩子（可多选）</text>
+      
+      <view class="children-selector">
+        <view 
+          wx:for="{{childrenList}}" 
+          wx:key="_id"
+          class="child-item {{item.isSelected ? 'selected' : ''}}"
+          data-child-id="{{item._id}}"
+          bindtap="onChildToggle"
+        >
+          <view class="child-info">
+            <view class="child-avatar">
+              <image 
+                wx:if="{{item.avatar}}" 
+                src="{{item.avatar}}" 
+                class="avatar-img"
+                mode="aspectFill"
+              />
+              <text wx:else class="avatar-text">{{item.name.charAt(0)}}</text>
+            </view>
+            <view class="child-details">
+              <text class="child-name">{{item.name}}</text>
+              <text class="child-age">{{item.age}}岁</text>
+              <text class="child-points">积分: {{item.totalPoints || 0}}</text>
+            </view>
+          </view>
+          <view class="child-checkbox">
+            <view class="checkbox {{item.isSelected ? 'checked' : ''}}">
+              <text class="checkbox-icon" wx:if="{{item.isSelected}}">✓</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="selected-children-info" wx:if="{{formData.selectedChildIds.length > 0}}">
+        <text class="selected-label">已选择 {{formData.selectedChildIds.length}} 个孩子</text>
+      </view>
+      
+      <view class="no-children-tip" wx:if="{{childrenList.length === 0}}">
+        <text class="tip-text">暂无孩子信息，请先添加孩子</text>
+      </view>
+    </view>
+    
     <!-- 基本信息 -->
     <view class="form-section">
       <text class="section-title">📝 基本信息</text>
@@ -79,10 +125,7 @@
           bindchange="onPickerChange"
         >
           <view class="picker-display">
-            <text class="picker-text">
-              {{options.difficulties[formData.difficulty === 'easy' ? 0 : (formData.difficulty === 'medium' ? 1 : 2)].stars}} 
-              {{options.difficulties[formData.difficulty === 'easy' ? 0 : (formData.difficulty === 'medium' ? 1 : 2)].label}}
-            </text>
+            <text class="picker-text">{{currentDifficultyText}}</text>
             <text class="picker-arrow">></text>
           </view>
         </picker>
@@ -100,15 +143,27 @@
           bindchange="onPickerChange"
         >
           <view class="picker-display">
-            <text class="picker-text">
-              {{formData.emoji}} 
-              <block wx:for="{{options.categories}}" wx:key="value">
-                <block wx:if="{{item.value === formData.category}}">{{item.label}}</block>
-              </block>
-            </text>
+            <text class="picker-text">{{formData.emoji}} {{currentCategoryText}}</text>
             <text class="picker-arrow">></text>
           </view>
         </picker>
+      </view>
+      
+      <!-- 任务图标 -->
+      <view class="form-item">
+        <text class="form-label">任务图标</text>
+        <view class="emoji-selector">
+          <view 
+            wx:for="{{options.emojis}}" 
+            wx:key="index"
+            class="emoji-item {{formData.emoji === item ? 'selected' : ''}}"
+            data-emoji="{{item}}"
+            bindtap="onEmojiSelect"
+          >
+            {{item}}
+          </view>
+        </view>
+        <text class="form-hint">选择一个代表任务的图标</text>
       </view>
       
       <!-- 任务类型 -->
@@ -123,11 +178,7 @@
           bindchange="onPickerChange"
         >
           <view class="picker-display">
-            <text class="picker-text">
-              <block wx:for="{{options.taskTypes}}" wx:key="value">
-                <block wx:if="{{item.value === formData.taskType}}">{{item.label}}</block>
-              </block>
-            </text>
+            <text class="picker-text">{{currentTaskTypeText}}</text>
             <text class="picker-arrow">></text>
           </view>
         </picker>
@@ -145,11 +196,25 @@
           bindchange="onPickerChange"
         >
           <view class="picker-display">
-            <text class="picker-text">
-              <block wx:for="{{options.ageGroups}}" wx:key="value">
-                <block wx:if="{{item.value === formData.ageGroup}}">{{item.label}}</block>
-              </block>
-            </text>
+            <text class="picker-text">{{currentAgeGroupText}}</text>
+            <text class="picker-arrow">></text>
+          </view>
+        </picker>
+      </view>
+      
+      <!-- 任务周期 -->
+      <view class="form-item">
+        <text class="form-label">任务周期</text>
+        <picker 
+          class="form-picker"
+          mode="selector"
+          range="{{options.cycleTypes}}"
+          range-key="label"
+          data-field="cycleType"
+          bindchange="onPickerChange"
+        >
+          <view class="picker-display">
+            <text class="picker-text">{{currentCycleTypeText}}</text>
             <text class="picker-arrow">></text>
           </view>
         </picker>
@@ -163,13 +228,13 @@
       
       <view class="habit-tags-container">
         <view 
-          wx:for="{{commonHabitTags}}" 
+          wx:for="{{habitTagsDisplay}}" 
           wx:key="index"
-          class="habit-tag {{formData.habitTags.indexOf(item) > -1 ? 'selected' : ''}}"
-          data-tag="{{item}}"
+          class="habit-tag {{item.selected ? 'selected' : ''}}"
+          data-tag="{{item.name}}"
           bindtap="onHabitTagToggle"
         >
-          {{item}}
+          {{item.name}}
         </view>
       </view>
       

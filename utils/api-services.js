@@ -109,8 +109,8 @@ const tasksApi = {
   /**
    * 删除任务
    */
-  async delete(id) {
-    return await apiClient.callFunction('manageTasks', { action: 'delete', id });
+  async delete(taskId, childId) {
+    return await apiClient.callFunction('manageTasks', { action: 'delete', data: { taskId, childId } });
   },
 
   /**

@@ -168,12 +168,24 @@ async function getMyTasks(parentId, data) {
 
 async function createTask(parentId, data) {
   try {
+    // 调试日志：检查接收到的数据
+    console.log('🔍 [云函数DEBUG] 接收到的原始数据:', data);
+    console.log('🔍 [云函数DEBUG] data.childIds:', data.childIds);
+    console.log('🔍 [云函数DEBUG] childIds类型:', typeof data.childIds);
+    console.log('🔍 [云函数DEBUG] childIds长度:', data.childIds ? data.childIds.length : 'undefined');
+    
     const taskData = {
       name: data.name,
       description: data.description || '',
       points: data.points || 0,
+      difficulty: data.difficulty || 'easy',
+      category: data.category || 'study',
       taskType: data.taskType || 'daily',
       cycleType: data.cycleType || 'daily',
+      ageGroup: data.ageGroup || 'primary',
+      tips: data.tips || '',
+      habitTags: data.habitTags || [],
+      emoji: data.emoji || '📚',
       status: data.status || 'active',
       parentId: parentId,
       childIds: data.childIds || [],
@@ -181,11 +193,19 @@ async function createTask(parentId, data) {
       updateTime: new Date()
     }
     
+    // 调试日志：检查最终保存的数据
+    console.log('🔍 [云函数DEBUG] 最终保存的taskData:', taskData);
+    console.log('🔍 [云函数DEBUG] 最终childIds:', taskData.childIds);
+    
     const result = await db.collection('tasks').add({
       data: taskData
     })
     
     taskData._id = result._id
+    
+    // 调试日志：检查保存结果
+    console.log('🔍 [云函数DEBUG] 保存成功，返回数据:', taskData);
+    
     return { code: 0, msg: '创建成功', data: taskData }
   } catch (error) {
     console.error('createTask error:', error)
@@ -210,8 +230,14 @@ async function updateTask(parentId, data) {
       name: data.name,
       description: data.description,
       points: data.points,
+      difficulty: data.difficulty,
+      category: data.category,
       taskType: data.taskType,
       cycleType: data.cycleType,
+      ageGroup: data.ageGroup,
+      tips: data.tips,
+      habitTags: data.habitTags,
+      emoji: data.emoji,
       status: data.status,
       childIds: data.childIds,
       updateTime: new Date()
@@ -230,9 +256,19 @@ async function updateTask(parentId, data) {
 
 async function deleteTask(parentId, data) {
   try {
-    // 验证权限
+    console.log('=== 开始删除任务 ===')
+    console.log('收到参数:', { parentId, data })
+    
+    const { taskId, childId } = data
+    
+    if (!taskId || !childId) {
+      console.error('缺少必需参数:', { taskId, childId })
+      return { code: -1, msg: '参数错误：缺少任务ID或儿童ID' }
+    }
+    
+    // 验证权限并获取任务信息
     const taskResult = await db.collection('tasks').where({
-      _id: data._id,
+      _id: taskId,
       parentId: parentId
     }).get()
     
@@ -240,13 +276,52 @@ async function deleteTask(parentId, data) {
       return { code: -1, msg: '权限不足或任务不存在' }
     }
     
-    // 删除任务
-    await db.collection('tasks').doc(data._id).remove()
+    const task = taskResult.data[0]
+    const childIds = task.childIds || []
     
-    return { code: 0, msg: '删除成功' }
+    console.log('任务信息:', { taskId, childIds, targetChildId: childId })
+    
+    // 检查任务是否分配给该孩子
+    if (!childIds.includes(childId)) {
+      return { code: -1, msg: '该任务未分配给指定孩子，删除失败' }
+    }
+    
+    // 如果只有一个孩子且是要删除的孩子，删除整个任务
+    if (childIds.length === 1 && childIds[0] === childId) {
+      console.log('删除整个任务，因为只分配给一个孩子')
+      
+      // 删除任务（保留完成记录，因为孩子已经获得了积分）
+      await db.collection('tasks').doc(taskId).remove()
+      
+      return { code: 0, msg: '任务删除成功' }
+    }
+    
+    // 如果有多个孩子，仅从childIds中移除该孩子
+    if (childIds.length > 1) {
+      console.log('从任务中移除指定孩子')
+      
+      const updatedChildIds = childIds.filter(id => id !== childId)
+      console.log('新的childIds:', updatedChildIds)
+      // 更新任务的childIds
+      await db.collection('tasks').doc(taskId).update({
+        data: {
+          childIds: updatedChildIds,
+          updateTime: db.serverDate()
+        }
+      })
+      
+      // 保留该孩子的完成记录，因为已经获得的积分不应该被取消
+      console.log('保留完成记录，孩子已获得的积分不会被取消')
+      
+      return { code: 0, msg: '已从任务中移除该孩子，已获得积分保留' }
+    }
+    
+    // 理论上不会到达这里，但作为保险
+    return { code: -1, msg: '删除操作失败，未知错误' }
+    
   } catch (error) {
     console.error('deleteTask error:', error)
-    return { code: -1, msg: '删除任务失败' }
+    return { code: -1, msg: '删除任务失败: ' + error.message }
   }
 }
 

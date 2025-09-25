@@ -49,6 +49,15 @@
           maxlength="100"
           data-field="description"
           bindinput="onInputChange"
+          auto-height="{{true}}"
+          cursor-spacing="20"
+          adjust-position="{{true}}"
+          hold-keyboard="{{false}}"
+          disable-default-padding="{{false}}"
+          show-confirm-bar="{{true}}"
+          confirm-type="done"
+          bindfocus="onTextareaFocus"
+          bindblur="onTextareaBlur"
         ></textarea>
         <text class="error-text" wx:if="{{errors.description}}">{{errors.description}}</text>
       </view>
@@ -166,13 +175,13 @@
       
       <view class="habit-tags-container">
         <view 
-          wx:for="{{commonHabitTags}}" 
+          wx:for="{{habitTagsDisplay}}" 
           wx:key="index"
-          class="habit-tag {{formData.habitTags.indexOf(item) > -1 ? 'selected' : ''}}"
-          data-tag="{{item}}"
+          class="habit-tag {{item.selected ? 'selected' : ''}}"
+          data-tag="{{item.name}}"
           bindtap="onHabitTagToggle"
         >
-          {{item}}
+          {{item.name}}
         </view>
       </view>
       
@@ -195,6 +204,15 @@
           maxlength="200"
           data-field="tips"
           bindinput="onInputChange"
+          auto-height="{{true}}"
+          cursor-spacing="20"
+          adjust-position="{{true}}"
+          hold-keyboard="{{false}}"
+          disable-default-padding="{{false}}"
+          show-confirm-bar="{{true}}"
+          confirm-type="done"
+          bindfocus="onTextareaFocus"
+          bindblur="onTextareaBlur"
         ></textarea>
       </view>
     </view>

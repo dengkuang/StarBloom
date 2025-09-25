@@ -1,5 +1,7 @@
 // components/task-item/task-item.js
 // 优化后的任务项组件逻辑
+const { TaskCategoriesUtils } = require('../../utils/task-categories-config.js');
+
 Component({
   options: {
     addGlobalClass: true
@@ -117,63 +119,27 @@ Component({
     
     // 获取难度星级
     getDifficultyStars(difficulty) {
-      const starsMap = {
-        'easy': '⭐',
-        'medium': '⭐⭐',
-        'hard': '⭐⭐⭐'
-      };
-      return starsMap[difficulty] || '⭐';
+      return TaskCategoriesUtils.getDifficultyStars(difficulty);
     },
     
     // 获取难度文本
     getDifficultyText(difficulty) {
-      const textMap = {
-        'easy': '简单',
-        'medium': '中等',
-        'hard': '困难'
-      };
-      return textMap[difficulty] || '未知';
+      return TaskCategoriesUtils.getDifficultyText(difficulty);
     },
     
     // 获取任务类型文本
     getTaskTypeText(taskType) {
-      const textMap = {
-        'daily': '每日',
-        'weekly': '每周',
-        'monthly': '每月',
-        'once': '一次性'
-      };
-      return textMap[taskType] || taskType;
+      return TaskCategoriesUtils.getTaskTypeText(taskType);
     },
     
     // 获取类别文本
     getCategoryText(category) {
-      const textMap = {
-        'study': '学习',
-        'life': '生活',
-        'sport': '运动',
-        'health': '健康',
-        'social': '社交',
-        'creative': '创意',
-        'reading': '阅读',
-        'music': '音乐',
-        'organization':'整理',
-        'housework':'家务',
-        'skill':'技能',
-        'financial':'理财'
-      };
-      return textMap[category] || category;
+      return TaskCategoriesUtils.getCategoryText(category);
     },
     
     // 获取年龄组文本
     getAgeGroupText(ageGroup) {
-      const textMap = {
-        'preschool': '学前(3-6岁)',
-        'primary': '小学(6-12岁)',
-        'middle': '中学(12-15岁)',
-        'high': '高中(15-18岁)'
-      };
-      return textMap[ageGroup] || ageGroup;
+      return TaskCategoriesUtils.getAgeGroupText(ageGroup);
     },
     
     // 获取周期类型文本
@@ -184,7 +150,7 @@ Component({
         'monthly': '每月',
         'custom': '自定义'
       };
-      return textMap[cycleType] || cycleType;
+      return textMap[cycleType] || cycleType || '未设置';
     },
     
     // 格式化完成时间

@@ -111,7 +111,8 @@
 .form-input:focus, .form-textarea:focus {
   border-color: #667eea;
   background: white;
-  box-shadow: 0 0 0 6rpx rgba(102, 126, 234, 0.1);
+  /* 移除可能导致闪烁的 box-shadow */
+  /* box-shadow: 0 0 0 6rpx rgba(102, 126, 234, 0.1); */
 }
 
 .form-input.error, .form-textarea.error {
@@ -122,6 +123,9 @@
 .form-textarea {
   min-height: 120rpx;
   resize: none;
+  /* 确保在小程序中的兼容性 */
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .error-text {
@@ -266,6 +270,182 @@
   font-size: 24rpx;
   color: #667eea;
   font-weight: bold;
+}
+
+/* Emoji选择器 */
+.emoji-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.emoji-item {
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border: 2rpx solid #e9ecef;
+  border-radius: 16rpx;
+  font-size: 36rpx;
+  transition: all 0.3s ease;
+}
+
+.emoji-item.selected {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-color: #667eea;
+  transform: scale(1.1);
+  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.3);
+}
+
+.emoji-item:active {
+  transform: scale(0.95);
+}
+
+/* 孩子选择器 */
+.children-selector {
+  margin-top: 16rpx;
+}
+
+.child-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx;
+  background: #f8f9fa;
+  border: 2rpx solid #e9ecef;
+  border-radius: 16rpx;
+  margin-bottom: 16rpx;
+  transition: all 0.3s ease;
+}
+
+.child-item.selected {
+  background: rgba(102, 126, 234, 0.1);
+  border-color: #667eea;
+  transform: translateY(-2rpx);
+  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.2);
+}
+
+.child-item:active {
+  transform: scale(0.98);
+}
+
+.child-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.child-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.avatar-text {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: white;
+}
+
+.child-details {
+  flex: 1;
+}
+
+.child-name {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4rpx;
+}
+
+.child-age {
+  display: block;
+  font-size: 22rpx;
+  color: #6c757d;
+  margin-bottom: 2rpx;
+}
+
+.child-points {
+  display: block;
+  font-size: 22rpx;
+  color: #28a745;
+  font-weight: 500;
+}
+
+.child-checkbox {
+  margin-left: 16rpx;
+}
+
+.checkbox {
+  width: 40rpx;
+  height: 40rpx;
+  border: 3rpx solid #e9ecef;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.checkbox.checked {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-color: #667eea;
+}
+
+.checkbox-icon {
+  font-size: 24rpx;
+  color: white;
+  font-weight: bold;
+}
+
+.selected-children-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16rpx;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 12rpx;
+  margin-top: 16rpx;
+}
+
+.selected-label {
+  font-size: 24rpx;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.no-children-tip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+  background: rgba(255, 193, 7, 0.1);
+  border-radius: 16rpx;
+  border: 2rpx dashed #ffc107;
+}
+
+.tip-text {
+  font-size: 26rpx;
+  color: #856404;
+  text-align: center;
 }
 
 /* 底部操作栏 */

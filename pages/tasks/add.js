@@ -7,14 +7,15 @@ Page({
     loading: false,
     childId: '',
     childInfo: null,
+    childrenList: [],           // 所有孩子列表
     
     // 任务表单数据
     formData: {
-      status: "string",           // 状态：active/inactive
-      childIds: "array",          // 分配的儿童ID列表
+      status: "active",           // 状态：active/inactive
+      selectedChildIds: [],       // 选中的儿童ID列表
       name: '',
       description: '',
-      points: 0,
+      points: 10,
       difficulty: 'easy',
       category: 'study',
       taskType: 'daily',
@@ -63,30 +64,106 @@ Page({
         { value: 'primary', label: '小学(6-12岁)' },
         { value: 'middle', label: '中学(12-15岁)' },
         { value: 'high', label: '高中(15-18岁)' }
+      ],
+      emojis: [
+        '📚', '🏠', '⚽', '💪', '👥', '🎨', '📖', '🎵',
+        '📋', '🧹', '🛠️', '💰', '🍎', '🌟', '🎯', '🏆',
+        '⏰', '🎪', '🌈', '🚀', '💡', '🎁', '🌸', '🦋'
       ]
     },
     
-    // 常用习惯标签
+    // 常用习惯标签（与项目模板保持一致）
     commonHabitTags: [
-      '坚持', '专注', '独立', '整洁', '守时', '礼貌', 
-      '分享', '合作', '创新', '思考', '耐心', '勇敢'
+      // 基础生活习惯
+      '卫生', '自理', '整理', '独立', '健康', '作息',
+      // 学习相关
+      '学习', '阅读', '书写', '练习', '知识', '专注', '自律',
+      // 品格培养  
+      '责任感', '礼貌', '分享', '友善', '关爱', '理财', '规划',
+      // 社交协作
+      '社交', '协作', '友谊', '亲子',
+      // 技能发展
+      '技能', '艺术', '创意', '运动',
+      // 其他
+      '准备', '游戏', '认可', '成就'
     ],
     
+    // 习惯标签显示数据（包含选中状态）
+    habitTagsDisplay: [],
+    
     // 表单验证
-    errors: {}
+    errors: {},
+    
+    // 计算属性 - 当前选中项的显示文本
+    currentDifficultyText: '⭐ 简单',
+    currentCategoryText: '学习',
+    currentTaskTypeText: '每日任务',
+    currentAgeGroupText: '小学(6-12岁)',
+    currentCycleTypeText: '每天'
   },
 
   onLoad: function (options) {
     const childId = options.childId;
-    if (childId) {
-      this.setData({ childId });
-      this.loadChildInfo(childId);
-    } else {
-      wx.showToast({ title: '缺少孩子信息', icon: 'none' });
-      setTimeout(() => {
-        wx.navigateBack();
-      }, 1500);
+    
+    // 初始化计算属性
+    this.updateComputedTexts();
+    
+    // 初始化习惯标签显示数据
+    this.updateHabitTagsDisplay();
+    
+    // 加载所有孩子列表
+    this.loadChildrenList().then(() => {
+      // 如果传入了特定孩子ID，则默认选中该孩子
+      if (childId) {
+        this.setData({ 
+          childId,
+          'formData.selectedChildIds': [childId]
+        });
+        this.updateChildrenSelection();
+        this.loadChildInfo(childId);
+      }
+    });
+  },
+
+  // 加载所有孩子列表
+  loadChildrenList: async function() {
+    try {
+      const result = await childrenApi.getList();
+      if (result.code === 0) {
+        // 为每个孩子添加选中状态
+        const childrenWithSelection = result.data.map(child => ({
+          ...child,
+          isSelected: false
+        }));
+        
+        this.setData({ childrenList: childrenWithSelection });
+        
+        // 如果只有一个孩子，默认选中
+        if (result.data.length === 1 && this.data.formData.selectedChildIds.length === 0) {
+          this.setData({
+            'formData.selectedChildIds': [result.data[0]._id]
+          });
+          this.updateChildrenSelection();
+        }
+        
+        return Promise.resolve();
+      }
+    } catch (error) {
+      console.error('加载孩子列表失败:', error);
+      wx.showToast({ title: '加载孩子列表失败', icon: 'none' });
+      return Promise.reject(error);
     }
+  },
+
+  // 更新孩子选择状态
+  updateChildrenSelection: function() {
+    const { childrenList, formData } = this.data;
+    const updatedChildren = childrenList.map(child => ({
+      ...child,
+      isSelected: formData.selectedChildIds.includes(child._id)
+    }));
+    
+    this.setData({ childrenList: updatedChildren });
   },
 
   // 加载孩子信息
@@ -101,6 +178,58 @@ Page({
       }
     } catch (error) {
       console.error('加载孩子信息失败:', error);
+    }
+  },
+
+  // 孩子选择切换
+  onChildToggle: function(e) {
+    const { childId } = e.currentTarget.dataset;
+    const selectedChildIds = [...this.data.formData.selectedChildIds];
+    const index = selectedChildIds.indexOf(childId);
+    
+    console.log('🔍 [DEBUG] 孩子选择切换 - childId:', childId);
+    console.log('🔍 [DEBUG] 当前选中列表:', selectedChildIds);
+    console.log('🔍 [DEBUG] 在列表中的索引:', index);
+    
+    if (index > -1) {
+      // 取消选择
+      selectedChildIds.splice(index, 1);
+      console.log('🔍 [DEBUG] 取消选择后:', selectedChildIds);
+    } else {
+      // 添加选择
+      selectedChildIds.push(childId);
+      console.log('🔍 [DEBUG] 添加选择后:', selectedChildIds);
+    }
+    
+    this.setData({
+      'formData.selectedChildIds': selectedChildIds
+    });
+    
+    console.log('🔍 [DEBUG] setData后的formData.selectedChildIds:', this.data.formData.selectedChildIds);
+    
+    // 更新孩子选择状态显示
+    this.updateChildrenSelection();
+    
+    // 如果选中了孩子，更新年龄组建议
+    if (selectedChildIds.length > 0) {
+      this.updateAgeGroupSuggestion(selectedChildIds);
+    }
+  },
+
+  // 根据选中的孩子更新年龄组建议
+  updateAgeGroupSuggestion: function(selectedChildIds) {
+    const selectedChildren = this.data.childrenList.filter(child => 
+      selectedChildIds.includes(child._id)
+    );
+    
+    if (selectedChildren.length > 0) {
+      // 取最小年龄作为建议
+      const minAge = Math.min(...selectedChildren.map(child => child.age));
+      const suggestedAgeGroup = this.getAgeGroupByAge(minAge);
+      
+      this.setData({
+        'formData.ageGroup': suggestedAgeGroup
+      });
     }
   },
 
@@ -141,6 +270,9 @@ Page({
           'formData.emoji': selectedOption.emoji
         });
       }
+      
+      // 更新计算属性
+      this.updateComputedTexts();
     }
   },
 
@@ -157,6 +289,19 @@ Page({
     
     this.setData({
       'formData.points': points
+    });
+  },
+
+  // 更新习惯标签显示数据
+  updateHabitTagsDisplay: function() {
+    const selectedTags = this.data.formData.habitTags || [];
+    const habitTagsDisplay = this.data.commonHabitTags.map(tag => ({
+      name: tag,
+      selected: selectedTags.includes(tag)
+    }));
+    
+    this.setData({
+      habitTagsDisplay: habitTagsDisplay
     });
   },
 
@@ -180,12 +325,61 @@ Page({
     this.setData({
       'formData.habitTags': habitTags
     });
+    
+    // 更新显示状态
+    this.updateHabitTagsDisplay();
+  },
+
+  // Emoji选择
+  onEmojiSelect: function(e) {
+    const { emoji } = e.currentTarget.dataset;
+    this.setData({
+      'formData.emoji': emoji
+    });
+  },
+
+  // 更新计算属性
+  updateComputedTexts: function() {
+    const { formData, options } = this.data;
+    
+    // 难度文本
+    const difficultyOption = options.difficulties.find(item => item.value === formData.difficulty);
+    const currentDifficultyText = difficultyOption ? `${difficultyOption.stars} ${difficultyOption.label}` : '⭐ 简单';
+    
+    // 类别文本
+    const categoryOption = options.categories.find(item => item.value === formData.category);
+    const currentCategoryText = categoryOption ? categoryOption.label : '学习';
+    
+    // 任务类型文本
+    const taskTypeOption = options.taskTypes.find(item => item.value === formData.taskType);
+    const currentTaskTypeText = taskTypeOption ? taskTypeOption.label : '每日任务';
+    
+    // 年龄组文本
+    const ageGroupOption = options.ageGroups.find(item => item.value === formData.ageGroup);
+    const currentAgeGroupText = ageGroupOption ? ageGroupOption.label : '小学(6-12岁)';
+    
+    // 周期类型文本
+    const cycleTypeOption = options.cycleTypes.find(item => item.value === formData.cycleType);
+    const currentCycleTypeText = cycleTypeOption ? cycleTypeOption.label : '每天';
+    
+    this.setData({
+      currentDifficultyText,
+      currentCategoryText,
+      currentTaskTypeText,
+      currentAgeGroupText,
+      currentCycleTypeText
+    });
   },
 
   // 表单验证
   validateForm: function() {
     const { formData } = this.data;
     const errors = {};
+    
+    if (formData.selectedChildIds.length === 0) {
+      wx.showToast({ title: '请至少选择一个孩子', icon: 'none' });
+      return false;
+    }
     
     if (!formData.name.trim()) {
       errors.name = '请输入任务名称';
@@ -210,28 +404,58 @@ Page({
   // 保存任务
   onSave: async function() {
     if (!this.validateForm()) {
-      wx.showToast({ title: '请检查表单信息', icon: 'none' });
       return;
     }
     
     this.setData({ loading: true });
     
     try {
+      const { formData } = this.data;
+      
+      // 调试日志：检查选中的孩子ID
+      console.log('🔍 [DEBUG] 选中的孩子ID列表:', formData.selectedChildIds);
+      console.log('🔍 [DEBUG] 选中孩子数量:', formData.selectedChildIds.length);
+      
       const taskData = {
-        ...this.data.formData,
-        childId: this.data.childId,
+        name: formData.name,
+        description: formData.description,
+        points: formData.points,
+        difficulty: formData.difficulty,
+        category: formData.category,
+        taskType: formData.taskType,
+        cycleType: formData.cycleType,
+        ageGroup: formData.ageGroup,
+        tips: formData.tips,
+        habitTags: formData.habitTags,
+        emoji: formData.emoji,
+        status: formData.status,
+        childIds: formData.selectedChildIds,  // 使用选中的孩子ID列表
         createdAt: new Date().toISOString(),
         isCompleted: false,
         completionRecord: null
       };
+      
+      // 调试日志：检查最终的任务数据
+      console.log('🔍 [DEBUG] 最终任务数据:', taskData);
+      console.log('🔍 [DEBUG] taskData.childIds:', taskData.childIds);
+      console.log('🔍 [DEBUG] taskData.childIds 是否为数组:', Array.isArray(taskData.childIds));
+      console.log('🔍 [DEBUG] JSON.stringify(taskData.childIds):', JSON.stringify(taskData.childIds));
+      
+      // 额外验证：确保childIds是数组且不为空
+      if (!Array.isArray(taskData.childIds) || taskData.childIds.length === 0) {
+        console.error('❌ [ERROR] childIds 不是有效数组或为空!');
+        wx.showToast({ title: 'childIds数据异常，请重新选择孩子', icon: 'none' });
+        return;
+      }
       
       wx.showLoading({ title: '保存中...' });
       
       const result = await tasksApi.create(taskData);
       
       if (result.code === 0) {
+        const selectedCount = formData.selectedChildIds.length;
         wx.showToast({ 
-          title: '任务创建成功！', 
+          title: `任务已分配给${selectedCount}个孩子！`, 
           icon: 'success' 
         });
         
@@ -262,8 +486,13 @@ Page({
       content: '确定要重置所有表单内容吗？',
       success: (res) => {
         if (res.confirm) {
+          // 保留原来传入的孩子ID（如果有的话）
+          const defaultSelectedChildIds = this.data.childId ? [this.data.childId] : [];
+          
           this.setData({
             formData: {
+              status: 'active',
+              selectedChildIds: defaultSelectedChildIds,
               name: '',
               description: '',
               points: 10,

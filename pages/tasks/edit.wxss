@@ -121,13 +121,25 @@
   color: #333;
   background: #f8f9fa;
   box-sizing: border-box;
-  transition: all 0.3s ease;
+  /* 官方推荐：移除可能导致闪烁的 transition */
+  /* transition: all 0.3s ease; */
+  
+  /* 官方推荐的 textarea 优化属性 */
+  cursor-spacing: 20rpx;
+  auto-height: true;
+  adjust-position: true;
+  hold-keyboard: false;
+  disable-default-padding: false;
+  show-confirm-bar: true;
+  confirm-type: "done";
 }
 
 .form-input:focus, .form-textarea:focus {
   border-color: #667eea;
-  background: white;
-  box-shadow: 0 0 0 6rpx rgba(102, 126, 234, 0.1);
+  /* 官方推荐：避免背景色和阴影变化以防止闪烁 */
+  /* background: white; */
+  /* box-shadow: 0 0 0 6rpx rgba(102, 126, 234, 0.1); */
+  /* transition: none; */
 }
 
 .form-input.error, .form-textarea.error {
@@ -218,7 +230,8 @@
 }
 
 .picker-display:active {
-  background: white;
+  /* 移除背景色变化以防止闪烁 */
+  /* background: white; */
   border-color: #667eea;
 }
 
