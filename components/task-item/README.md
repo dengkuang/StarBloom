@@ -71,7 +71,7 @@ const taskData = {
   taskType: "daily",          // daily, weekly, monthly, once
   category: "study",          // study, life, sport, health, etc.
   ageGroup: "primary",        // preschool, primary, middle, high
-  cycleType: "daily",         // daily, weekly, monthly, custom
+
   
   // 习惯标签
   habitTags: ["学习", "自律"],

@@ -642,7 +642,6 @@ const grade1TaskTemplates = [
     name: "按时起床（7:30前）",
     description: "小闹钟一响，立刻坐起来，不赖床！",
     taskType: "daily",
-    cycleType: "daily",
     points: 1,
     habitTags: ["作息", "自律"],
     tips: "小闹钟一响，立刻坐起来，不赖床！",

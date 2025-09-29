@@ -395,7 +395,7 @@ async function deleteChild(parentId, data) {
   - description (string): 任务描述
   - points (number): 基础积分
   - taskType (string): 任务类型
-  - cycleType (string): 任务周期类型
+
   - status (string): 状态
   - parentId (string): 创建者ID
   - childIds (array): 分配的儿童ID列表
@@ -480,7 +480,6 @@ async function createTask(parentId, data) {
       description: data.description || '',
       points: data.points || 0,
       taskType: data.taskType || 'daily',
-      cycleType: data.cycleType || 'daily',
       status: data.status || 'active',
       parentId: parentId,
       childIds: data.childIds || [],
@@ -518,7 +517,6 @@ async function updateTask(parentId, data) {
       description: data.description,
       points: data.points,
       taskType: data.taskType,
-      cycleType: data.cycleType,
       status: data.status,
       childIds: data.childIds,
       updateTime: new Date()
@@ -1657,7 +1655,6 @@ async function deleteDictionary(openid, data) {
   - name (string): 任务名称
   - description (string): 任务描述
   - taskType (string): 任务类型
-  - cycleType (string): 任务周期类型
   - points (number): 基础积分
   - habitTags (array): 习惯标签
   - tips (string): 温馨提示
@@ -1786,7 +1783,6 @@ async function createTemplate(openid, data) {
       name: data.name,
       description: data.description || '',
       taskType: data.taskType || 'daily',
-      cycleType: data.cycleType || 'daily',
       points: data.points || 0,
       habitTags: data.habitTags || [],
       tips: data.tips || '',
@@ -1848,7 +1844,6 @@ async function updateTemplate(openid, data) {
       name: data.name,
       description: data.description,
       taskType: data.taskType,
-      cycleType: data.cycleType,
       points: data.points,
       habitTags: data.habitTags,
       tips: data.tips,
@@ -1955,7 +1950,6 @@ async function applyTemplate(parentId, data) {
         description: template.description,
         points: template.points,
         taskType: template.taskType,
-        cycleType: template.cycleType,
         status: 'active',
         parentId: parentId,
         childIds: [childId],
@@ -2140,7 +2134,6 @@ async function createTemplateData(openid, data) {
       name: data.name,
       description: data.description || '',
       taskType: data.taskType || 'daily',
-      cycleType: data.cycleType || 'daily',
       points: data.points || 0,
       habitTags: data.habitTags || [],
       tips: data.tips || '',
@@ -2202,7 +2195,6 @@ async function updateTemplateData(openid, data) {
       name: data.name,
       description: data.description,
       taskType: data.taskType,
-      cycleType: data.cycleType,
       points: data.points,
       habitTags: data.habitTags,
       tips: data.tips,
@@ -2391,7 +2383,6 @@ async function importTemplates(openid, data) {
           name: template.name,
           description: template.description || '',
           taskType: template.taskType || 'daily',
-          cycleType: template.cycleType || 'daily',
           points: template.points || 0,
           habitTags: template.habitTags || [],
           tips: template.tips || '',
@@ -2655,12 +2646,7 @@ const defaultDictionaries = {
     { category: 'task_type', code: 'challenge', name: '挑战任务', value: 'challenge' }
   ],
   
-  cycle_type: [
-    { category: 'cycle_type', code: 'daily', name: '每日', value: 'daily' },
-    { category: 'cycle_type', code: 'weekly', name: '每周', value: 'weekly' },
-    { category: 'cycle_type', code: 'monthly', name: '每月', value: 'monthly' },
-    { category: 'cycle_type', code: 'custom', name: '自定义', value: 'custom' }
-  ],
+
   
   reward_type: [
     { category: 'reward_type', code: 'physical', name: '实物奖励', value: 'physical' },
@@ -2702,7 +2688,6 @@ const defaultGrade1TaskTemplates = [
     name: "完成今日作业",
     description: "认真完成老师布置的作业，字迹工整",
     taskType: "daily",
-    cycleType: "daily",
     points: 3,
     habitTags: ["学习", "专注力"],
     tips: "可以设置固定的作业时间，培养时间观念",
@@ -2714,7 +2699,6 @@ const defaultGrade1TaskTemplates = [
     name: "阅读绘本15分钟",
     description: "每天阅读绘本或儿童读物15分钟",
     taskType: "daily",
-    cycleType: "daily",
     points: 2,
     habitTags: ["阅读", "语言发展"],
     tips: "可以和爸爸妈妈一起读，增进亲子关系"
@@ -2723,7 +2707,6 @@ const defaultGrade1TaskTemplates = [
     name: "练习写字10分钟",
     description: "练习写拼音、汉字或数字",
     taskType: "daily",
-    cycleType: "daily",
     points: 2,
     habitTags: ["书写", "精细动作"],
     tips: "注意握笔姿势和坐姿"
@@ -2734,7 +2717,6 @@ const defaultGrade1TaskTemplates = [
     name: "自己整理书包",
     description: "每天上学前自己整理书包，检查学习用品",
     taskType: "daily",
-    cycleType: "daily",
     points: 2,
     habitTags: ["自理", "责任感"],
     tips: "可以制作物品清单，培养条理性"
@@ -2743,7 +2725,6 @@ const defaultGrade1TaskTemplates = [
     name: "自己穿衣洗漱",
     description: "独立完成穿衣、刷牙、洗脸等日常护理",
     taskType: "daily",
-    cycleType: "daily",
     points: 1,
     habitTags: ["自理", "卫生习惯"]
   },
@@ -2769,7 +2750,6 @@ const defaultGrade1TaskTemplates = [
     name: "给植物浇水",
     description: "照顾家里的小植物，培养爱心",
     taskType: "weekly",
-    cycleType: "weekly",
     points: 3,
     habitTags: ["责任感", "爱心"]
   },
@@ -2787,7 +2767,6 @@ const defaultGrade1TaskTemplates = [
     name: "学习新的运动技能",
     description: "学会跳绳、拍球等基础运动",
     taskType: "challenge",
-    cycleType: "monthly",
     points: 5,
     challengeTarget: { targetCount: 1, timeLimit: "1month" },
     challengeReward: { points: 10, badge: "运动小达人" }
@@ -2816,7 +2795,6 @@ const defaultGrade1TaskTemplates = [
     name: "一周阅读挑战",
     description: "连续一周每天阅读，培养阅读习惯",
     taskType: "challenge",
-    cycleType: "weekly",
     points: 3,
     challengeTarget: { targetCount: 7, timeLimit: "1week" },
     challengeReward: { points: 15, badge: "阅读小博士" }
@@ -2825,7 +2803,6 @@ const defaultGrade1TaskTemplates = [
     name: "自理能力挑战",
     description: "连续一周独立完成穿衣、洗漱、整理书包",
     taskType: "challenge",
-    cycleType: "weekly",
     points: 5,
     challengeTarget: { targetCount: 7, timeLimit: "1week" },
     challengeReward: { points: 20, badge: "自理小能手" }

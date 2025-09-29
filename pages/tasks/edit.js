@@ -17,7 +17,6 @@ Page({
       difficulty: 'easy',
       category: 'study',
       taskType: 'daily',
-      cycleType: 'daily',
       ageGroup: 'primary',
       tips: '',
       habitTags: [],
@@ -26,12 +25,12 @@ Page({
     
     // 选项数据
     options: {
-      difficulties: [
+      difficultys: [
         { value: 'easy', label: '简单', stars: '⭐' },
         { value: 'medium', label: '中等', stars: '⭐⭐' },
         { value: 'hard', label: '困难', stars: '⭐⭐⭐' }
       ],
-      categories: [
+      categorys: [
         { value: 'study', label: '学习', emoji: '📚' },
         { value: 'life', label: '生活', emoji: '🏠' },
         { value: 'sport', label: '运动', emoji: '⚽' },
@@ -51,12 +50,7 @@ Page({
         { value: 'monthly', label: '每月任务' },
         { value: 'once', label: '一次性任务' }
       ],
-      cycleTypes: [
-        { value: 'daily', label: '每天' },
-        { value: 'weekly', label: '每周' },
-        { value: 'monthly', label: '每月' },
-        { value: 'custom', label: '自定义' }
-      ],
+
       ageGroups: [
         { value: 'preschool', label: '学前(3-6岁)' },
         { value: 'primary', label: '小学(6-12岁)' },
@@ -207,7 +201,7 @@ Page({
       name: tag,
       selected: selectedTags.includes(tag)
     }));
-    
+    console.log('habitTagsDisplay:', habitTagsDisplay);
     this.setData({
       habitTagsDisplay: habitTagsDisplay
     });
@@ -376,7 +370,6 @@ Page({
               difficulty: taskInfo.difficulty || 'easy',
               category: taskInfo.category || 'study',
               taskType: taskInfo.taskType || 'daily',
-              cycleType: taskInfo.cycleType || 'daily',
               ageGroup: taskInfo.ageGroup || 'primary',
               tips: taskInfo.tips || '',
               habitTags: taskInfo.habitTags || [],

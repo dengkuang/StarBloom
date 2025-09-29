@@ -38,7 +38,7 @@ Page({
         ageGroup: "preschool",
         ageRange: { min: 3, max: 6 },
         taskType: "daily",
-        cycleType: "daily",
+
         points: 5,
         habitTags: ["卫生", "自理"],
         tips: "可以唱刷牙歌，让刷牙变得更有趣",
@@ -58,7 +58,7 @@ Page({
         ageGroup: "preschool",
         ageRange: { min: 3, max: 6 },
         taskType: "daily",
-        cycleType: "daily",
+
         points: 8,
         habitTags: ["整理", "责任感"],
         tips: "可以和孩子一起制作玩具收纳标签，让收拾变得简单",
@@ -78,7 +78,7 @@ Page({
         ageGroup: "preschool",
         ageRange: { min: 3, max: 6 },
         taskType: "daily",
-        cycleType: "daily",
+
         points: 10,
         habitTags: ["自理", "独立"],
         tips: "选择容易穿脱的衣服，给孩子充足的时间",
@@ -98,7 +98,7 @@ Page({
         ageGroup: "preschool",
         ageRange: { min: 3, max: 6 },
         taskType: "daily",
-        cycleType: "daily",
+
         points: 12,
         habitTags: ["责任感", "协作"],
         tips: "选择安全简单的家务，多鼓励少批评",
@@ -118,7 +118,7 @@ Page({
         ageGroup: "preschool",
         ageRange: { min: 3, max: 6 },
         taskType: "daily",
-        cycleType: "daily",
+
         points: 6,
         habitTags: ["礼貌", "社交"],
         tips: "家长要以身作则，多使用礼貌用语",
@@ -138,7 +138,7 @@ Page({
         ageGroup: "preschool",
         ageRange: { min: 3, max: 6 },
         taskType: "daily",
-        cycleType: "daily",
+
         points: 8,
         habitTags: ["健康", "作息"],
         tips: "营造安静舒适的午睡环境，可以播放轻柔音乐",
@@ -158,7 +158,6 @@ Page({
         ageGroup: "preschool",
         ageRange: { min: 3, max: 6 },
         taskType: "weekly",
-        cycleType: "weekly",
         points: 15,
         habitTags: ["分享", "友善"],
         tips: "引导孩子理解分享的快乐，不要强迫",
@@ -178,7 +177,7 @@ Page({
         ageGroup: "preschool",
         ageRange: { min: 3, max: 6 },
         taskType: "daily",
-        cycleType: "daily",
+
         points: 7,
         habitTags: ["专注", "礼貌"],
         tips: "选择孩子感兴趣的故事，适当互动",
@@ -360,7 +359,7 @@ Page({
         ageGroup: "primary",
         ageRange: { min: 6, max: 9 },
         taskType: "daily",
-        cycleType: "daily",
+
         points: 15,
         habitTags: ["学习", "自律"],
         tips: "建议设置固定的作业时间，创造安静的学习环境",
@@ -380,7 +379,7 @@ Page({
         ageGroup: "primary",
         ageRange: { min: 6, max: 9 },
         taskType: "daily",
-        cycleType: "daily",
+
         points: 8,
         habitTags: ["整理", "准备"],
         tips: "可以制作一个检查清单，确保不遗漏任何物品",
@@ -400,7 +399,7 @@ Page({
         ageGroup: "primary",
         ageRange: { min: 6, max: 9 },
         taskType: "daily",
-        cycleType: "daily",
+
         points: 12,
         habitTags: ["阅读", "知识"],
         tips: "选择适合年龄的有趣书籍，可以和孩子讨论书中内容",
@@ -420,7 +419,7 @@ Page({
         ageGroup: "primary",
         ageRange: { min: 6, max: 9 },
         taskType: "daily",
-        cycleType: "daily",
+
         points: 18,
         habitTags: ["责任感", "协作"],
         tips: "根据孩子能力分配合适的家务，多鼓励少批评",
@@ -440,7 +439,7 @@ Page({
         ageGroup: "primary",
         ageRange: { min: 6, max: 9 },
         taskType: "daily",
-        cycleType: "daily",
+
         points: 10,
         habitTags: ["书写", "练习"],
         tips: "注意坐姿和握笔姿势，从简单的字开始练习",
@@ -460,7 +459,7 @@ Page({
         ageGroup: "primary",
         ageRange: { min: 6, max: 9 },
         taskType: "daily",
-        cycleType: "daily",
+
         points: 15,
         habitTags: ["健康", "运动"],
         tips: "可以是跑步、跳绳、踢球等，注意安全",
@@ -480,7 +479,6 @@ Page({
         ageGroup: "primary",
         ageRange: { min: 6, max: 9 },
         taskType: "weekly",
-        cycleType: "weekly",
         points: 25,
         habitTags: ["技能", "学习"],
         tips: "根据孩子兴趣选择，不要给太大压力",
@@ -500,7 +498,6 @@ Page({
         ageGroup: "primary",
         ageRange: { min: 6, max: 9 },
         taskType: "weekly",
-        cycleType: "weekly",
         points: 20,
         habitTags: ["关爱", "社交"],
         tips: "引导孩子观察身边人的需要，培养同理心",
@@ -520,7 +517,6 @@ Page({
         ageGroup: "primary",
         ageRange: { min: 6, max: 9 },
         taskType: "weekly",
-        cycleType: "weekly",
         points: 22,
         habitTags: ["理财", "规划"],
         tips: "教导孩子区分需要和想要，培养储蓄习惯",
@@ -540,7 +536,7 @@ Page({
         ageGroup: "primary",
         ageRange: { min: 6, max: 9 },
         taskType: "daily",
-        cycleType: "daily",
+
         points: 12,
         habitTags: ["健康", "作息"],
         tips: "制定合理的作息时间表，睡前避免过度兴奋",

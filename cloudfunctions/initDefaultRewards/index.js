@@ -7,12 +7,13 @@ cloud.init({
 const db = cloud.database();
 const _ = require('lodash');
 
-// 默认奖励模板数据（适配新的数据结构）
+// 默认奖励模板数据（使用统一的分类和类型）
 const defaultRewards = [
   {
     name: '小贴纸',
     description: '可爱的卡通贴纸',
     pointsRequired: 10,
+    category: 'study_supplies',
     rewardType: 'physical',
     stock: 100,
     status: 'active',
@@ -22,6 +23,7 @@ const defaultRewards = [
     name: '额外游戏时间',
     description: '延长30分钟游戏时间',
     pointsRequired: 20,
+    category: 'privilege',
     rewardType: 'privilege',
     stock: 999,
     status: 'active',
@@ -31,6 +33,7 @@ const defaultRewards = [
     name: '选择晚餐',
     description: '选择一次晚餐菜品',
     pointsRequired: 30,
+    category: 'food',
     rewardType: 'privilege',
     stock: 999,
     status: 'active',
@@ -40,10 +43,31 @@ const defaultRewards = [
     name: '去公园',
     description: '周末去公园游玩',
     pointsRequired: 50,
+    category: 'outing',
     rewardType: 'experience',
     stock: 50,
     status: 'active',
     imageUrl: '/images/rewards/park.png'
+  },
+  {
+    name: '新玩具',
+    description: '选择一个心仪的小玩具',
+    pointsRequired: 80,
+    category: 'toy',
+    rewardType: 'physical',
+    stock: 20,
+    status: 'active',
+    imageUrl: '/images/rewards/toy.png'
+  },
+  {
+    name: '课外书',
+    description: '选择一本喜欢的课外书',
+    pointsRequired: 60,
+    category: 'book',
+    rewardType: 'physical',
+    stock: 30,
+    status: 'active',
+    imageUrl: '/images/rewards/book.png'
   }
 ];
 

@@ -112,7 +112,7 @@ cloudfunctions/
   description: "string",      // 任务描述
   points: "number",           // 基础积分
   taskType: "string",         // 任务类型：daily/weekly/monthly/once/challenge
-  cycleType: "string",        // 任务周期类型：daily/weekly/monthly/custom
+
   status: "string",           // 状态：active/inactive
   parentId: "string",         // 创建者ID
   childIds: "array",          // 分配的儿童ID列表
@@ -190,7 +190,7 @@ cloudfunctions/
   name: "string",             // 任务名称
   description: "string",      // 任务描述
   taskType: "string",         // 任务类型：daily/weekly/monthly/once/challenge
-  cycleType: "string",        // 任务周期类型：daily/weekly/monthly/custom
+
   points: "number",           // 基础积分
   habitTags: "array",         // 习惯标签
   tips: "string",             // 温馨提示

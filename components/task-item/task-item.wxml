@@ -52,10 +52,7 @@
         <text class="info-label">适合年龄:</text>
         <text class="info-value">{{ageGroupText}}</text>
       </view>
-      <view wx:if="{{task.cycleType}}" class="cycle-type">
-        <text class="info-label">周期:</text>
-        <text class="info-value">{{cycleTypeText}}</text>
-      </view>
+
     </view>
   </view>
   

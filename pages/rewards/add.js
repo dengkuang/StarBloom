@@ -1,8 +1,34 @@
 // pages/rewards/add.js
 // 添加奖励页面逻辑
 const { rewardsApi } = require('../../utils/api-services.js');
+import { 
+  getCategoryOptions, 
+  getRewardTypeOptions, 
+  getStatusOptions,
+  getHabitTagOptions,
+  getAgeGroupOptions,
+  getCategoryInfo,
+  getRewardTypeInfo 
+} from '../../utils/reward-categories-config.js';
 
 Page({
+  onLoad: async function() {
+    // 初始化选项数据
+    this.setData({
+      'options.categories': getCategoryOptions(),
+      'options.rewardTypes': getRewardTypeOptions(),
+      'options.statuses': getStatusOptions(),
+      'options.ageGroups': getAgeGroupOptions(),
+      'options.habitTagGroups': getHabitTagOptions()
+    });
+    
+    // 初始化习惯标签显示状态
+    this.updateHabitTagsDisplay();
+    
+    // 加载孩子列表
+    await this.loadChildren();
+  },
+
   data: {
     loading: false,
     
@@ -12,25 +38,30 @@ Page({
       description: '',
       pointsRequired: 50,
       category: 'toy',
+      rewardType: 'physical',
+      status: 'active',
+      stock: 100,
+      recommendedStock: 100,
+      ageGroup: 'primary',
+      habitTags: [],
+      exchangeRules: '',
+      selectedChildIds: [],
       emoji: '🎁',
       icon: ''
     },
     
     // 选项数据
     options: {
-      categories: [
-        { value: 'toy', label: '玩具', emoji: '🧸' },
-        { value: 'food', label: '美食', emoji: '🍎' },
-        { value: 'activity', label: '活动', emoji: '🎮' },
-        { value: 'privilege', label: '特权', emoji: '👑' },
-        { value: 'outing', label: '外出', emoji: '🚗' },
-        { value: 'digital', label: '数码', emoji: '📱' },
-        { value: 'book', label: '书籍', emoji: '📚' },
-        { value: 'clothing', label: '服装', emoji: '👕' },
-        { value: 'experience', label: '体验', emoji: '🎪' },
-        { value: 'other', label: '其他', emoji: '🎁' }
-      ]
+      categories: [],
+      rewardTypes: [],
+      statuses: [],
+      ageGroups: [],
+      habitTagGroups: []
     },
+    
+    // 孩子列表和选择状态
+    childrenList: [],
+    habitTagsDisplay: [],
     
     // 表单验证
     errors: {}
@@ -91,12 +122,28 @@ Page({
       errors.name = '奖励名称不能超过20个字符';
     }
     
-    if (formData.description && formData.description.length > 100) {
-      errors.description = '奖励描述不能超过100个字符';
+    if (formData.description && formData.description.length > 200) {
+      errors.description = '奖励描述不能超过200个字符';
     }
     
-    if (formData.pointsRequired < 10 || formData.pointsRequired > 500) {
-      errors.pointsRequired = '所需积分必须在10-500之间';
+    if (formData.pointsRequired < 1 || formData.pointsRequired > 1000) {
+      errors.pointsRequired = '所需积分必须在1-1000之间';
+    }
+    
+    if (formData.stock < 0) {
+      errors.stock = '库存数量不能为负数';
+    }
+    
+    if (formData.recommendedStock < 0) {
+      errors.recommendedStock = '推荐库存不能为负数';
+    }
+    
+    if (formData.exchangeRules && formData.exchangeRules.length > 200) {
+      errors.exchangeRules = '兑换规则不能超过200个字符';
+    }
+    
+    if (formData.selectedChildIds.length === 0) {
+      errors.selectedChildIds = '请至少选择一个孩子';
     }
     
     this.setData({ errors });
@@ -115,9 +162,13 @@ Page({
     try {
       const rewardData = {
         ...this.data.formData,
+        childIds: this.data.formData.selectedChildIds,
         createdAt: new Date().toISOString(),
-        isActive: true
+        isActive: this.data.formData.status === 'active'
       };
+      
+      // 移除不需要发送到后端的字段
+      delete rewardData.selectedChildIds;
       
       wx.showLoading({ title: '保存中...' });
       
@@ -161,6 +212,14 @@ Page({
               description: '',
               pointsRequired: 50,
               category: 'toy',
+              rewardType: 'physical',
+              status: 'active',
+              stock: 100,
+              recommendedStock: 100,
+              ageGroup: 'primary',
+              habitTags: [],
+              exchangeRules: '',
+              selectedChildIds: [],
               emoji: '🎁',
               icon: ''
             },
@@ -170,6 +229,84 @@ Page({
         }
       }
     });
+  },
+
+  // 加载孩子列表
+  loadChildren: async function() {
+    try {
+      const app = getApp();
+      if (app.globalData.childrenList && app.globalData.childrenList.length > 0) {
+        this.setData({
+          childrenList: app.globalData.childrenList
+        });
+      } else {
+        // 如果全局数据中没有，则调用API获取
+        const { childrenApi } = require('../../utils/api-services.js');
+        const result = await childrenApi.getList();
+        if (result.code === 0) {
+          this.setData({
+            childrenList: result.data || []
+          });
+        }
+      }
+    } catch (error) {
+      console.error('加载孩子列表失败:', error);
+    }
+  },
+
+  // 更新习惯标签显示状态
+  updateHabitTagsDisplay: function() {
+    const habitTagGroups = this.data.options.habitTagGroups;
+    const selectedTags = this.data.formData.habitTags;
+    
+    const habitTagsDisplay = habitTagGroups.map(group => ({
+      ...group,
+      tags: group.tags.map(tag => ({
+        ...tag,
+        selected: selectedTags.includes(tag.value)
+      }))
+    }));
+    
+    this.setData({
+      habitTagsDisplay: habitTagsDisplay
+    });
+  },
+
+  // 孩子选择处理
+  onChildToggle: function(e) {
+    const { childId } = e.currentTarget.dataset;
+    const selectedChildIds = [...this.data.formData.selectedChildIds];
+    
+    const index = selectedChildIds.indexOf(childId);
+    if (index > -1) {
+      selectedChildIds.splice(index, 1);
+    } else {
+      selectedChildIds.push(childId);
+    }
+    
+    this.setData({
+      'formData.selectedChildIds': selectedChildIds
+    });
+  },
+
+  // 习惯标签选择处理
+  onHabitTagToggle: function(e) {
+    const { tag } = e.currentTarget.dataset;
+    const habitTags = [...this.data.formData.habitTags];
+    
+    const index = habitTags.indexOf(tag);
+    if (index > -1) {
+      habitTags.splice(index, 1);
+    } else {
+      habitTags.push(tag);
+    }
+    
+    this.setData({
+      'formData.habitTags': habitTags
+    });
+    
+    // 更新显示状态
+    this.updateHabitTagsDisplay();
   },
 
   // 返回

@@ -87,7 +87,7 @@ await dictionaryManager.batchLoadDictionaries([
 
 // 现在可以同步获取所有字典
 const taskTypes = dictionaryManager.getTaskTypeOptions()
-const cycleTypes = dictionaryManager.getCycleTypeOptions()
+
 const rewardTypes = dictionaryManager.getRewardTypeOptions()
 ```
 

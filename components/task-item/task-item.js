@@ -37,7 +37,6 @@ Component({
     taskTypeText: '',
     categoryText: '',
     ageGroupText: '',
-    cycleTypeText: '',
     completionTimeText: ''
   },
   
@@ -70,7 +69,6 @@ Component({
         taskTypeText: this.getTaskTypeText(task.taskType),
         categoryText: this.getCategoryText(task.category),
         ageGroupText: this.getAgeGroupText(task.ageGroup),
-        cycleTypeText: this.getCycleTypeText(task.cycleType),
         completionTimeText: this.formatCompletionTime(task.completionRecord?.completeDate)
       });
     },
@@ -142,16 +140,7 @@ Component({
       return TaskCategoriesUtils.getAgeGroupText(ageGroup);
     },
     
-    // 获取周期类型文本
-    getCycleTypeText(cycleType) {
-      const textMap = {
-        'daily': '每天',
-        'weekly': '每周',
-        'monthly': '每月',
-        'custom': '自定义'
-      };
-      return textMap[cycleType] || cycleType || '未设置';
-    },
+
     
     // 格式化完成时间
     formatCompletionTime(dateString) {

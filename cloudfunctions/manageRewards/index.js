@@ -7,6 +7,18 @@ cloud.init({
 const db = cloud.database()
 const _ = db.command
 
+// 奖励分类和类型验证
+const VALID_CATEGORIES = [
+  'toy', 'food', 'digital', 'book', 'clothing', 'study_supplies',
+  'activity', 'outing', 'experience', 'privilege', 'other'
+];
+
+const VALID_REWARD_TYPES = [
+  'physical', 'privilege', 'experience', 'virtual', 'charity'
+];
+
+const VALID_STATUSES = ['active', 'inactive', 'out_of_stock'];
+
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const { action, data } = event
@@ -122,15 +134,36 @@ async function getMyRewards(parentId, data) {
 
 async function createReward(parentId, data) {
   try {
+    // 验证必填字段
+    if (!data.name || !data.name.trim()) {
+      return { code: -1, msg: '奖励名称不能为空' };
+    }
+    
+    // 验证分类
+    if (data.category && !VALID_CATEGORIES.includes(data.category)) {
+      return { code: -1, msg: '无效的奖励分类' };
+    }
+    
+    // 验证奖励类型
+    if (data.rewardType && !VALID_REWARD_TYPES.includes(data.rewardType)) {
+      return { code: -1, msg: '无效的奖励类型' };
+    }
+    
+    // 验证状态
+    if (data.status && !VALID_STATUSES.includes(data.status)) {
+      return { code: -1, msg: '无效的奖励状态' };
+    }
+    
     const rewardData = {
-      name: data.name,
+      name: data.name.trim(),
       description: data.description || '',
-      pointsRequired: data.pointsRequired || 0,
+      pointsRequired: Math.max(0, data.pointsRequired || 0),
+      category: data.category || 'other',
       rewardType: data.rewardType || 'physical',
-      stock: data.stock || 0,
+      stock: Math.max(0, data.stock || 0),
       status: data.status || 'active',
       parentId: parentId,
-      childIds: data.childIds || [], // 新增childIds字段
+      childIds: data.childIds || [],
       createTime: new Date(),
       updateTime: new Date()
     }

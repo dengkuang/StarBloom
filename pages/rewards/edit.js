@@ -1,6 +1,15 @@
 // pages/rewards/edit.js
 // 编辑奖励页面逻辑
 const { rewardsApi } = require('../../utils/api-services.js');
+import { 
+  getCategoryOptions, 
+  getRewardTypeOptions, 
+  getStatusOptions,
+  getHabitTagOptions,
+  getAgeGroupOptions,
+  getCategoryInfo,
+  getRewardTypeInfo 
+} from '../../utils/reward-categories-config.js';
 const dictionaryManager = require('../../utils/dictionary-manager.js');
 
 Page({
@@ -14,8 +23,16 @@ Page({
     
     // 选项数据
     options: {
-      rewardTypes: []
+      categories: [],
+      rewardTypes: [],
+      statuses: [],
+      ageGroups: [],
+      habitTagGroups: []
     },
+    
+    // 孩子列表和选择状态
+    childrenList: [],
+    habitTagsDisplay: [],
     
     // 表单验证
     errors: {}
@@ -24,8 +41,17 @@ Page({
   onLoad: async function(options) {
     console.log('编辑奖励页面加载，参数:', options);
     
-    // 加载奖励类型字典
-    await this.loadRewardTypes();
+    // 初始化选项数据
+    this.setData({
+      'options.categories': getCategoryOptions(),
+      'options.rewardTypes': getRewardTypeOptions(),
+      'options.statuses': getStatusOptions(),
+      'options.ageGroups': getAgeGroupOptions(),
+      'options.habitTagGroups': getHabitTagOptions()
+    });
+    
+    // 加载孩子列表
+    await this.loadChildren();
     
     if (options.rewardId) {
       this.setData({ rewardId: options.rewardId });
@@ -58,25 +84,26 @@ Page({
     }
   },
 
-  // 加载奖励类型字典
-  loadRewardTypes: async function() {
+  // 加载孩子列表
+  loadChildren: async function() {
     try {
-      const rewardTypes = await dictionaryManager.getRewardTypeOptions();
-      this.setData({
-        'options.rewardTypes': rewardTypes
-      });
+      const app = getApp();
+      if (app.globalData.childrenList && app.globalData.childrenList.length > 0) {
+        this.setData({
+          childrenList: app.globalData.childrenList
+        });
+      } else {
+        // 如果全局数据中没有，则调用API获取
+        const { childrenApi } = require('../../utils/api-services.js');
+        const result = await childrenApi.getList();
+        if (result.code === 0) {
+          this.setData({
+            childrenList: result.data || []
+          });
+        }
+      }
     } catch (error) {
-      console.error('加载奖励类型失败:', error);
-      // 使用默认值
-      this.setData({
-        'options.rewardTypes': [
-          {value: 'physical', label: '实物奖励'},
-          {value: 'privilege', label: '特权奖励'},
-          {value: 'experience', label: '体验奖励'},
-          {value: 'virtual', label: '虚拟奖励'},
-          {value: 'charity', label: '公益奖励'}
-        ]
-      });
+      console.error('加载孩子列表失败:', error);
     }
   },
 
@@ -84,14 +111,79 @@ Page({
   setRewardData: function(rewardData) {
     console.log('设置奖励数据:', rewardData);
     
+    // 确保必要字段存在
+    const formData = {
+      ...rewardData,
+      habitTags: rewardData.habitTags || [],
+      selectedChildIds: rewardData.childIds || [],
+      exchangeRules: rewardData.exchangeRules || '',
+      recommendedStock: rewardData.recommendedStock || rewardData.stock || 100,
+      ageGroup: rewardData.ageGroup || 'primary'
+    };
+    
     this.setData({
-      
-      formData: rewardData
-       
+      formData: formData
+    });
+    
+    // 更新习惯标签显示状态
+    this.updateHabitTagsDisplay();
+  },
+
+  // 更新习惯标签显示状态
+  updateHabitTagsDisplay: function() {
+    const habitTagGroups = this.data.options.habitTagGroups;
+    const selectedTags = this.data.formData.habitTags || [];
+    
+    const habitTagsDisplay = habitTagGroups.map(group => ({
+      ...group,
+      tags: group.tags.map(tag => ({
+        ...tag,
+        selected: selectedTags.includes(tag.value)
+      }))
+    }));
+    
+    this.setData({
+      habitTagsDisplay: habitTagsDisplay
     });
   },
 
- 
+  // 孩子选择处理
+  onChildToggle: function(e) {
+    const { childId } = e.currentTarget.dataset;
+    const selectedChildIds = [...(this.data.formData.selectedChildIds || [])];
+    
+    const index = selectedChildIds.indexOf(childId);
+    if (index > -1) {
+      selectedChildIds.splice(index, 1);
+    } else {
+      selectedChildIds.push(childId);
+    }
+    
+    this.setData({
+      'formData.selectedChildIds': selectedChildIds
+    });
+  },
+
+  // 习惯标签选择处理
+  onHabitTagToggle: function(e) {
+    const { tag } = e.currentTarget.dataset;
+    const habitTags = [...(this.data.formData.habitTags || [])];
+    
+    const index = habitTags.indexOf(tag);
+    if (index > -1) {
+      habitTags.splice(index, 1);
+    } else {
+      habitTags.push(tag);
+    }
+    
+    this.setData({
+      'formData.habitTags': habitTags
+    });
+    
+    // 更新显示状态
+    this.updateHabitTagsDisplay();
+  },
+
   // 表单输入处理
   onInputChange: function(e) {
     const { field } = e.currentTarget.dataset;

@@ -14,7 +14,6 @@ Page({
     ageGroupIndex: 0,
     categoryIndex: 0,
     taskTypeIndex: 0,
-    cycleTypeIndex: 0,
     rewardTypeIndex: 0,
     difficultyIndex: 0,
     
@@ -39,7 +38,6 @@ Page({
     // 任务特有字段
     taskFields: {
       taskType: 'daily',
-      cycleType: 'daily',
       points: 10,
       difficulty: 'easy'
     },
@@ -73,7 +71,7 @@ Page({
     ],
     
     taskTypes: [],
-    cycleTypes: [],
+
     rewardTypes: [],
     difficulties: [
       { value: 'easy', label: '简单' },
@@ -124,7 +122,7 @@ Page({
       ageGroupIndex: 0,
       categoryIndex: 0,
       taskTypeIndex: 0,
-      cycleTypeIndex: 0,
+
       rewardTypeIndex: 0,
       difficultyIndex: 0
     })
@@ -134,15 +132,13 @@ Page({
   async loadDictionaryData() {
     try {
       // 使用字典管理器加载数据
-      const [taskTypes, cycleTypes, rewardTypes] = await Promise.all([
+      const [taskTypes, rewardTypes] = await Promise.all([
         dictionaryManager.getTaskTypeOptions(),
-        dictionaryManager.getCycleTypeOptions(),
         dictionaryManager.getRewardTypeOptions()
       ])
 
       this.setData({ 
         taskTypes: taskTypes || [],
-        cycleTypes: cycleTypes || [],
         rewardTypes: rewardTypes || []
       })
     } catch (error) {
@@ -154,11 +150,7 @@ Page({
           { value: 'weekly', label: '每周任务' },
           { value: 'monthly', label: '每月任务' }
         ],
-        cycleTypes: [
-          { value: 'daily', label: '每日' },
-          { value: 'weekly', label: '每周' },
-          { value: 'monthly', label: '每月' }
-        ],
+
         rewardTypes: [
           { value: 'physical', label: '实物奖励' },
           { value: 'privilege', label: '特权奖励' },
@@ -226,7 +218,7 @@ Page({
 
     if (this.data.templateType === 'task') {
       const taskTypeIndex = this.data.taskTypes.findIndex(item => item.value === (template.taskType || 'daily'))
-      const cycleTypeIndex = this.data.cycleTypes.findIndex(item => item.value === (template.cycleType || 'daily'))
+
       const difficultyIndex = this.data.difficulties.findIndex(item => item.value === (template.difficulty || 'easy'))
       
       this.setData({
@@ -234,11 +226,10 @@ Page({
         ageGroupIndex: ageGroupIndex >= 0 ? ageGroupIndex : 0,
         categoryIndex: categoryIndex >= 0 ? categoryIndex : 0,
         taskTypeIndex: taskTypeIndex >= 0 ? taskTypeIndex : 0,
-        cycleTypeIndex: cycleTypeIndex >= 0 ? cycleTypeIndex : 0,
+
         difficultyIndex: difficultyIndex >= 0 ? difficultyIndex : 0,
         taskFields: {
           taskType: template.taskType || 'daily',
-          cycleType: template.cycleType || 'daily',
           points: template.points || 10,
           difficulty: template.difficulty || 'easy'
         }
@@ -312,8 +303,6 @@ Page({
       if (parent === 'taskFields') {
         if (child === 'taskType') {
           this.setData({ taskTypeIndex: value })
-        } else if (child === 'cycleType') {
-          this.setData({ cycleTypeIndex: value })
         } else if (child === 'difficulty') {
           this.setData({ difficultyIndex: value })
         }
@@ -330,7 +319,6 @@ Page({
       const options = (field === 'ageGroup' ? this.data.ageGroups :
                      field === 'category' ? this.data.categories :
                      field === 'taskType' ? this.data.taskTypes :
-                     field === 'cycleType' ? this.data.cycleTypes :
                      field === 'difficulty' ? this.data.difficulties : [])
       const selectedOption = options[value]
       

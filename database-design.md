@@ -44,7 +44,7 @@
   description: "string",      // 任务描述
   points: "number",           // 基础积分
   taskType: "string",         // 任务类型：daily/weekly/monthly/once/challenge
-  cycleType: "string",        // 任务周期类型：daily/weekly/monthly/custom
+
   status: "string",           // 状态：active/inactive
   parentId: "string",         // 创建者ID
   childIds: "array",          // 分配的儿童ID列表
@@ -68,7 +68,7 @@
   },
   "childIds": ["3ff6635968c6aace009c11142935777c"],
   "createTime": "Mon Sep 15 2025 16:41:02 GMT+0800 (中国标准时间)",
-  "cycleType": "weekly",
+
   "description": "每周学习一项新技能，如画画、音乐、手工等",
   "difficulty": "hard",
   "habitTags": ["技能", "学习"],
@@ -153,7 +153,7 @@
   name: "string",             // 任务名称
   description: "string",      // 任务描述
   taskType: "string",         // 任务类型：daily/weekly/monthly/once/challenge
-  cycleType: "string",        // 任务周期类型：daily/weekly/monthly/custom
+
   points: "number",           // 基础积分
   habitTags: "array",         // 习惯标签
   tips: "string",             // 温馨提示
@@ -337,8 +337,7 @@ const taskTypeDictionary = [
 ];
 
 // 任务周期类型字典 (cycle_type)
-const cycleTypeDictionary = [
-  { category: 'cycle_type', code: 'daily', name: '每日', value: 'daily' },
+
   { category: 'cycle_type', code: 'weekly', name: '每周', value: 'weekly' },
   { category: 'cycle_type', code: 'monthly', name: '每月', value: 'monthly' },
   { category: 'cycle_type', code: 'custom', name: '自定义', value: 'custom' }

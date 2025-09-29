@@ -92,7 +92,7 @@ async function createTemplate(openid, data) {
     // 根据模板类型添加特有字段
     if (templateType === 'task') {
       templateData.taskType = data.taskType || 'daily'
-      templateData.cycleType = data.cycleType || 'daily'
+
       templateData.points = data.points || 0
       templateData.habitTags = data.habitTags || []
       templateData.tips = data.tips || ''
@@ -155,7 +155,7 @@ async function updateTemplate(openid, data) {
     // 根据模板类型更新特有字段
     if (templateType === 'task') {
       updateData.taskType = data.taskType
-      updateData.cycleType = data.cycleType
+
       updateData.points = data.points
       updateData.habitTags = data.habitTags
       updateData.tips = data.tips
@@ -257,7 +257,7 @@ async function applyTemplate(parentId, data) {
           description: modifications && modifications.description ? modifications.description : template.description,
           points: modifications && modifications.points ? modifications.points : template.points,
           taskType: template.taskType,
-          cycleType: template.cycleType,
+
           status: 'active',
           parentId: parentId,
           childIds: [childId],

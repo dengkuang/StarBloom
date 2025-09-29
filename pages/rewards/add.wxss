@@ -1,4 +1,156 @@
 /* pages/rewards/add.wxss */
+
+/* 孩子选择器样式 */
+.children-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  margin-top: 20rpx;
+}
+
+.child-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+  border: 2rpx solid transparent;
+  transition: all 0.3s ease;
+}
+
+.child-item.selected {
+  background: #e3f2fd;
+  border-color: #2196f3;
+}
+
+.child-item .child-name {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.child-item .child-age {
+  font-size: 28rpx;
+  color: #666;
+  margin-left: 16rpx;
+}
+
+.child-item .check-icon {
+  font-size: 32rpx;
+  color: #2196f3;
+  font-weight: bold;
+}
+
+/* 习惯标签样式 */
+.habit-tags-container {
+  margin-top: 20rpx;
+}
+
+.tag-group {
+  margin-bottom: 32rpx;
+}
+
+.group-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 16rpx;
+  padding-left: 8rpx;
+  border-left: 6rpx solid #2196f3;
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.tag-item {
+  padding: 12rpx 24rpx;
+  background: #f5f5f5;
+  border-radius: 32rpx;
+  border: 2rpx solid transparent;
+  transition: all 0.3s ease;
+}
+
+.tag-item.selected {
+  background: #e3f2fd;
+  border-color: #2196f3;
+}
+
+.tag-item .tag-text {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.tag-item.selected .tag-text {
+  color: #2196f3;
+  font-weight: 500;
+}
+
+/* 选择器样式增强 */
+.picker-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+  border: 2rpx solid #e5e5e5;
+  min-height: 88rpx;
+}
+
+.picker-text {
+  font-size: 32rpx;
+  color: #333;
+  flex: 1;
+}
+
+.picker-arrow {
+  font-size: 32rpx;
+  color: #999;
+  margin-left: 16rpx;
+}
+
+/* 表单提示文字 */
+.form-hint {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+  line-height: 1.4;
+}
+
+/* 错误状态样式 */
+.error-text {
+  display: block;
+  font-size: 24rpx;
+  color: #f44336;
+  margin-top: 8rpx;
+}
+
+.form-input.error,
+.form-textarea.error {
+  border-color: #f44336;
+  background: #fef5f5;
+}
+
+/* 响应式调整 */
+@media (max-width: 750rpx) {
+  .child-item {
+    padding: 20rpx;
+  }
+  
+  .tag-item {
+    padding: 10rpx 20rpx;
+  }
+  
+  .picker-display {
+    padding: 20rpx;
+  }
+}
 /* 添加奖励页面样式 */
 
 .container {

@@ -19,7 +19,6 @@ Page({
       difficulty: 'easy',
       category: 'study',
       taskType: 'daily',
-      cycleType: 'daily',
       ageGroup: 'primary',
       tips: '',
       habitTags: [],
@@ -28,12 +27,12 @@ Page({
     
     // 选项数据
     options: {
-      difficulties: [
+      difficultys: [
         { value: 'easy', label: '简单', stars: '⭐' },
         { value: 'medium', label: '中等', stars: '⭐⭐' },
         { value: 'hard', label: '困难', stars: '⭐⭐⭐' }
       ],
-      categories: [
+      categorys: [
         { value: 'study', label: '学习', emoji: '📚' },
         { value: 'life', label: '生活', emoji: '🏠' },
         { value: 'sport', label: '运动', emoji: '⚽' },
@@ -53,12 +52,7 @@ Page({
         { value: 'monthly', label: '每月任务' },
         { value: 'once', label: '一次性任务' }
       ],
-      cycleTypes: [
-        { value: 'daily', label: '每天' },
-        { value: 'weekly', label: '每周' },
-        { value: 'monthly', label: '每月' },
-        { value: 'custom', label: '自定义' }
-      ],
+
       ageGroups: [
         { value: 'preschool', label: '学前(3-6岁)' },
         { value: 'primary', label: '小学(6-12岁)' },
@@ -343,11 +337,11 @@ Page({
     const { formData, options } = this.data;
     
     // 难度文本
-    const difficultyOption = options.difficulties.find(item => item.value === formData.difficulty);
+    const difficultyOption = options.difficultys.find(item => item.value === formData.difficulty);
     const currentDifficultyText = difficultyOption ? `${difficultyOption.stars} ${difficultyOption.label}` : '⭐ 简单';
     
     // 类别文本
-    const categoryOption = options.categories.find(item => item.value === formData.category);
+    const categoryOption = options.categorys.find(item => item.value === formData.category);
     const currentCategoryText = categoryOption ? categoryOption.label : '学习';
     
     // 任务类型文本
@@ -358,16 +352,11 @@ Page({
     const ageGroupOption = options.ageGroups.find(item => item.value === formData.ageGroup);
     const currentAgeGroupText = ageGroupOption ? ageGroupOption.label : '小学(6-12岁)';
     
-    // 周期类型文本
-    const cycleTypeOption = options.cycleTypes.find(item => item.value === formData.cycleType);
-    const currentCycleTypeText = cycleTypeOption ? cycleTypeOption.label : '每天';
-    
     this.setData({
       currentDifficultyText,
       currentCategoryText,
       currentTaskTypeText,
-      currentAgeGroupText,
-      currentCycleTypeText
+      currentAgeGroupText
     });
   },
 
@@ -423,7 +412,6 @@ Page({
         difficulty: formData.difficulty,
         category: formData.category,
         taskType: formData.taskType,
-        cycleType: formData.cycleType,
         ageGroup: formData.ageGroup,
         tips: formData.tips,
         habitTags: formData.habitTags,
@@ -499,7 +487,6 @@ Page({
               difficulty: 'easy',
               category: 'study',
               taskType: 'daily',
-              cycleType: 'daily',
               ageGroup: this.data.childInfo ? this.getAgeGroupByAge(this.data.childInfo.age) : 'primary',
               tips: '',
               habitTags: [],

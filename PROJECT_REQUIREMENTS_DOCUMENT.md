@@ -67,7 +67,7 @@ StarBloom 是一个基于微信小程序的儿童行为激励管理系统，通�
   description: "string",      // 任务描述
   points: "number",           // 基础积分
   taskType: "string",         // 任务类型：daily/weekly/monthly/once/challenge
-  cycleType: "string",        // 任务周期类型：daily/weekly/monthly/custom
+
   status: "string",           // 状态：active/inactive
   parentId: "string",         // 创建者ID
   childIds: "array",          // 分配的儿童ID列表
@@ -146,7 +146,7 @@ StarBloom 是一个基于微信小程序的儿童行为激励管理系统，通�
   name: "string",             // 任务名称
   description: "string",      // 任务描述
   taskType: "string",         // 任务类型：daily/weekly/monthly/once/challenge
-  cycleType: "string",        // 任务周期类型：daily/weekly/monthly/custom
+
   points: "number",           // 基础积分
   habitTags: "array",         // 习惯标签
   tips: "string",             // 温馨提示
@@ -346,15 +346,7 @@ const initTemplateData = {
 ]
 ```
 
-#### 任务周期类型字典 (cycle_type)
-```javascript
-[
-  { category: 'cycle_type', code: 'daily', name: '每日', value: 'daily' },
-  { category: 'cycle_type', code: 'weekly', name: '每周', value: 'weekly' },
-  { category: 'cycle_type', code: 'monthly', name: '每月', value: 'monthly' },
-  { category: 'cycle_type', code: 'custom', name: '自定义', value: 'custom' }
-]
-```
+
 
 #### 奖励类型字典 (reward_type)
 ```javascript
@@ -585,7 +577,7 @@ const grade1TaskTemplates = [
     name: "完成今日作业",
     description: "认真完成老师布置的作业，字迹工整",
     taskType: "daily",
-    cycleType: "daily",
+
     points: 3,
     habitTags: ["学习", "专注力"],
     tips: "可以设置固定的作业时间，培养时间观念",
@@ -596,7 +588,7 @@ const grade1TaskTemplates = [
     name: "阅读绘本15分钟",
     description: "每天阅读绘本或儿童读物15分钟",
     taskType: "daily",
-    cycleType: "daily",
+
     points: 2,
     habitTags: ["阅读", "语言发展"],
     tips: "可以和爸爸妈妈一起读，增进亲子关系"
@@ -605,7 +597,6 @@ const grade1TaskTemplates = [
     name: "练习写字10分钟",
     description: "练习写拼音、汉字或数字",
     taskType: "daily",
-    cycleType: "daily",
     points: 2,
     habitTags: ["书写", "精细动作"],
     tips: "注意握笔姿势和坐姿"
@@ -616,7 +607,6 @@ const grade1TaskTemplates = [
     name: "自己整理书包",
     description: "每天上学前自己整理书包，检查学习用品",
     taskType: "daily",
-    cycleType: "daily",
     points: 2,
     habitTags: ["自理", "责任感"],
     tips: "可以制作物品清单，培养条理性"
@@ -625,7 +615,6 @@ const grade1TaskTemplates = [
     name: "自己穿衣洗漱",
     description: "独立完成穿衣、刷牙、洗脸等日常护理",
     taskType: "daily",
-    cycleType: "daily",
     points: 1,
     habitTags: ["自理", "卫生习惯"]
   },
@@ -633,7 +622,6 @@ const grade1TaskTemplates = [
     name: "收拾玩具",
     description: "玩完玩具后主动收拾整理",
     taskType: "daily",
-    cycleType: "daily",
     points: 1,
     habitTags: ["整理", "责任感"]
   },
@@ -643,7 +631,6 @@ const grade1TaskTemplates = [
     name: "帮忙摆放餐具",
     description: "吃饭前帮助摆放碗筷和餐具",
     taskType: "daily",
-    cycleType: "daily",
     points: 1,
     habitTags: ["家务", "责任感"]
   },
@@ -651,7 +638,7 @@ const grade1TaskTemplates = [
     name: "给植物浇水",
     description: "照顾家里的小植物，培养爱心",
     taskType: "weekly",
-    cycleType: "weekly",
+
     points: 3,
     habitTags: ["责任感", "爱心"]
   },
@@ -661,7 +648,6 @@ const grade1TaskTemplates = [
     name: "户外活动30分钟",
     description: "每天进行户外运动或游戏",
     taskType: "daily",
-    cycleType: "daily",
     points: 2,
     habitTags: ["运动", "健康"]
   },
@@ -669,7 +655,7 @@ const grade1TaskTemplates = [
     name: "学习新的运动技能",
     description: "学会跳绳、拍球等基础运动",
     taskType: "challenge",
-    cycleType: "monthly",
+
     points: 5,
     challengeTarget: { targetCount: 1, timeLimit: "1month" },
     challengeReward: { points: 10, badge: "运动小达人" }
@@ -680,7 +666,6 @@ const grade1TaskTemplates = [
     name: "主动打招呼",
     description: "见到老师、同学和邻居主动问好",
     taskType: "daily",
-    cycleType: "daily",
     points: 1,
     habitTags: ["礼貌", "社交"]
   },
@@ -688,7 +673,6 @@ const grade1TaskTemplates = [
     name: "和同学友好相处",
     description: "在学校与同学友好相处，不打架不骂人",
     taskType: "daily",
-    cycleType: "daily",
     points: 2,
     habitTags: ["社交", "品德"]
   },
@@ -698,7 +682,7 @@ const grade1TaskTemplates = [
     name: "一周阅读挑战",
     description: "连续一周每天阅读，培养阅读习惯",
     taskType: "challenge",
-    cycleType: "weekly",
+
     points: 3,
     challengeTarget: { targetCount: 7, timeLimit: "1week" },
     challengeReward: { points: 15, badge: "阅读小博士" }
@@ -707,7 +691,6 @@ const grade1TaskTemplates = [
     name: "自理能力挑战",
     description: "连续一周独立完成穿衣、洗漱、整理书包",
     taskType: "challenge",
-    cycleType: "weekly",
     points: 5,
     challengeTarget: { targetCount: 7, timeLimit: "1week" },
     challengeReward: { points: 20, badge: "自理小能手" }
@@ -874,7 +857,7 @@ const defaultGrade1TaskTemplates = [
     name: "按时起床（7:30前）",
     description: "小闹钟一响，立刻坐起来，不赖床！",
     taskType: "daily",
-    cycleType: "daily",
+
     points: 1,
     habitTags: ["作息", "自律"],
     tips: "小闹钟一响，立刻坐起来，不赖床！",
@@ -886,7 +869,7 @@ const defaultGrade1TaskTemplates = [
     name: "自己刷牙洗脸",
     description: "上下刷，里外刷，牙齿白白笑哈哈！",
     taskType: "daily",
-    cycleType: "daily",
+
     points: 1,
     habitTags: ["卫生", "自理"],
     tips: "上下刷，里外刷，牙齿白白笑哈哈！",
@@ -898,7 +881,7 @@ const defaultGrade1TaskTemplates = [
     name: "整理书包（为明天）",
     description: "课本、文具都回家，书包整整齐齐！",
     taskType: "daily",
-    cycleType: "daily",
+
     points: 2,
     habitTags: ["学习", "整理"],
     tips: "课本、文具都回家，书包整整齐齐！",
@@ -910,7 +893,7 @@ const defaultGrade1TaskTemplates = [
     name: "完成作业（独立完成）",
     description: "认真写，不拖拉，做完自己检查！",
     taskType: "daily",
-    cycleType: "daily",
+
     points: 2,
     habitTags: ["学习", "专注力"],
     tips: "认真写，不拖拉，做完自己检查！",
@@ -922,7 +905,7 @@ const defaultGrade1TaskTemplates = [
     name: "自己收拾玩具",
     description: "玩具宝宝要回家，送它们回'房子'！",
     taskType: "daily",
-    cycleType: "daily",
+
     points: 1,
     habitTags: ["整理", "责任感"],
     tips: "玩具宝宝要回家，送它们回'房子'！",
@@ -934,7 +917,7 @@ const defaultGrade1TaskTemplates = [
     name: "吃完饭帮忙收碗筷",
     description: "小帮手真能干，妈妈谢谢你！",
     taskType: "daily",
-    cycleType: "daily",
+
     points: 1,
     habitTags: ["家务", "责任感"],
     tips: "小帮手真能干，妈妈谢谢你！",
@@ -946,7 +929,7 @@ const defaultGrade1TaskTemplates = [
     name: "说'请'、'谢谢'、'对不起'",
     description: "礼貌用语像魔法，让人听了笑开花！（每日上限3颗星）",
     taskType: "daily",
-    cycleType: "daily",
+
     points: 1,
     habitTags: ["礼貌", "社交"],
     tips: "礼貌用语像魔法，让人听了笑开花！",
@@ -959,7 +942,7 @@ const defaultGrade1TaskTemplates = [
     name: "睡前阅读20分钟",
     description: "和爸爸妈妈一起看书，故事时间最美好！",
     taskType: "daily",
-    cycleType: "daily",
+
     points: 2,
     habitTags: ["阅读", "学习"],
     tips: "和爸爸妈妈一起看书，故事时间最美好！",
@@ -972,7 +955,7 @@ const defaultGrade1TaskTemplates = [
     name: "本周之星",
     description: "如果一周内所有每日任务完成率≥90%",
     taskType: "weekly",
-    cycleType: "weekly",
+
     points: 5,
     habitTags: ["综合", "奖励"],
     tips: "坚持一周，你就是本周之星！",
@@ -987,7 +970,6 @@ const defaultGrade1TaskTemplates = [
     name: "超级挑战",
     description: "连续7天独立完成作业",
     taskType: "challenge",
-    cycleType: "weekly",
     points: 10,
     habitTags: ["学习", "坚持"],
     tips: "连续7天独立完成作业，挑战成功！",

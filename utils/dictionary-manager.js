@@ -32,7 +32,6 @@ class DictionaryManager {
     try {
       const categories = [
         'task_type',
-        'cycle_type', 
         'reward_type',
         'change_type',
         'task_status',
@@ -109,12 +108,7 @@ class DictionaryManager {
     return await this.getDictionary('task_type');
   }
 
-  /**
-   * 获取周期类型字典
-   */
-  async getCycleTypes() {
-    return await this.getDictionary('cycle_type');
-  }
+
 
   /**
    * 获取任务状态字典
@@ -172,7 +166,7 @@ class DictionaryManager {
     } else {
       // 刷新所有字典
       const categories = [
-        'task_type', 'cycle_type', 'reward_type', 'change_type',
+        'task_type', 'reward_type', 'change_type',
         'task_status', 'exchange_status', 'age_group', 'difficulty', 'category'
       ];
       
@@ -210,18 +204,7 @@ class DictionaryManager {
     }));
   }
 
-  /**
-   * 格式化周期类型选项（兼容现有代码）
-   */
-  async getCycleTypeOptions() {
-    const cycleTypes = await this.getCycleTypes();
-    return cycleTypes.map(item => ({
-      value: item.value,
-      label: item.name,
-      name: item.name,
-      code: item.code
-    }));
-  }
+
 
   /**
    * 验证奖励类型是否有效

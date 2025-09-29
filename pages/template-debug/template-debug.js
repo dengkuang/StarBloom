@@ -20,7 +20,6 @@ Page({
         ageGroup: "test",
         ageRange: { min: 6, max: 8 },
         taskType: "daily",
-        cycleType: "daily",
         points: 10,
         habitTags: ["测试"],
         tips: "这是一个测试模板",

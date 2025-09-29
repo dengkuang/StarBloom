@@ -88,6 +88,183 @@
           </view>
         </picker>
       </view>
+
+      <!-- 奖励类型 -->
+      <view class="form-item">
+        <text class="form-label">奖励类型</text>
+        <picker 
+          class="form-picker"
+          mode="selector"
+          range="{{options.rewardTypes}}"
+          range-key="label"
+          data-field="rewardType"
+          bindchange="onPickerChange"
+        >
+          <view class="picker-display">
+            <text class="picker-text">
+              <block wx:for="{{options.rewardTypes}}" wx:key="value">
+                <block wx:if="{{item.value === formData.rewardType}}">{{item.icon}} {{item.label}}</block>
+              </block>
+            </text>
+            <text class="picker-arrow">></text>
+          </view>
+        </picker>
+      </view>
+
+      <!-- 年龄组 -->
+      <view class="form-item">
+        <text class="form-label">适用年龄</text>
+        <picker 
+          class="form-picker"
+          mode="selector"
+          range="{{options.ageGroups}}"
+          range-key="label"
+          data-field="ageGroup"
+          bindchange="onPickerChange"
+        >
+          <view class="picker-display">
+            <text class="picker-text">
+              <block wx:for="{{options.ageGroups}}" wx:key="value">
+                <block wx:if="{{item.value === formData.ageGroup}}">{{item.label}}</block>
+              </block>
+            </text>
+            <text class="picker-arrow">></text>
+          </view>
+        </picker>
+      </view>
+
+      <!-- 状态 -->
+      <view class="form-item">
+        <text class="form-label">状态</text>
+        <picker 
+          class="form-picker"
+          mode="selector"
+          range="{{options.statuses}}"
+          range-key="label"
+          data-field="status"
+          bindchange="onPickerChange"
+        >
+          <view class="picker-display">
+            <text class="picker-text">
+              <block wx:for="{{options.statuses}}" wx:key="value">
+                <block wx:if="{{item.value === formData.status}}">{{item.label}}</block>
+              </block>
+            </text>
+            <text class="picker-arrow">></text>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 库存管理 -->
+    <view class="form-section">
+      <text class="section-title">📦 库存管理</text>
+      
+      <!-- 当前库存 -->
+      <view class="form-item">
+        <text class="form-label">当前库存</text>
+        <input 
+          class="form-input {{errors.stock ? 'error' : ''}}"
+          placeholder="请输入当前库存数量"
+          value="{{formData.stock}}"
+          type="number"
+          data-field="stock"
+          bindinput="onInputChange"
+        />
+        <text class="form-hint">实际可兑换的数量</text>
+        <text class="error-text" wx:if="{{errors.stock}}">{{errors.stock}}</text>
+      </view>
+
+      <!-- 推荐库存 -->
+      <view class="form-item">
+        <text class="form-label">推荐库存</text>
+        <input 
+          class="form-input {{errors.recommendedStock ? 'error' : ''}}"
+          placeholder="请输入推荐库存数量"
+          value="{{formData.recommendedStock}}"
+          type="number"
+          data-field="recommendedStock"
+          bindinput="onInputChange"
+        />
+        <text class="form-hint">建议的库存数量，用于提醒补充</text>
+        <text class="error-text" wx:if="{{errors.recommendedStock}}">{{errors.recommendedStock}}</text>
+      </view>
+    </view>
+
+    <!-- 兑换规则 -->
+    <view class="form-section">
+      <text class="section-title">📋 兑换规则</text>
+      
+      <view class="form-item">
+        <text class="form-label">兑换说明</text>
+        <textarea 
+          class="form-textarea {{errors.exchangeRules ? 'error' : ''}}"
+          placeholder="请输入兑换规则和注意事项，如：需要家长监督、使用时间限制等"
+          value="{{formData.exchangeRules}}"
+          maxlength="200"
+          data-field="exchangeRules"
+          bindinput="onInputChange"
+        ></textarea>
+        <text class="form-hint">详细说明如何兑换和使用这个奖励</text>
+        <text class="error-text" wx:if="{{errors.exchangeRules}}">{{errors.exchangeRules}}</text>
+      </view>
+    </view>
+
+    <!-- 孩子选择 -->
+    <view class="form-section">
+      <text class="section-title">👶 适用孩子</text>
+      
+      <view class="form-item">
+        <text class="form-label">选择孩子 *</text>
+        <view class="children-selector">
+          <view 
+            class="child-item {{formData.selectedChildIds.indexOf(child._id) > -1 ? 'selected' : ''}}"
+            wx:for="{{childrenList}}" 
+            wx:key="_id"
+            wx:for-item="child"
+            data-child-id="{{child._id}}"
+            bindtap="onChildToggle"
+          >
+            <text class="child-name">{{child.name}}</text>
+            <text class="child-age">{{child.age}}岁</text>
+            <text class="check-icon" wx:if="{{formData.selectedChildIds.indexOf(child._id) > -1}}">✓</text>
+          </view>
+        </view>
+        <text class="form-hint">选择可以兑换此奖励的孩子</text>
+        <text class="error-text" wx:if="{{errors.selectedChildIds}}">{{errors.selectedChildIds}}</text>
+      </view>
+    </view>
+
+    <!-- 习惯标签 -->
+    <view class="form-section">
+      <text class="section-title">🏷️ 习惯标签</text>
+      
+      <view class="form-item">
+        <text class="form-label">相关标签</text>
+        <view class="habit-tags-container">
+          <view 
+            class="tag-group" 
+            wx:for="{{habitTagsDisplay}}" 
+            wx:key="groupKey"
+            wx:for-item="group"
+          >
+            <text class="group-title">{{group.groupName}}</text>
+            <view class="tags-list">
+              <view 
+                class="tag-item {{tag.selected ? 'selected' : ''}}"
+                wx:for="{{group.tags}}" 
+                wx:key="value"
+                wx:for-item="tag"
+                data-tag="{{tag.value}}"
+                bindtap="onHabitTagToggle"
+              >
+                <text class="tag-text">{{tag.label}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+        <text class="form-hint">选择与此奖励相关的习惯标签</text>
+      </view>
     </view>
 
   </view>

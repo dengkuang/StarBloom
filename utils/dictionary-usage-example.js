@@ -47,7 +47,6 @@ async function loadAllDictionaries() {
     // 批量加载所有需要的字典
     await dictionaryManager.batchLoadDictionaries([
       'task_type',
-      'cycle_type', 
       'reward_type',
       'difficulty_level',
       'age_group'
@@ -55,12 +54,10 @@ async function loadAllDictionaries() {
 
     // 现在可以同步获取所有字典选项
     const taskTypes = dictionaryManager.getTaskTypeOptions()
-    const cycleTypes = dictionaryManager.getCycleTypeOptions()
     const rewardTypes = dictionaryManager.getRewardTypeOptions()
     
     console.log('所有字典加载完成', {
       taskTypes,
-      cycleTypes,
       rewardTypes
     })
   } catch (error) {
@@ -73,34 +70,30 @@ const FormPage = {
   data: {
     formData: {
       taskType: '',
-      cycleType: '',
       rewardType: ''
     },
     options: {
       taskTypes: [],
-      cycleTypes: [],
       rewardTypes: []
     }
   },
 
   async onLoad() {
     // 并行加载所有字典选项
-    const [taskTypes, cycleTypes, rewardTypes] = await Promise.all([
+    const [taskTypes, rewardTypes] = await Promise.all([
       dictionaryManager.getTaskTypeOptions(),
-      dictionaryManager.getCycleTypeOptions(),
       dictionaryManager.getRewardTypeOptions()
     ])
 
     this.setData({
       'options.taskTypes': taskTypes,
-      'options.cycleTypes': cycleTypes,
       'options.rewardTypes': rewardTypes
     })
   },
 
   // 表单提交时验证字典值
   onSubmit() {
-    const { taskType, cycleType, rewardType } = this.data.formData
+    const { taskType, rewardType } = this.data.formData
 
     // 验证字典值是否有效
     if (!dictionaryManager.isValidTaskType(taskType)) {
@@ -122,7 +115,6 @@ function processTaskData(tasks) {
   return tasks.map(task => ({
     ...task,
     taskTypeName: dictionaryManager.getTaskTypeName(task.taskType),
-    cycleTypeName: dictionaryManager.getCycleTypeName(task.cycleType),
     difficultyName: dictionaryManager.getDifficultyLevelName(task.difficulty)
   }))
 }
@@ -136,8 +128,7 @@ async function refreshDictionaries() {
     // 重新加载常用字典
     await dictionaryManager.batchLoadDictionaries([
       'task_type',
-      'reward_type',
-      'cycle_type'
+      'reward_type'
     ])
     
     wx.showToast({ title: '字典数据已更新', icon: 'success' })

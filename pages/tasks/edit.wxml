@@ -84,7 +84,7 @@
         <picker 
           class="form-picker"
           mode="selector"
-          range="{{options.difficulties}}"
+          range="{{options.difficultys}}"
           range-key="label"
           value="{{formData.difficulty}}"
           data-field="difficulty"
@@ -92,8 +92,8 @@
         >
           <view class="picker-display">
             <text class="picker-text">
-              {{options.difficulties[formData.difficulty === 'easy' ? 0 : (formData.difficulty === 'medium' ? 1 : 2)].stars}} 
-              {{options.difficulties[formData.difficulty === 'easy' ? 0 : (formData.difficulty === 'medium' ? 1 : 2)].label}}
+              {{options.difficultys[formData.difficulty === 'easy' ? 0 : (formData.difficulty === 'medium' ? 1 : 2)].stars}} 
+              {{options.difficultys[formData.difficulty === 'easy' ? 0 : (formData.difficulty === 'medium' ? 1 : 2)].label}}
             </text>
             <text class="picker-arrow">></text>
           </view>
@@ -106,7 +106,7 @@
         <picker 
           class="form-picker"
           mode="selector"
-          range="{{options.categories}}"
+          range="{{options.categorys}}"
           range-key="label"
           data-field="category"
           bindchange="onPickerChange"
@@ -114,7 +114,7 @@
           <view class="picker-display">
             <text class="picker-text">
               {{formData.emoji}} 
-              <block wx:for="{{options.categories}}" wx:key="value">
+              <block wx:for="{{options.categorys}}" wx:key="value">
                 <block wx:if="{{item.value === formData.category}}">{{item.label}}</block>
               </block>
             </text>
@@ -159,7 +159,7 @@
           <view class="picker-display">
             <text class="picker-text">
               <block wx:for="{{options.ageGroups}}" wx:key="value">
-                <block wx:if="{{item.value === formData.ageGroups}}">{{item.label}}</block>
+                <block wx:if="{{item.value === formData.ageGroup}}">{{item.label}}</block>
               </block>
             </text>
             <text class="picker-arrow">></text>

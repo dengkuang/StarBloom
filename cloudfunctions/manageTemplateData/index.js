@@ -310,7 +310,6 @@ async function applyTemplateToChildren(openid, data) {
             name: template.name,
             description: template.description,
             taskType: template.taskType || 'daily',
-            cycleType: template.cycleType || 'daily',
             points: template.points || 10,
             habitTags: template.habitTags || [],
             tips: template.tips || '',
@@ -779,7 +778,7 @@ async function applyPackageGroup(openid, data) {
               category: template.category,
               ageGroup: template.ageGroup,
               taskType: template.taskType,
-              cycleType: template.cycleType,
+
               points: template.points,
               habitTags: template.habitTags,
               tips: template.tips,

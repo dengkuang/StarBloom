@@ -64,7 +64,7 @@ const grade1TaskTemplates = [
     name: '按时完成作业',
     description: '每天按时完成学校布置的作业',
     taskType: 'daily',
-    cycleType: 'daily',
+
     points: 10,
     habitTags: ['学习', '自律'],
     tips: '建议设置固定的作业时间，培养良好的学习习惯',
@@ -85,7 +85,7 @@ const grade1TaskTemplates = [
     name: '整理书包',
     description: '每天晚上整理好书包，准备好第二天的学习用品',
     taskType: 'daily',
-    cycleType: 'daily',
+
     points: 5,
     habitTags: ['整理', '自律'],
     tips: '可以制作一个检查清单，确保不遗漏任何物品',

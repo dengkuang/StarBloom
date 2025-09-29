@@ -118,7 +118,7 @@
         <picker 
           class="form-picker"
           mode="selector"
-          range="{{options.difficulties}}"
+          range="{{options.difficultys}}"
           range-key="label"
           value="{{formData.difficulty}}"
           data-field="difficulty"
@@ -137,7 +137,7 @@
         <picker 
           class="form-picker"
           mode="selector"
-          range="{{options.categories}}"
+          range="{{options.categorys}}"
           range-key="label"
           data-field="category"
           bindchange="onPickerChange"
@@ -202,23 +202,7 @@
         </picker>
       </view>
       
-      <!-- 任务周期 -->
-      <view class="form-item">
-        <text class="form-label">任务周期</text>
-        <picker 
-          class="form-picker"
-          mode="selector"
-          range="{{options.cycleTypes}}"
-          range-key="label"
-          data-field="cycleType"
-          bindchange="onPickerChange"
-        >
-          <view class="picker-display">
-            <text class="picker-text">{{currentCycleTypeText}}</text>
-            <text class="picker-arrow">></text>
-          </view>
-        </picker>
-      </view>
+
     </view>
 
     <!-- 习惯标签 -->
