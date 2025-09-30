@@ -1,6 +1,7 @@
 // pages/tasks/edit.js
 // 编辑任务页面逻辑
 const { tasksApi, childrenApi } = require('../../utils/api-services.js');
+const { taskDataManager } = require('../../utils/task-data-manager.js');
 
 Page({
   data: {
@@ -59,10 +60,20 @@ Page({
       ]
     },
     
-    // 常用习惯标签
+    // 常用习惯标签（与添加任务页面保持一致）
     commonHabitTags: [
-      '坚持', '专注', '独立', '整洁', '守时', '礼貌', 
-      '分享', '合作', '创新', '思考', '耐心', '勇敢'
+      // 基础生活习惯
+      '卫生', '自理', '整理', '独立', '健康', '作息',
+      // 学习相关
+      '学习', '阅读', '书写', '练习', '知识', '专注', '自律',
+      // 品格培养  
+      '责任感', '礼貌', '分享', '友善', '关爱', '理财', '规划',
+      // 社交协作
+      '社交', '协作', '友谊', '亲子',
+      // 技能发展
+      '技能', '艺术', '创意', '运动',
+      // 其他
+      '准备', '游戏', '认可', '成就'
     ],
     
     // 习惯标签显示数据（包含选中状态）
@@ -78,8 +89,8 @@ Page({
   onLoad: function(options) {
     console.log('编辑任务页面加载，参数:', options);
     
-    if (options.id) {
-      this.setData({ taskId: options.id });
+    if (options) {
+      this.setData({ taskId: options });
     }
     
     // 检查是否有传递的数据
@@ -93,10 +104,10 @@ Page({
       
       // 清除全局数据
       delete app.globalData.editTaskData;
-    } else if (options.id) {
+    } else if (options) {
       // 回退到API调用方式
       console.log('使用API加载任务数据');
-      this.loadTaskInfo(options.id);
+      this.loadTaskInfo(options);
     } else {
       console.error('缺少任务ID参数');
       wx.showToast({
@@ -286,6 +297,9 @@ Page({
         
         this.setData({ hasChanges: false });
         
+        // 触发任务数据更新事件
+        taskDataManager.forceRefreshTaskData();
+        
         // 延迟返回，让用户看到成功提示
         setTimeout(() => {
           wx.navigateBack();
@@ -333,6 +347,9 @@ Page({
           title: '任务删除成功', 
           icon: 'success' 
         });
+        
+        // 触发任务数据更新事件
+        taskDataManager.forceRefreshTaskData();
         
         setTimeout(() => {
           wx.navigateBack();

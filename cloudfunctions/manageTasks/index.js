@@ -205,6 +205,9 @@ async function createTask(parentId, data) {
     // 调试日志：检查保存结果
     console.log('🔍 [云函数DEBUG] 保存成功，返回数据:', taskData);
     
+    // 触发任务数据更新通知
+    await triggerTaskDataUpdate(parentId);
+    
     return { code: 0, msg: '创建成功', data: taskData }
   } catch (error) {
     console.error('createTask error:', error)
@@ -244,6 +247,9 @@ async function updateTask(parentId, data) {
     await db.collection('tasks').doc(data._id).update({
       data: updateData
     })
+    
+    // 触发任务数据更新通知
+    await triggerTaskDataUpdate(parentId);
     
     return { code: 0, msg: '更新成功' }
   } catch (error) {
@@ -291,6 +297,9 @@ async function deleteTask(parentId, data) {
       // 删除任务（保留完成记录，因为孩子已经获得了积分）
       await db.collection('tasks').doc(taskId).remove()
       
+      // 触发任务数据更新通知
+      await triggerTaskDataUpdate(parentId);
+      
       return { code: 0, msg: '任务删除成功' }
     }
     
@@ -310,6 +319,9 @@ async function deleteTask(parentId, data) {
       
       // 保留该孩子的完成记录，因为已经获得的积分不应该被取消
       console.log('保留完成记录，孩子已获得的积分不会被取消')
+      
+      // 触发任务数据更新通知
+      await triggerTaskDataUpdate(parentId);
       
       return { code: 0, msg: '已从任务中移除该孩子，已获得积分保留' }
     }
@@ -415,5 +427,25 @@ async function completeTask(parentId, data) {
   } catch (error) {
     console.error('completeTask error:', error)
     return { code: -1, msg: '完成任务失败' }
+  }
+}
+
+// 触发任务数据更新通知
+async function triggerTaskDataUpdate(parentId) {
+  try {
+    console.log('📢 触发任务数据更新通知，parentId:', parentId)
+    
+    // 这里可以添加更复杂的通知逻辑，比如：
+    // 1. 发送消息到消息队列
+    // 2. 调用其他云函数进行数据同步
+    // 3. 更新全局状态
+    
+    // 目前简单记录日志，后续可以扩展为更复杂的通知机制
+    console.log('📢 任务数据已更新，需要刷新相关页面')
+    
+    return { success: true, message: '数据更新通知已触发' }
+  } catch (error) {
+    console.error('触发数据更新通知失败:', error)
+    return { success: false, message: '通知失败' }
   }
 }

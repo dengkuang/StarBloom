@@ -2,8 +2,9 @@
 
 const { childrenApi, pointsApi } = require('../../utils/api-services.js');
 const { createPageWithChildManager } = require('../../utils/page-mixins.js');
+const { withTaskDataManager } = require('../../utils/task-data-manager.js');
 
-Page(createPageWithChildManager({
+Page(withTaskDataManager(createPageWithChildManager({
   data: {
     loading: false,
     refreshing: false,
@@ -69,6 +70,14 @@ Page(createPageWithChildManager({
       this.loadPageData();
     } else {
       console.log('⏭️ [DEBUG] 跳过页面数据加载');
+    }
+  },
+
+  onTaskDataUpdated: function(taskList) {
+    console.log('🔄 [积分页面] 任务数据已更新，任务数量:', taskList.length);
+    // 当任务数据变化时，重新加载积分统计（因为任务完成会影响积分）
+    if (this.data.currentChild) {
+      this.loadPointStats();
     }
   },
 
@@ -622,4 +631,4 @@ Page(createPageWithChildManager({
       url: '/pages/child/child'
     });
   }
-}));
+})));

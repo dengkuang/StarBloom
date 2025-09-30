@@ -2732,7 +2732,7 @@ const defaultGrade1TaskTemplates = [
     name: "收拾玩具",
     description: "玩完玩具后主动收拾整理",
     taskType: "daily",
-    cycleType: "daily",
+
     points: 1,
     habitTags: ["整理", "责任感"]
   },
@@ -2742,7 +2742,7 @@ const defaultGrade1TaskTemplates = [
     name: "帮忙摆放餐具",
     description: "吃饭前帮助摆放碗筷和餐具",
     taskType: "daily",
-    cycleType: "daily",
+
     points: 1,
     habitTags: ["家务", "责任感"]
   },
@@ -2759,7 +2759,7 @@ const defaultGrade1TaskTemplates = [
     name: "户外活动30分钟",
     description: "每天进行户外运动或游戏",
     taskType: "daily",
-    cycleType: "daily",
+
     points: 2,
     habitTags: ["运动", "健康"]
   },
@@ -2777,7 +2777,7 @@ const defaultGrade1TaskTemplates = [
     name: "主动打招呼",
     description: "见到老师、同学和邻居主动问好",
     taskType: "daily",
-    cycleType: "daily",
+
     points: 1,
     habitTags: ["礼貌", "社交"]
   },
@@ -2785,7 +2785,7 @@ const defaultGrade1TaskTemplates = [
     name: "和同学友好相处",
     description: "在学校与同学友好相处，不打架不骂人",
     taskType: "daily",
-    cycleType: "daily",
+
     points: 2,
     habitTags: ["社交", "品德"]
   },

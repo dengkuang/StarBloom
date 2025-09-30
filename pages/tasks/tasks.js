@@ -1,9 +1,10 @@
 // 任务管理页面逻辑 - 使用API服务层获取真实数据
 const { tasksApi, childrenApi, dictionaryApi } = require('../../utils/api-services.js');
 const { createPageWithChildManager } = require('../../utils/page-mixins.js');
+const { withTaskDataManager } = require('../../utils/task-data-manager.js');
 const businessDataManager = require('../../utils/businessDataManager.js');
 
-Page(createPageWithChildManager({
+Page(withTaskDataManager(createPageWithChildManager({
   data: {
     taskList: [],
     loading: false,
@@ -105,8 +106,8 @@ Page(createPageWithChildManager({
           loading: false
         });
 
-        // 缓存任务列表
-        businessDataManager.setTaskList(allTasks);
+        // 使用任务数据管理器缓存和通知
+        this.setTaskList(allTasks);
       } else {
         throw new Error(result.msg || '获取任务列表失败');
       }
@@ -151,9 +152,8 @@ Page(createPageWithChildManager({
       if (result.code === 0) {
         wx.showToast({ title: '任务完成成功', icon: 'success' });
         
-        // 刷新任务列表
-        this.setData({ currentPage: 1, hasMore: true });
-        this.loadTaskList();
+        // 强制刷新任务数据
+        this.forceRefreshTasks();
       } else {
         throw new Error(result.msg || '完成任务失败');
       }
@@ -184,9 +184,8 @@ Page(createPageWithChildManager({
             if (result.code === 0) {
               wx.showToast({ title: '删除成功', icon: 'success' });
               
-              // 刷新任务列表
-              this.setData({ currentPage: 1, hasMore: true });
-              this.loadTaskList();
+              // 通知任务已删除
+              this.deleteTask(task._id);
             } else {
               throw new Error(result.msg || '删除任务失败');
             }
@@ -230,8 +229,7 @@ Page(createPageWithChildManager({
     
     // 如果缓存过期，则刷新数据
     if (!hasValidCache) {
-      this.setData({ currentPage: 1, hasMore: true });
-      this.loadTaskList();
+      this.forceRefreshTasks();
     }
   },
 
@@ -255,4 +253,4 @@ Page(createPageWithChildManager({
       imageUrl: '/images/share-cover.jpg'
     };
   }
-}));
+})));

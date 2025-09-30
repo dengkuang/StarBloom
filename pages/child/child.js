@@ -596,6 +596,10 @@ Page(createPageWithChildManager({
           this.loadChildTasks(),
           this.loadPointsStats()
         ]);
+        
+        // 触发任务数据更新事件，通知其他页面
+        const taskDataManager = require('../../utils/task-data-manager.js');
+        taskDataManager.triggerTaskDataChanged();
       } else {
         wx.showToast({ title: result.msg || '完成任务失败', icon: 'none' });
       }

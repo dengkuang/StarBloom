@@ -10,7 +10,16 @@ Component({
   properties: {
     task: {
       type: Object,
-      value: {}
+      value: {},
+      observer: function(newVal, oldVal) {
+        // 当任务数据变化时更新UI
+        if (newVal !== oldVal) {
+          this.setData({
+            task: newVal
+          })
+          console.log('🔄 任务数据已更新，刷新UI')
+        }
+      }
     },
     showActions: {
       type: Boolean,
@@ -164,6 +173,12 @@ Component({
         hour: '2-digit',
         minute: '2-digit'
       });
+    },
+    
+    // 监听全局任务数据变化
+    onTaskDataUpdate: function() {
+      console.log('📢 收到任务数据更新通知，重新加载数据')
+      this.triggerEvent('refresh')
     },
     
     // 点击任务卡片

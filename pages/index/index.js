@@ -2,6 +2,7 @@
 const { userApi, childrenApi, tasksApi, rewardsApi, pointsApi } = require('../../utils/api-services.js');
 const businessDataManager = require('../../utils/businessDataManager.js');
 const { globalChildManager } = require('../../utils/global-child-manager.js');
+const { taskDataManager } = require('../../utils/task-data-manager.js');
 
 Page({
   data: {
@@ -32,6 +33,14 @@ Page({
   },
 
   onLoad: function () {
+    // 注册任务数据变化监听
+    taskDataManager.onTaskListUpdated(() => {
+      console.log('首页收到任务数据变化通知，重新加载数据');
+      if (this.data.currentChild) {
+        this.loadCurrentChildData(true);
+      }
+    });
+    
     this.loadPageData();
   },
 
@@ -352,6 +361,10 @@ Page({
           this.loadTasks(),
           this.updateCurrentChildStats()
         ]);
+        
+        // 触发任务数据更新事件，通知其他页面
+        const taskDataManager = require('../../utils/task-data-manager.js');
+        taskDataManager.triggerTaskDataChanged();
       } else {
         wx.showToast({ 
           title: result.msg || '完成任务失败', 
@@ -819,6 +832,19 @@ Page({
         title: '删除失败',
         icon: 'none'
       });
+    }
+  },
+
+  // 页面卸载时清理
+  onUnload: function() {
+    // 清理定时器
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer);
+    }
+    
+    // 移除任务数据变化监听
+    if (taskDataManager && taskDataManager.offTaskListUpdated) {
+      taskDataManager.offTaskListUpdated();
     }
   }
 });

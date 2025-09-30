@@ -1,8 +1,9 @@
 // 奖励商店页面逻辑 - 使用API服务层获取真实数据
 const { rewardsApi, childrenApi, dictionaryApi, exchangeApi } = require('../../utils/api-services.js');
 const { createPageWithChildManager } = require('../../utils/page-mixins.js');
+const { withTaskDataManager } = require('../../utils/task-data-manager.js');
 
-Page(createPageWithChildManager({
+Page(withTaskDataManager(createPageWithChildManager({
   data: {
     rewardList: [],
     loading: false,
@@ -231,6 +232,14 @@ Page(createPageWithChildManager({
       this.setData({ currentPage: 1, hasMore: true });
       this.loadRewardList();
     }
+  },
+
+  // 监听任务数据变化
+  onTaskDataUpdated: function() {
+    console.log('奖励页面 - 任务数据变化，刷新奖励列表');
+    // 任务数据变化可能影响积分和奖励状态，刷新奖励列表
+    this.setData({ currentPage: 1, hasMore: true });
+    this.loadRewardList();
   },
 
   onRetry: function() {

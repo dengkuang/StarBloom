@@ -1,6 +1,7 @@
 // pages/tasks/add.js
 // 添加任务页面逻辑
 const { tasksApi, childrenApi, dictionaryApi } = require('../../utils/api-services.js');
+const taskDataManager = require('../../utils/task-data-manager.js');
 
 Page({
   data: {
@@ -446,6 +447,9 @@ Page({
           title: `任务已分配给${selectedCount}个孩子！`, 
           icon: 'success' 
         });
+        
+        // 触发任务数据更新事件
+        taskDataManager.forceRefreshTaskData();
         
         // 延迟返回，让用户看到成功提示
         setTimeout(() => {
