@@ -1,6 +1,7 @@
 // pages/rewards/edit.js
 // 编辑奖励页面逻辑
 const { rewardsApi } = require('../../utils/api-services.js');
+const { taskDataManager } = require('../../utils/task-data-manager.js');
 import { 
   getCategoryOptions, 
   getRewardTypeOptions, 
@@ -276,6 +277,9 @@ Page({
           icon: 'success' 
         });
         
+        // 触发数据刷新
+        taskDataManager.forceRefreshTaskData();
+
         setTimeout(() => {
           wx.navigateBack();
         }, 1500);

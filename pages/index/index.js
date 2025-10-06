@@ -5,6 +5,8 @@ const { globalChildManager } = require('../../utils/global-child-manager.js');
 const { taskDataManager } = require('../../utils/task-data-manager.js');
 
 Page({
+  _taskListUpdatedListener: null,
+
   data: {
     loading: false,
     error: null,
@@ -34,13 +36,14 @@ Page({
 
   onLoad: function () {
     // 注册任务数据变化监听
-    taskDataManager.onTaskListUpdated(() => {
+    this._taskListUpdatedListener = () => {
       console.log('首页收到任务数据变化通知，重新加载数据');
       if (this.data.currentChild) {
         this.loadCurrentChildData(true);
       }
-    });
-    
+    };
+    taskDataManager.onTaskListUpdated(this._taskListUpdatedListener);
+
     this.loadPageData();
   },
 
@@ -363,8 +366,7 @@ Page({
         ]);
         
         // 触发任务数据更新事件，通知其他页面
-        const taskDataManager = require('../../utils/task-data-manager.js');
-        taskDataManager.triggerTaskDataChanged();
+        taskDataManager.forceRefreshTaskData();
       } else {
         wx.showToast({ 
           title: result.msg || '完成任务失败', 
@@ -843,8 +845,9 @@ Page({
     }
     
     // 移除任务数据变化监听
-    if (taskDataManager && taskDataManager.offTaskListUpdated) {
-      taskDataManager.offTaskListUpdated();
+    if (taskDataManager && taskDataManager.offTaskListUpdated && this._taskListUpdatedListener) {
+      taskDataManager.offTaskListUpdated(this._taskListUpdatedListener);
+      this._taskListUpdatedListener = null;
     }
   }
 });

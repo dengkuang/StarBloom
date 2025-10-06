@@ -298,4 +298,4 @@ Page(withTaskDataManager(createPageWithChildManager({
       imageUrl: '/images/share-cover.jpg'
     };
   }
-}));
+})));
